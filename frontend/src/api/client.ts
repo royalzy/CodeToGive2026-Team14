@@ -1,0 +1,55 @@
+import type { components } from "./schema";
+
+export type VolunteerApplication =
+  components["schemas"]["VolunteerApplicationRequest"];
+export type VolunteerApplicationResult =
+  components["schemas"]["VolunteerApplicationResponse"];
+export type DonationIntent = components["schemas"]["DonationIntentRequest"];
+export type DonationIntentResult =
+  components["schemas"]["DonationIntentResponse"];
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
+  "http://localhost:8000";
+
+export class ApiError extends Error {
+  constructor(message: string, public readonly status: number) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+async function postJson<TRequest, TResponse>(
+  path: string,
+  payload: TRequest,
+): Promise<TResponse> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new ApiError(
+      response.status >= 500
+        ? "The service is taking a pause. Please try again shortly."
+        : "Please check the information and try again.",
+      response.status,
+    );
+  }
+
+  return (await response.json()) as TResponse;
+}
+
+export function submitVolunteerApplication(
+  payload: VolunteerApplication,
+): Promise<VolunteerApplicationResult> {
+  return postJson("/api/v1/volunteer-applications", payload);
+}
+
+export function createDonationIntent(
+  payload: DonationIntent,
+): Promise<DonationIntentResult> {
+  return postJson("/api/v1/donation-intents", payload);
+}
+
