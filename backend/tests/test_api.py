@@ -12,25 +12,48 @@ def test_health_check() -> None:
     assert response.json() == {"status": "ok", "service": "love21-api"}
 
 
-def test_valid_volunteer_application_is_accepted_without_persistence() -> None:
+def test_volunteer_session_request_is_pending_without_persistence() -> None:
     response = client.post(
         "/api/v1/volunteer-applications",
         json={
             "name": "Jamie Chan",
             "email": "jamie@example.com",
-            "interests": ["sports", "community"],
-            "availability": "weekend",
-            "message": "I would love to learn more.",
+            "role_id": "dance_activity_buddy",
+            "session_id": "saturday_dance_project",
+            "first_step": "trial",
             "consent": True,
         },
     )
 
     assert response.status_code == 201
     payload = response.json()
-    assert payload["reference"].startswith("VOL-")
-    assert payload["status"] == "submitted"
+    assert payload["simulation"] is True
+    assert payload["status"] == "pending_confirmation"
     assert payload["persistence"] == "none"
+    assert payload["role_id"] == "dance_activity_buddy"
+    assert payload["session_id"] == "saturday_dance_project"
     assert len(payload["next_steps"]) == 2
+    assert "name" not in payload
+    assert "email" not in payload
+
+
+def test_volunteer_interest_without_session_is_accepted() -> None:
+    response = client.post(
+        "/api/v1/volunteer-applications",
+        json={
+            "name": "Jamie Chan",
+            "email": "jamie@example.com",
+            "role_id": "community_event_volunteer",
+            "session_id": None,
+            "first_step": "interest_only",
+            "consent": True,
+        },
+    )
+
+    assert response.status_code == 201
+    payload = response.json()
+    assert payload["status"] == "interest_submitted"
+    assert payload["session_id"] is None
 
 
 def test_volunteer_application_rejects_invalid_email_and_missing_consent() -> None:
@@ -39,9 +62,71 @@ def test_volunteer_application_rejects_invalid_email_and_missing_consent() -> No
         json={
             "name": "Jamie Chan",
             "email": "not-an-email",
-            "interests": ["sports"],
-            "availability": "weekend",
+            "role_id": "sports_activity_buddy",
+            "session_id": None,
+            "first_step": "interest_only",
             "consent": False,
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_volunteer_application_rejects_unsupported_personal_fields() -> None:
+    response = client.post(
+        "/api/v1/volunteer-applications",
+        json={
+            "name": "Jamie Chan",
+            "email": "jamie@example.com",
+            "role_id": "dance_activity_buddy",
+            "session_id": None,
+            "first_step": "interest_only",
+            "preparation_needs": ["accessibility"],
+            "consent": True,
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_volunteer_application_rejects_unknown_role_or_session() -> None:
+    unknown_role = client.post(
+        "/api/v1/volunteer-applications",
+        json={
+            "name": "Jamie Chan",
+            "email": "jamie@example.com",
+            "role_id": "unknown",
+            "session_id": None,
+            "first_step": "interest_only",
+            "consent": True,
+        },
+    )
+    unknown_session = client.post(
+        "/api/v1/volunteer-applications",
+        json={
+            "name": "Jamie Chan",
+            "email": "jamie@example.com",
+            "role_id": "sports_activity_buddy",
+            "session_id": "unknown",
+            "first_step": "trial",
+            "consent": True,
+        },
+    )
+
+    assert unknown_role.status_code == 422
+    assert unknown_session.status_code == 422
+
+
+def test_volunteer_application_rejects_session_for_another_role() -> None:
+    response = client.post(
+        "/api/v1/volunteer-applications",
+        json={
+            "name": "Jamie Chan",
+            "email": "jamie@example.com",
+            "role_id": "sports_activity_buddy",
+            "session_id": "saturday_dance_project",
+            "first_step": "trial",
+            "consent": True,
         },
     )
 
@@ -86,4 +171,3 @@ def test_donation_intent_rejects_unknown_program() -> None:
     )
 
     assert response.status_code == 422
-

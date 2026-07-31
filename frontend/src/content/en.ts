@@ -97,11 +97,6 @@ export const crystalMilestones: Milestone[] = [
   },
 ];
 
-export const volunteerInterests = programs.map(({ slug, title }) => ({
-  value: slug,
-  label: title,
-}));
-
 export const availabilityOptions = [
   { value: "weekday", label: "Weekdays" },
   { value: "evening", label: "Evenings" },
@@ -113,4 +108,3 @@ export const donationPrograms = [
   { value: "general", label: "Where it is most useful" },
   ...programs.map(({ slug, title }) => ({ value: slug, label: title })),
 ] as const;
-

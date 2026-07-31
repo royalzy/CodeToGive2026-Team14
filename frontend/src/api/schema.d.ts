@@ -148,42 +148,51 @@ export interface components {
              * Format: email
              */
             email: string;
-            /** Interests */
-            interests: components["schemas"]["VolunteerInterest"][];
-            availability: components["schemas"]["VolunteerAvailability"];
-            /** Message */
-            message?: string | null;
+            role_id: components["schemas"]["VolunteerRoleId"];
+            session_id?: components["schemas"]["VolunteerSessionId"] | null;
+            first_step: components["schemas"]["VolunteerFirstStep"];
             /** Consent */
             consent: boolean;
         };
         /** VolunteerApplicationResponse */
         VolunteerApplicationResponse: {
-            /** Reference */
-            reference: string;
             /**
-             * Status
+             * Simulation
+             * @default true
              * @constant
              */
-            status: "submitted";
-            /** Next Steps */
-            next_steps: string[];
+            simulation: true;
             /**
              * Persistence
              * @default none
              * @constant
              */
             persistence: "none";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "interest_submitted" | "pending_confirmation";
+            role_id: components["schemas"]["VolunteerRoleId"];
+            session_id: components["schemas"]["VolunteerSessionId"] | null;
+            /** Next Steps */
+            next_steps: string[];
         };
         /**
-         * VolunteerAvailability
+         * VolunteerFirstStep
          * @enum {string}
          */
-        VolunteerAvailability: "weekday" | "evening" | "weekend" | "flexible";
+        VolunteerFirstStep: "observe" | "trial" | "interest_only";
         /**
-         * VolunteerInterest
+         * VolunteerRoleId
          * @enum {string}
          */
-        VolunteerInterest: "sports" | "community" | "family_support" | "nutrition" | "enrichment";
+        VolunteerRoleId: "dance_activity_buddy" | "sports_activity_buddy" | "community_event_volunteer";
+        /**
+         * VolunteerSessionId
+         * @enum {string}
+         */
+        VolunteerSessionId: "saturday_dance_project" | "sunday_sports_session";
     };
     responses: never;
     parameters: never;
