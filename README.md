@@ -66,14 +66,6 @@ The backbone already registers independent page and API route modules to reduce
 conflicts. Regenerate API types whenever a Pydantic request or response model
 changes.
 
-## Content and privacy rules
-
-- Use ability-first language and only facts supplied or approved by Love 21.
-- Do not infer diagnoses, outcomes, costs, or donation-to-service conversions.
-- Do not add personal information to fixtures, logs, screenshots, or commits.
-- Confirm usage rights before adding new member photography or testimonials.
-- Keep the simulation notice visible anywhere a donation can be submitted.
-
 ## API contracts
 
 `POST /api/v1/volunteer-applications`
