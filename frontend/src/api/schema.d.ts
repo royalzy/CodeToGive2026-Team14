@@ -38,6 +38,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/donation-impact/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Donation Impact Options */
+        get: operations["get_donation_impact_options_api_v1_donation_impact_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/donation-impact/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview Donation Impact */
+        post: operations["preview_donation_impact_api_v1_donation_impact_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/donation-intents": {
         parameters: {
             query?: never;
@@ -104,17 +138,82 @@ export interface components {
             /** Booked At */
             booked_at: string;
         };
-        /** DonationIntentRequest */
-        DonationIntentRequest: {
-            /** Amount */
-            amount: number;
+        /**
+         * CauseId
+         * @enum {string}
+         */
+        CauseId: "where_needed_most" | "dance" | "sports" | "nutrition" | "family_support";
+        /** ContributionImpact */
+        ContributionImpact: {
+            cause_id: components["schemas"]["CauseId"];
+            /** Amount Hkd */
+            amount_hkd: number;
+            /** Copy Key */
+            copy_key: string;
             /**
-             * Currency
-             * @default HKD
+             * Is Estimate
+             * @default true
              * @constant
              */
-            currency: "HKD";
-            program: components["schemas"]["DonationProgram"];
+            is_estimate: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mode: "contribution";
+            /** Estimated Units */
+            estimated_units?: null;
+            /** Unit Key */
+            unit_key: string;
+        };
+        /** CountedImpact */
+        CountedImpact: {
+            cause_id: components["schemas"]["CauseId"];
+            /** Amount Hkd */
+            amount_hkd: number;
+            /** Copy Key */
+            copy_key: string;
+            /**
+             * Is Estimate
+             * @default true
+             * @constant
+             */
+            is_estimate: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mode: "counted";
+            /** Estimated Units */
+            estimated_units: number;
+            /** Unit Key */
+            unit_key: string;
+        };
+        /** DonationCauseOption */
+        DonationCauseOption: {
+            cause_id: components["schemas"]["CauseId"];
+            /** Copy Key */
+            copy_key: string;
+        };
+        /** DonationImpactOptionsResponse */
+        DonationImpactOptionsResponse: {
+            default_cause_id: components["schemas"]["CauseId"];
+            /** Preset Amounts Hkd */
+            preset_amounts_hkd: number[];
+            /** Causes */
+            causes: components["schemas"]["DonationCauseOption"][];
+            /**
+             * Demo Estimates
+             * @default true
+             * @constant
+             */
+            demo_estimates: true;
+        };
+        /** DonationIntentRequest */
+        DonationIntentRequest: {
+            cause_id: components["schemas"]["CauseId"];
+            /** Amount Hkd */
+            amount_hkd: number;
             /**
              * Anonymous
              * @default false
@@ -122,13 +221,18 @@ export interface components {
             anonymous: boolean;
             /** Donor Name */
             donor_name?: string | null;
-            /** Email */
-            email?: string | null;
+            /** Donor Email */
+            donor_email?: string | null;
+            /**
+             * Consent To Updates
+             * @default false
+             */
+            consent_to_updates: boolean;
         };
         /** DonationIntentResponse */
         DonationIntentResponse: {
-            /** Reference */
-            reference: string;
+            /** Donation Intent Id */
+            donation_intent_id: string;
             /**
              * Status
              * @constant
@@ -140,22 +244,38 @@ export interface components {
              * @constant
              */
             simulation: true;
-            /** Impact Message */
-            impact_message: string;
-            /** Acknowledgement */
-            acknowledgement: string;
             /**
              * Persistence
              * @default stored
              * @constant
              */
             persistence: "stored";
+            /** Impact */
+            impact: components["schemas"]["CountedImpact"] | components["schemas"]["ContributionImpact"] | components["schemas"]["FlexibleImpact"];
         };
-        /**
-         * DonationProgram
-         * @enum {string}
-         */
-        DonationProgram: "general" | "sports" | "nutrition" | "enrichment" | "family_support" | "community";
+        /** FlexibleImpact */
+        FlexibleImpact: {
+            cause_id: components["schemas"]["CauseId"];
+            /** Amount Hkd */
+            amount_hkd: number;
+            /** Copy Key */
+            copy_key: string;
+            /**
+             * Is Estimate
+             * @default true
+             * @constant
+             */
+            is_estimate: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mode: "flexible";
+            /** Estimated Units */
+            estimated_units?: null;
+            /** Unit Key */
+            unit_key?: null;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -170,6 +290,12 @@ export interface components {
             status: "ok";
             /** Service */
             service: string;
+        };
+        /** ImpactPreviewRequest */
+        ImpactPreviewRequest: {
+            cause_id: components["schemas"]["CauseId"];
+            /** Amount Hkd */
+            amount_hkd: number;
         };
         /** ValidationError */
         ValidationError: {
@@ -287,6 +413,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VolunteerApplicationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_donation_impact_options_api_v1_donation_impact_options_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DonationImpactOptionsResponse"];
+                };
+            };
+        };
+    };
+    preview_donation_impact_api_v1_donation_impact_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImpactPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CountedImpact"] | components["schemas"]["ContributionImpact"] | components["schemas"]["FlexibleImpact"];
                 };
             };
             /** @description Validation Error */

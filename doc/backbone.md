@@ -54,6 +54,8 @@ The backend uses FastAPI and Pydantic. It exposes:
 
 - `GET /api/health`
 - `POST /api/v1/volunteer-applications`
+- `GET /api/v1/donation-impact/options`
+- `POST /api/v1/donation-impact/preview`
 - `POST /api/v1/donation-intents`
 
 Each feature has a separate route module and schema module. Volunteer role content,
@@ -65,6 +67,7 @@ The current APIs are intentionally non-persistent:
 
 - volunteer details are validated and discarded, and responses never return PII;
 - donation intentions are simulations;
+- donation impact figures use clearly labelled demonstration cost estimates;
 - no payment information is accepted;
 - no database, authentication, email, or CRM integration is included.
 

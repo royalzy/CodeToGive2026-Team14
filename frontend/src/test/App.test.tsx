@@ -29,7 +29,7 @@ describe("route backbone", () => {
     ["/", "See the ability."],
     ["/impact", "Not what we provide."],
     ["/volunteer", "Your first step can be a small one."],
-    ["/donate", "Give to a direction."],
+    ["/donate", "What kind of opportunity would you like to create?"],
     ["/help", "Support for families and carers"],
     ["/resources", "Learning for belonging"],
     ["/members", "Meet the community"],
@@ -128,38 +128,101 @@ describe("closed-loop forms", () => {
     expect(screen.getByRole("heading", { name: "Saturday Dance Project" })).toBeInTheDocument();
   });
 
-  it("creates a simulated donation intention", async () => {
+  it("creates a simulated donation intention from a backend impact preview", async () => {
     const user = userEvent.setup();
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          reference: "DON-TEST1234",
-          status: "simulated",
-          simulation: true,
-          impact_message: "Your preference supports community programmes.",
-          acknowledgement: "Thank you for exploring support.",
-          persistence: "stored",
-        }),
-        { status: 201, headers: { "Content-Type": "application/json" } },
-      ),
-    );
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/donation-impact/options")) {
+        return new Response(
+          JSON.stringify({
+            default_cause_id: "where_needed_most",
+            preset_amounts_hkd: [200, 400, 600, 1000],
+            causes: [
+              {
+                cause_id: "where_needed_most",
+                copy_key: "where_needed_most",
+              },
+              { cause_id: "dance", copy_key: "dance" },
+              { cause_id: "sports", copy_key: "sports" },
+              { cause_id: "nutrition", copy_key: "nutrition" },
+              {
+                cause_id: "family_support",
+                copy_key: "family_support",
+              },
+            ],
+            demo_estimates: true,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      const payload = JSON.parse(String(init?.body)) as {
+        cause_id: string;
+        amount_hkd: number;
+      };
+      const impact = {
+        cause_id: payload.cause_id,
+        amount_hkd: payload.amount_hkd,
+        mode:
+          payload.cause_id === "where_needed_most" ? "flexible" : "counted",
+        copy_key: payload.cause_id,
+        estimated_units:
+          payload.cause_id === "where_needed_most"
+            ? null
+            : Math.floor(payload.amount_hkd / 150),
+        unit_key:
+          payload.cause_id === "where_needed_most"
+            ? null
+            : "dance_training_session",
+        is_estimate: true,
+      };
+
+      if (url.endsWith("/donation-intents")) {
+        return new Response(
+          JSON.stringify({
+            donation_intent_id: "DON-TEST1234",
+            status: "simulated",
+            simulation: true,
+            persistence: "stored",
+            impact,
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      return new Response(JSON.stringify(impact), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
 
     renderRoute("/donate");
-    await user.click(screen.getByRole("button", { name: "HK$1,000" }));
-    await user.selectOptions(
-      screen.getByLabelText("Where would you like to direct support?"),
-      "community",
+    await user.click(screen.getByLabelText("Discover a Talent"));
+    await user.click(screen.getByRole("button", { name: "HK$600" }));
+    expect(
+      await screen.findByRole("heading", {
+        name: /Four more chances to move, learn, and shine/i,
+      }),
+    ).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Continue to your details" }),
     );
     await user.click(
-      screen.getByRole("button", { name: "Create demo intention" }),
+      screen.getByRole("button", { name: "Review your intention" }),
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: "Confirm prototype donation of HK$600",
+      }),
     );
 
     expect(
       await screen.findByRole("heading", {
-        name: /support intention has been explored/i,
+        name: "Thank you.",
       }),
     ).toBeInTheDocument();
     expect(screen.getByText(/no money was charged/i)).toBeInTheDocument();
+    expect(screen.getByText(/DON-TEST1234/)).toBeInTheDocument();
   });
 
   it("prevents incomplete volunteer submissions before calling the API", async () => {

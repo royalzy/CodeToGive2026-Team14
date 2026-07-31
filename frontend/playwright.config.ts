@@ -6,20 +6,21 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? "github" : "list",
   use: {
-    baseURL: "http://127.0.0.1:5173",
+    baseURL: "http://127.0.0.1:5183",
     trace: "on-first-retry",
   },
   webServer: [
     {
       command:
-        "UV_CACHE_DIR=/tmp/love21-uv-cache uv --directory ../backend run uvicorn app.main:app --host 127.0.0.1 --port 8000",
-      url: "http://127.0.0.1:8000/api/health",
+        "ALLOWED_ORIGINS=http://127.0.0.1:5183 ../backend/.venv/bin/python -m uvicorn app.main:app --app-dir ../backend --host 127.0.0.1 --port 8010",
+      url: "http://127.0.0.1:8010/api/health",
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },
     {
-      command: "pnpm dev",
-      url: "http://127.0.0.1:5173",
+      command:
+        "VITE_API_BASE_URL=http://127.0.0.1:8010 pnpm exec vite --host 127.0.0.1 --port 5183",
+      url: "http://127.0.0.1:5183",
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },

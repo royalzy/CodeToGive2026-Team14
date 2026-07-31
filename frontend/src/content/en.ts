@@ -5,7 +5,7 @@ export * from "./navigation";
 export * from "./programs";
 export * from "./members";
 export * from "./volunteering";
-export * from "./donations";
+export { allocation, donationPrograms, wishlistItems } from "./donations";
 export * from "./gamification-data";
 export * from "./booking-data";
 

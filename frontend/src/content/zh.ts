@@ -120,9 +120,12 @@ export const availabilityOptions = [
 ];
 
 export const donationPrograms = [
-  { value: "general", label: "用於最需要的地方" },
-  ...programs.map(({ slug, title }) => ({ value: slug, label: title })),
-];
+  { value: "where_needed_most", label: "用於最需要的地方" },
+  { value: "sports", label: "運動與成長" },
+  { value: "dance", label: "發掘才能" },
+  { value: "nutrition", label: "健康生活" },
+  { value: "family_support", label: "支援家庭" },
+] as const;
 
 export const memberProfiles: Member[] = [
   {

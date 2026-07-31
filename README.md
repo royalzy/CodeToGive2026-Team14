@@ -13,7 +13,7 @@ experiment, fix, or piece of infrastructure and deliver it on a short-lived bran
 
 No application form data is persisted. Donation intents and bookings are stored
 in a local SQLite database: donations are clearly labelled simulations, only
-the anonymized subset of an intent (program, amount, currency, anonymous flag)
+the anonymized subset of an intent (cause, amount, currency, anonymous flag)
 is kept, and payment card information is never collected.
 
 ## Quick start
@@ -83,6 +83,18 @@ changes.
 
 `POST /api/v1/donation-intents`
 
-- Accepts an HKD amount, support preference, anonymous choice, and optional contact details.
-- Always returns `simulation: true`; no money moves.
-- Stores only the anonymized subset (program, amount, currency, anonymous flag); donor name and email are never written.
+- Accepts an HKD amount, impact cause, anonymous choice, optional contact
+  details, and a prototype updates preference.
+- Recalculates the final impact server-side and always returns
+  `simulation: true` with `persistence: "stored"`; no money moves.
+- Stores only the non-personal subset (cause, amount, currency, anonymous flag);
+  donor name, email, and updates preference are never written.
+
+`GET /api/v1/donation-impact/options`
+
+- Returns the ordered impact causes and suggested HKD amounts.
+
+`POST /api/v1/donation-impact/preview`
+
+- Converts an HKD amount and cause into a counted, contribution, or flexible
+  demonstration estimate based on average programme costs.
