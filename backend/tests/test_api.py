@@ -87,3 +87,60 @@ def test_donation_intent_rejects_unknown_program() -> None:
 
     assert response.status_code == 422
 
+
+def test_booking_is_persisted_and_listed() -> None:
+    response = client.post(
+        "/api/v1/bookings",
+        json={
+            "member_slug": "crystal",
+            "event_id": "bev-1",
+            "event_date": "2025-08-09",
+        },
+    )
+
+    assert response.status_code == 201
+    payload = response.json()
+    assert payload["id"].startswith("BK-")
+    assert payload["member_slug"] == "crystal"
+    assert payload["event_id"] == "bev-1"
+    assert payload["status"] == "confirmed"
+
+    listed = client.get("/api/v1/bookings", params={"member_slug": "crystal"})
+    assert listed.status_code == 200
+    assert any(b["id"] == payload["id"] for b in listed.json())
+
+
+def test_booking_daily_limit_returns_conflict() -> None:
+    member = "daily-limit-member"
+    for _ in range(2):
+        response = client.post(
+            "/api/v1/bookings",
+            json={
+                "member_slug": member,
+                "event_id": "bev-1",
+                "event_date": "2025-08-09",
+            },
+        )
+        assert response.status_code == 201
+
+    blocked = client.post(
+        "/api/v1/bookings",
+        json={
+            "member_slug": member,
+            "event_id": "bev-2",
+            "event_date": "2025-08-09",
+        },
+    )
+
+    assert blocked.status_code == 409
+
+
+def test_booking_rejects_invalid_payload() -> None:
+    response = client.post(
+        "/api/v1/bookings",
+        json={"member_slug": "", "event_id": "", "event_date": ""},
+    )
+
+    assert response.status_code == 422
+
+

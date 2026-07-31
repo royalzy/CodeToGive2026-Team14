@@ -41,6 +41,24 @@ async function postJson<TRequest, TResponse>(
   return (await response.json()) as TResponse;
 }
 
+export async function getJson<TResponse>(path: string): Promise<TResponse> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new ApiError(
+      response.status >= 500
+        ? "The service is taking a pause. Please try again shortly."
+        : "We could not load the information. Please try again.",
+      response.status,
+    );
+  }
+
+  return (await response.json()) as TResponse;
+}
+
 export function submitVolunteerApplication(
   payload: VolunteerApplication,
 ): Promise<VolunteerApplicationResult> {
@@ -51,5 +69,31 @@ export function createDonationIntent(
   payload: DonationIntent,
 ): Promise<DonationIntentResult> {
   return postJson("/api/v1/donation-intents", payload);
+}
+
+export interface BookingPayload {
+  member_slug: string;
+  event_id: string;
+  event_date: string;
+}
+
+export interface BookingResult {
+  id: string;
+  member_slug: string;
+  event_id: string;
+  event_date: string;
+  status: "confirmed";
+  booked_at: string;
+}
+
+export function createBooking(payload: BookingPayload): Promise<BookingResult> {
+  return postJson("/api/v1/bookings", payload);
+}
+
+export function listBookings(memberSlug?: string): Promise<BookingResult[]> {
+  const query = memberSlug
+    ? `?member_slug=${encodeURIComponent(memberSlug)}`
+    : "";
+  return getJson(`/api/v1/bookings${query}`);
 }
 

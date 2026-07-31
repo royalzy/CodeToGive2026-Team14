@@ -8,9 +8,9 @@ import {
   submitVolunteerApplication,
   type VolunteerApplicationResult,
 } from "../api/client";
-import { PageHero, StatusPanel } from "../components/Cards";
+import { OpportunityCard, PageHero, SectionHeading, StatusPanel } from "../components/Cards";
 import { ChoiceCard, Field } from "../components/FormControls";
-import { availabilityOptions, volunteerInterests } from "../content/en";
+import { useLanguage } from "../hooks/useLanguage";
 
 const volunteerSchema = z.object({
   name: z.string().trim().min(2, "Please enter your name.").max(80),
@@ -30,6 +30,7 @@ const volunteerSchema = z.object({
 type VolunteerFormData = z.infer<typeof volunteerSchema>;
 
 export function VolunteerPage() {
+  const { t } = useLanguage();
   const [result, setResult] = useState<VolunteerApplicationResult | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
@@ -88,6 +89,21 @@ export function VolunteerPage() {
               <h2>Share the moment</h2>
               <p>Show up, participate and build trust through a real experience.</p>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Upcoming opportunities"
+            title="Find a place to start"
+            body="Every session is an invitation to connect, learn and contribute."
+          />
+          <div className="opportunity-grid">
+            {t.opportunities.map((opp) => (
+              <OpportunityCard key={opp.id} opportunity={opp} />
+            ))}
           </div>
         </div>
       </section>
@@ -164,7 +180,7 @@ export function VolunteerPage() {
                   <legend>What would you like to explore?</legend>
                   <p className="field-hint">Choose one or more areas.</p>
                   <div className="choice-grid">
-                    {volunteerInterests.map((interest) => (
+                    {t.volunteerInterests.map((interest) => (
                       <ChoiceCard key={interest.value}>
                         <input
                           type="checkbox"
@@ -188,7 +204,7 @@ export function VolunteerPage() {
                     <option value="" disabled>
                       Select an option
                     </option>
-                    {availabilityOptions.map((option) => (
+                    {t.availabilityOptions.map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>

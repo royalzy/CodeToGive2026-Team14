@@ -1,0 +1,174 @@
+# Summary
+
+## New pages
+| Route | Page |
+|---|---|
+| `/help` | Help page with support booking form |
+| `/resources` | Educational resources (neurodiversity, inclusion, FAQs) |
+| `/members` + `/members/:slug` | Member portal + profile with gamification |
+| `/login` + `/dashboard` | Mock family sign-in + booking dashboard |
+| `/partners` | Corporate partnership tiers |
+| `/admin` | Static admin dashboard stub |
+
+## Member portal (the headline)
+- `content/auth.tsx` — mock auth (2 demo families), `useAuth` hook
+- `content/booking.ts` — pure functions: `canBookMember`, `addBooking`, `isAlreadyBooked` (limits 4/week, 2/day)
+- `pages/DashboardPage.tsx` — bookable sessions grid, per-member sign-up, fairness bar, calendar
+- `content/gamification.ts` — levels, points, badges (Duolingo-style)
+
+## Donation + volunteer depth
+- `DonatePage` — wishlist grid + transparent allocation bars
+- `VolunteerPage` — opportunity calendar grid
+- `ImpactPage` — moments feed + program outcomes
+
+## Real i18n
+- `content/zh.ts` — Traditional Chinese mirror; `LanguageProvider` swaps `t` en/zh
+- All 9 pages read content via `useLanguage().t`
+
+## Maintainability refactor
+- **Content split**: en.ts is now a barrel over 7 domain files (`navigation`, `programs`, `members`, `volunteering`, `donations`, `gamification-data`, `booking-data`)
+- **Cards split**: Cards.tsx is a barrel over `components/cards/` (`PageStructure`, `ImpactCards`, `MemberCards`, `EngagementCards`)
+
+## Backend
+- db.py — SQLite persistence (path via `LOVE21_DB_PATH`)
+- bookings.py — `POST`/`GET /api/v1/bookings` with server-side limits (409 conflicts)
+- booking.py, conftest.py (test isolation), 4 new tests
+- Frontend `api/client.ts` — `createBooking` + `listBookings`
+
+## Docs
+- feature-inventory.md — full inventory of everything added
+
+
+# Feature Update Comprehensive — `royal-test-branch`
+
+Comprehensive inventory of everything delivered on this branch, layered on top of the backbone (FastAPI + React scaffold by Steven).
+
+---
+
+## New pages
+
+| Route | Page | Purpose |
+|---|---|---|
+| `/help` | HelpPage | Support guidance for families and carers, plus an interactive support booking form |
+| `/resources` | ResourcesPage | Educational content: neurodiversity, inclusion tips, FAQs |
+| `/members` | MembersPage | Portal home listing member profiles |
+| `/members/:slug` | MemberProfilePage | Individual member journey with milestones, gamification, and interactive activity logging |
+| `/login` | LoginPage | Mock family sign-in (two demo accounts) |
+| `/dashboard` | DashboardPage | Family dashboard: member overview, bookable sessions grid, per-member sign-up with fairness limits (max 4/week, 2/day), confirmed-bookings calendar |
+| `/partners` | PartnersPage | Corporate partnership tiers (Community Partner, Programme Sponsor, Strategic Partner) |
+| `/admin` | AdminPage | Static demo dashboard: traffic, volunteer sign-ups, scheduled social posts |
+
+---
+
+## Deepened existing pages
+
+| Page | What was added |
+|---|---|
+| HomePage (`/`) | Persona cards section — five entry points for five audiences (Volunteer, Donor, Member/Family, Corporate Partner, Learn More) |
+| ImpactPage (`/impact`) | Program outcome tags on each programme card, "Moments that matter" achievement feed linking to member portal |
+| VolunteerPage (`/volunteer`) | Volunteer opportunity calendar grid (6 upcoming sessions with dates, spots, roles) |
+| DonatePage (`/donate`) | Donation wishlist grid (6 specific items), transparent allocation bars showing where donations go per programme |
+| HelpPage (`/help`) | Interactive support booking form (RHF + Zod + StatusPanel) under existing static sections |
+
+---
+
+## New components (Cards.tsx)
+
+- **LevelBar** — Duolingo-style level progress with name, track, and fill animation
+- **AchievementBadge** — earned/locked badge with star icon
+- **MemberCard** — photo + name + level + points, links to member profile
+- **OpportunityCard** — date, title, role, time, spots remaining
+- **WishlistCard** — item label, description, cost, program tag
+- **AllocationBar** — horizontal percentage bars per programme with funding detail
+- **PersonaCard** — icon + label + description, links to target page
+
+---
+
+## Gamification module (`content/gamification.ts`)
+
+Pure, unit-testable functions:
+- `calculateLevel(points)` — returns current level, next level, and progress percentage
+- `awardPoints(activity)` — session (+20), event (+50), share (+10), lead (+80)
+- `earnedBadges(totalSessions, eventsHelped)` — filters badge list by thresholds
+
+---
+
+## Booking system (`content/booking.ts`)
+
+Pure, unit-testable functions:
+- `canBookMember(memberSlug, eventDate, bookings)` — enforces weekly (4) and daily (2) limits
+- `addBooking(memberSlug, eventId, bookings)` — appends a confirmed booking
+- `isAlreadyBooked(memberSlug, eventId, bookings)` — duplicate check
+
+---
+
+## Auth mock (`content/auth.tsx`, `content/authContext.ts`, `hooks/useAuth.ts`)
+
+- `AuthProvider` — React context holding the logged-in family
+- `useAuth` hook — exposes `family`, `login(familyId)`, `logout()`
+- Two demo accounts: Sarah's family (Crystal & Ka Wai) and Mr. Chan's family (Mei Ling)
+
+---
+
+## i18n scaffold
+
+- `LanguageProvider` + `useLanguage` hook + EN / 繁 toggle in header
+- Mobile menu includes auth state and language switch
+- `content/zh.ts` slot ready for Traditional Chinese translations
+
+---
+
+## Content layer (`content/en.ts`)
+
+New fixture arrays: `memberProfiles`, `moments`, `opportunities`, `wishlistItems`, `allocation`, `levels`, `badges`, `personas`, `bookableEvents`, `demoFamilies`.
+
+New types (`content/types.ts`): `Outcome`, `Member`, `Moment`, `VolunteerOpportunity`, `WishlistItem`, `AllocationShare`, `Level`, `Badge`, `BookableEvent`, `Booking`, `FamilyAccount`. Updated `Program` to include `outcomes`.
+
+---
+
+## Design system
+
+- Added `--surface` token (was missing, broke card backgrounds)
+- `StatusPanel` "notice" tone styled (yellow background, dark mark)
+- Responsive breakpoints for `.profile-layout`, `.help-layout`, `.persona-grid`, `.header-actions`
+- Mobile menu extended with auth, sign-out, and language toggle
+- `.lang-toggle` constrained with `width: fit-content` (Tailwind reset was stretching it full-width)
+- Navigation compacted for 7 links
+
+---
+
+## Maintainability refactor (infrastructure)
+
+### Content split by domain
+`content/en.ts` is now a barrel that re-exports domain modules, so existing imports are untouched:
+- `content/navigation.ts` — nav + personas
+- `content/programs.ts` — metrics + programs
+- `content/members.ts` — member profiles + moments
+- `content/volunteering.ts` — opportunities, interests, availability
+- `content/donations.ts` — donation programs, wishlist, allocation
+- `content/gamification-data.ts` — levels + badges
+- `content/booking-data.ts` — bookable events + demo families
+
+### Cards split into a folder
+`components/Cards.tsx` is now a barrel over `components/cards/`:
+- `cards/PageStructure.tsx` — SectionHeading, PageHero, StatusPanel
+- `cards/ImpactCards.tsx` — MetricCard, ProgramCard, PathwayCard
+- `cards/MemberCards.tsx` — MemberCard, LevelBar, AchievementBadge
+- `cards/EngagementCards.tsx` — OpportunityCard, WishlistCard, AllocationBar, PersonaCard
+
+### Real i18n (Traditional Chinese)
+- `content/zh.ts` mirrors the English content with Traditional Chinese for user-facing copy (nav, personas, programs, levels, badges, moments, events)
+- `LanguageProvider` now swaps `t` between en/zh — the 繁/EN toggle actually translates content
+- Layout, Home, Impact, Volunteer, Donate, Members, Member profile, Login, and Dashboard pages read content via `useLanguage().t`
+- Long-form body copy (member bios) and member names stay English for accuracy — extend `zh.ts` as translations are reviewed
+
+### SQLite booking backend
+- `backend/app/db.py` — SQLite connection + schema init; path overridable via `LOVE21_DB_PATH`
+- `backend/app/schemas/booking.py` — `BookingCreate` / `BookingResponse`
+- `backend/app/api/routes/bookings.py` — `POST /api/v1/bookings` (enforces max 4/week, 2/day with 409 conflicts) and `GET /api/v1/bookings` (optional `member_slug` filter)
+- `backend/tests/conftest.py` — points tests at a temp SQLite DB for isolation
+- New booking endpoint tests in `backend/tests/test_api.py`
+- Frontend client: `createBooking(payload)` and `listBookings(memberSlug?)` added to `api/client.ts`
+
+---
+
