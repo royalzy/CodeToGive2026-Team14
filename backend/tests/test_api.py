@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+from app.db import get_connection
 from app.main import app
 
 client = TestClient(app)
@@ -66,8 +67,37 @@ def test_valid_donation_intent_is_always_a_simulation() -> None:
     assert payload["reference"].startswith("DON-")
     assert payload["status"] == "simulated"
     assert payload["simulation"] is True
-    assert payload["persistence"] == "none"
+    assert payload["persistence"] == "stored"
     assert "sports and fitness" in payload["impact_message"]
+
+
+def test_donation_intent_is_persisted_anonymized() -> None:
+    response = client.post(
+        "/api/v1/donation-intents",
+        json={
+            "amount": 500,
+            "currency": "HKD",
+            "program": "sports",
+            "anonymous": False,
+            "donor_name": "Alex Lee",
+            "email": "alex@example.com",
+        },
+    )
+    assert response.status_code == 201
+    reference = response.json()["reference"]
+
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT * FROM donation_intents WHERE reference = ?", (reference,)
+        ).fetchone()
+
+    assert row is not None
+    assert row["program"] == "sports"
+    assert row["amount"] == 500
+    assert row["currency"] == "HKD"
+    assert row["anonymous"] == 0
+    assert "donor_name" not in row
+    assert "email" not in row
 
 
 def test_donation_intent_rejects_invalid_amount() -> None:

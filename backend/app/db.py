@@ -1,8 +1,8 @@
-"""SQLite persistence for the booking demo.
+"""SQLite persistence for the booking and donation demos.
 
-The rest of the API remains non-persistent; only bookings are stored so the
-member portal demo survives refreshes. Set ``LOVE21_DB_PATH`` to override the
-database location (used by tests for isolation).
+Only bookings and the anonymized subset of donation intents are stored.
+Set ``LOVE21_DB_PATH`` to override the database location (used by tests
+for isolation).
 """
 
 import os
@@ -20,6 +20,15 @@ CREATE TABLE IF NOT EXISTS bookings (
     status TEXT NOT NULL,
     booked_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS donation_intents (
+    id TEXT PRIMARY KEY,
+    reference TEXT NOT NULL UNIQUE,
+    program TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    currency TEXT NOT NULL DEFAULT 'HKD',
+    anonymous INTEGER NOT NULL,
+    created_at TEXT NOT NULL
+);
 """
 
 
@@ -35,7 +44,7 @@ def get_connection() -> sqlite3.Connection:
 
 def init_db() -> None:
     with get_connection() as conn:
-        conn.execute(SCHEMA)
+        conn.executescript(SCHEMA)
 
 
 init_db()

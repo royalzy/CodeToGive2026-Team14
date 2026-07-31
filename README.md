@@ -11,8 +11,10 @@ experiment, fix, or piece of infrastructure and deliver it on a short-lived bran
 - Tests: Vitest, Testing Library, pytest, Playwright, axe
 - Package managers: pnpm and uv
 
-No application form or donation data is persisted. The donation journey is a
-clearly labelled simulation and never collects payment card information.
+No application form data is persisted. Donation intents and bookings are stored
+in a local SQLite database: donations are clearly labelled simulations, only
+the anonymized subset of an intent (program, amount, currency, anonymous flag)
+is kept, and payment card information is never collected.
 
 ## Quick start
 
@@ -84,4 +86,5 @@ changes.
 `POST /api/v1/donation-intents`
 
 - Accepts an HKD amount, support preference, anonymous choice, and optional contact details.
-- Always returns `simulation: true`; no money moves and no data is stored.
+- Always returns `simulation: true`; no money moves.
+- Stores only the anonymized subset (program, amount, currency, anonymous flag); donor name and email are never written.

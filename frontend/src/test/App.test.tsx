@@ -93,7 +93,7 @@ describe("closed-loop forms", () => {
           simulation: true,
           impact_message: "Your preference supports community programmes.",
           acknowledgement: "Thank you for exploring support.",
-          persistence: "none",
+          persistence: "stored",
         }),
         { status: 201, headers: { "Content-Type": "application/json" } },
       ),

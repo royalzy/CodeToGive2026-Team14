@@ -6,6 +6,7 @@ remove it after the nightly merge.
 | Who    | What                               | Branch          | Status | Doc                        |
 | ------ | ---------------------------------- | --------------- | ------ | -------------------------- |
 | Steven | Build the FastAPI + React backbone | `feat/backbone` | `Done` | README.md, doc/backbone.md |
+| Ben      | Database layer (donation persistence first) | `feat/db-persistence` | `Doing` | doc/database-plan.md |
 | —      | —                                  | —               | —      |                            |
 | —      | —                                  | —               | —      |                            |
 | —      | —                                  | —               | —      |                            |
