@@ -72,8 +72,14 @@ changes.
 
 `POST /api/v1/volunteer-applications`
 
-- Accepts name, email, interests, availability, optional message, and consent.
-- Returns a generated reference, submission status, and next steps.
+- Accepts name, email, a reviewed role ID, an optional demo session ID, a
+  first-step preference, and demo consent.
+- Validates that a selected session belongs to the selected role, then discards
+  the complete request without logging or persistence.
+- Returns `simulation: true`, `persistence: "none"`, either
+  `interest_submitted` or `pending_confirmation`, and non-personal next steps.
+- Volunteer roles, demo sessions, the shared volunteer-story video, and deterministic matching
+  are static frontend content so the exploration journey works without an API.
 
 `POST /api/v1/donation-intents`
 

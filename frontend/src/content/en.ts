@@ -26,4 +26,3 @@ export type {
   VolunteerOpportunity,
   WishlistItem,
 } from "./types";
-

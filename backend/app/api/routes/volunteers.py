@@ -18,6 +18,4 @@ async def create_volunteer_application(
 ) -> VolunteerApplicationResponse:
     # The prototype deliberately validates and discards the submitted data.
     # Avoid logging `application`: it contains personally identifiable information.
-    _ = application
-    return VolunteerApplicationResponse.create()
-
+    return VolunteerApplicationResponse.create(application)

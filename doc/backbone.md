@@ -35,7 +35,11 @@ The registered routes are:
 
 - `/` — homepage and overview of the three pathways
 - `/impact` — programmes, metrics, and Crystal's story
-- `/volunteer` — volunteer information and expression-of-interest form
+- `/volunteer` — Volunteer Launchpad entry with guided and quick paths
+- `/volunteer/match` — deterministic, explainable three-question role match
+- `/volunteer/roles` and `/volunteer/roles/:roleId` — role comparison and details
+- `/volunteer/sessions` — clearly labelled demonstration sessions
+- `/volunteer/apply` and `/volunteer/confirmed` — non-persistent demo request and plan
 - `/donate` — simulated donation journey
 
 Shared visual components live in `frontend/src/components`. Page-specific work
@@ -52,12 +56,14 @@ The backend uses FastAPI and Pydantic. It exposes:
 - `POST /api/v1/volunteer-applications`
 - `POST /api/v1/donation-intents`
 
-Each feature has a separate route module and schema module. New backend features
-should follow the same pattern instead of adding all logic to `app/main.py`.
+Each feature has a separate route module and schema module. Volunteer role content,
+demo sessions, the shared volunteer-story video, and matching are frontend content; the
+backend only validates the simulated application contract. New backend features
+should follow the same route/schema pattern instead of adding logic to `app/main.py`.
 
 The current APIs are intentionally non-persistent:
 
-- volunteer details are validated and discarded;
+- volunteer details are validated and discarded, and responses never return PII;
 - donation intentions are simulations;
 - no payment information is accepted;
 - no database, authentication, email, or CRM integration is included.

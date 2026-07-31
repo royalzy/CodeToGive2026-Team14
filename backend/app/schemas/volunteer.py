@@ -1,31 +1,40 @@
 from enum import StrEnum
 from typing import Literal
-from uuid import uuid4
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
-
-
-class VolunteerInterest(StrEnum):
-    SPORTS = "sports"
-    COMMUNITY = "community"
-    FAMILY_SUPPORT = "family_support"
-    NUTRITION = "nutrition"
-    ENRICHMENT = "enrichment"
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 
-class VolunteerAvailability(StrEnum):
-    WEEKDAY = "weekday"
-    EVENING = "evening"
-    WEEKEND = "weekend"
-    FLEXIBLE = "flexible"
+class VolunteerRoleId(StrEnum):
+    DANCE_ACTIVITY_BUDDY = "dance_activity_buddy"
+    SPORTS_ACTIVITY_BUDDY = "sports_activity_buddy"
+    COMMUNITY_EVENT_VOLUNTEER = "community_event_volunteer"
+
+
+class VolunteerSessionId(StrEnum):
+    SATURDAY_DANCE_PROJECT = "saturday_dance_project"
+    SUNDAY_SPORTS_SESSION = "sunday_sports_session"
+
+
+class VolunteerFirstStep(StrEnum):
+    OBSERVE = "observe"
+    TRIAL = "trial"
+    INTEREST_ONLY = "interest_only"
+
+
+SESSION_ROLES: dict[VolunteerSessionId, VolunteerRoleId] = {
+    VolunteerSessionId.SATURDAY_DANCE_PROJECT: VolunteerRoleId.DANCE_ACTIVITY_BUDDY,
+    VolunteerSessionId.SUNDAY_SPORTS_SESSION: VolunteerRoleId.SPORTS_ACTIVITY_BUDDY,
+}
 
 
 class VolunteerApplicationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: str = Field(min_length=2, max_length=80)
     email: EmailStr
-    interests: list[VolunteerInterest] = Field(min_length=1, max_length=5)
-    availability: VolunteerAvailability
-    message: str | None = Field(default=None, max_length=500)
+    role_id: VolunteerRoleId
+    session_id: VolunteerSessionId | None = None
+    first_step: VolunteerFirstStep
     consent: bool
 
     @field_validator("name")
@@ -43,21 +52,46 @@ class VolunteerApplicationRequest(BaseModel):
             raise ValueError("Consent is required")
         return value
 
+    @model_validator(mode="after")
+    def selected_session_must_match_role(self) -> "VolunteerApplicationRequest":
+        if self.session_id is None:
+            return self
+        if SESSION_ROLES[self.session_id] != self.role_id:
+            raise ValueError("Selected session does not belong to the selected role")
+        if self.first_step is VolunteerFirstStep.INTEREST_ONLY:
+            raise ValueError("A selected session requires an observe or trial first step")
+        return self
+
 
 class VolunteerApplicationResponse(BaseModel):
-    reference: str
-    status: Literal["submitted"]
-    next_steps: list[str]
+    simulation: Literal[True] = True
     persistence: Literal["none"] = "none"
+    status: Literal["interest_submitted", "pending_confirmation"]
+    role_id: VolunteerRoleId
+    session_id: VolunteerSessionId | None
+    next_steps: list[str]
 
     @classmethod
-    def create(cls) -> "VolunteerApplicationResponse":
+    def create(cls, application: VolunteerApplicationRequest) -> "VolunteerApplicationResponse":
+        if application.session_id is None:
+            return cls(
+                status="interest_submitted",
+                role_id=application.role_id,
+                session_id=None,
+                next_steps=[
+                    "This demo has recorded your preferred role and first step "
+                    "for this screen only.",
+                    "In a live service, Love 21 would contact you before "
+                    "suggesting an activity.",
+                ],
+            )
         return cls(
-            reference=f"VOL-{uuid4().hex[:8].upper()}",
-            status="submitted",
+            status="pending_confirmation",
+            role_id=application.role_id,
+            session_id=application.session_id,
             next_steps=[
-                "Love 21 would review your interests and availability.",
-                "A team member would contact you before any activity is confirmed.",
+                "This is a demonstration request, not a confirmed booking.",
+                "In a live service, Love 21 would review the request before "
+                "confirming the session.",
             ],
         )
-
