@@ -4,6 +4,8 @@ export const navigation = [
   { label: "Impact", href: "/impact" },
   { label: "Volunteer", href: "/volunteer" },
   { label: "Donate", href: "/donate" },
+  { label: "Help", href: "/help" },
+  { label: "Resources", href: "/resources" },
 ] as const;
 
 export const metrics: Metric[] = [

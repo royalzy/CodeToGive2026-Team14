@@ -24,6 +24,8 @@ describe("route backbone", () => {
     ["/impact", "Not what we provide."],
     ["/volunteer", "Come curious."],
     ["/donate", "Give to a direction."],
+    ["/help", "Support for families and carers"],
+    ["/resources", "Learning for belonging"],
   ])("renders %s", (route, heading) => {
     renderRoute(route);
 
