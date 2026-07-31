@@ -75,5 +75,17 @@ changes.
 
 `POST /api/v1/donation-intents`
 
-- Accepts an HKD amount, support preference, anonymous choice, and optional contact details.
-- Always returns `simulation: true`; no money moves and no data is stored.
+- Accepts an HKD amount, impact cause, anonymous choice, optional contact
+  details, and a prototype updates preference.
+- Recalculates the final impact server-side and always returns
+  `simulation: true` with `persistence: "none"`; no money moves and no data is
+  stored.
+
+`GET /api/v1/donation-impact/options`
+
+- Returns the ordered impact causes and suggested HKD amounts.
+
+`POST /api/v1/donation-impact/preview`
+
+- Converts an HKD amount and cause into a counted, contribution, or flexible
+  demonstration estimate based on average programme costs.
