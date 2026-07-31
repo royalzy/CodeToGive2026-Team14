@@ -1,4 +1,45 @@
-# Feature Update — `royal-test-branch`
+# Summary
+
+## New pages
+| Route | Page |
+|---|---|
+| `/help` | Help page with support booking form |
+| `/resources` | Educational resources (neurodiversity, inclusion, FAQs) |
+| `/members` + `/members/:slug` | Member portal + profile with gamification |
+| `/login` + `/dashboard` | Mock family sign-in + booking dashboard |
+| `/partners` | Corporate partnership tiers |
+| `/admin` | Static admin dashboard stub |
+
+## Member portal (the headline)
+- `content/auth.tsx` — mock auth (2 demo families), `useAuth` hook
+- `content/booking.ts` — pure functions: `canBookMember`, `addBooking`, `isAlreadyBooked` (limits 4/week, 2/day)
+- `pages/DashboardPage.tsx` — bookable sessions grid, per-member sign-up, fairness bar, calendar
+- `content/gamification.ts` — levels, points, badges (Duolingo-style)
+
+## Donation + volunteer depth
+- `DonatePage` — wishlist grid + transparent allocation bars
+- `VolunteerPage` — opportunity calendar grid
+- `ImpactPage` — moments feed + program outcomes
+
+## Real i18n
+- `content/zh.ts` — Traditional Chinese mirror; `LanguageProvider` swaps `t` en/zh
+- All 9 pages read content via `useLanguage().t`
+
+## Maintainability refactor
+- **Content split**: en.ts is now a barrel over 7 domain files (`navigation`, `programs`, `members`, `volunteering`, `donations`, `gamification-data`, `booking-data`)
+- **Cards split**: Cards.tsx is a barrel over `components/cards/` (`PageStructure`, `ImpactCards`, `MemberCards`, `EngagementCards`)
+
+## Backend
+- db.py — SQLite persistence (path via `LOVE21_DB_PATH`)
+- bookings.py — `POST`/`GET /api/v1/bookings` with server-side limits (409 conflicts)
+- booking.py, conftest.py (test isolation), 4 new tests
+- Frontend `api/client.ts` — `createBooking` + `listBookings`
+
+## Docs
+- feature-inventory.md — full inventory of everything added
+
+
+# Feature Update Comprehensive — `royal-test-branch`
 
 Comprehensive inventory of everything delivered on this branch, layered on top of the backbone (FastAPI + React scaffold by Steven).
 
