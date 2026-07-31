@@ -8,9 +8,15 @@ import {
   createDonationIntent,
   type DonationIntentResult,
 } from "../api/client";
-import { PageHero, StatusPanel } from "../components/Cards";
+import {
+  AllocationBar,
+  PageHero,
+  SectionHeading,
+  StatusPanel,
+  WishlistCard,
+} from "../components/Cards";
 import { Field } from "../components/FormControls";
-import { donationPrograms } from "../content/en";
+import { allocation, donationPrograms, wishlistItems } from "../content/en";
 
 const donationSchema = z.object({
   amount: z.number().int().positive("Enter an amount greater than HK$0.").max(1_000_000),
@@ -108,6 +114,32 @@ export function DonatePage() {
             <h2>Keep showing up</h2>
             <p>Giving can be the beginning of volunteering, learning and community.</p>
           </article>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="What your support funds"
+            title="Transparency you can see"
+            body="Every dollar is directed to specific programmes that connect around members and families."
+          />
+          <AllocationBar shares={allocation} />
+        </div>
+      </section>
+
+      <section className="section section-soft">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Wishlist"
+            title="Items the community needs"
+            body="Choose an item to support a specific programme. Every contribution makes a real difference."
+          />
+          <div className="wishlist-grid">
+            {wishlistItems.map((item) => (
+              <WishlistCard key={item.id} item={item} />
+            ))}
+          </div>
         </div>
       </section>
 

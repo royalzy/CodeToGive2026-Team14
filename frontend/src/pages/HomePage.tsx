@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import {
   MetricCard,
   PathwayCard,
+  PersonaCard,
   ProgramCard,
   SectionHeading,
 } from "../components/Cards";
-import { metrics, programs } from "../content/en";
+import { metrics, personas, programs } from "../content/en";
 
 export function HomePage() {
   return (
@@ -153,6 +154,27 @@ export function HomePage() {
               cta="Explore giving"
               accent="yellow"
             />
+          </div>
+        </div>
+      </section>
+
+      <section className="section section-soft">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Where would you like to start?"
+            title="Find your place in the community"
+            align="center"
+          />
+          <div className="persona-grid">
+            {personas.map((persona) => (
+              <PersonaCard
+                key={persona.href}
+                icon={persona.icon}
+                label={persona.label}
+                description={persona.description}
+                href={persona.href}
+              />
+            ))}
           </div>
         </div>
       </section>

@@ -4,11 +4,17 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../App";
+import { AuthProvider } from "../content/auth";
+import { LanguageProvider } from "../components/LanguageContext";
 
 function renderRoute(route: string) {
   return render(
     <MemoryRouter initialEntries={[route]}>
-      <App />
+      <AuthProvider>
+        <LanguageProvider>
+          <App />
+        </LanguageProvider>
+      </AuthProvider>
     </MemoryRouter>,
   );
 }
@@ -26,6 +32,10 @@ describe("route backbone", () => {
     ["/donate", "Give to a direction."],
     ["/help", "Support for families and carers"],
     ["/resources", "Learning for belonging"],
+    ["/members", "Meet the community"],
+    ["/partners", "Partner with Love 21"],
+    ["/admin", "Love 21 Admin"],
+    ["/login", "Welcome back"],
   ])("renders %s", (route, heading) => {
     renderRoute(route);
 

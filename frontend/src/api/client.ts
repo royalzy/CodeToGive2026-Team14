@@ -41,6 +41,24 @@ async function postJson<TRequest, TResponse>(
   return (await response.json()) as TResponse;
 }
 
+export async function getJson<TResponse>(path: string): Promise<TResponse> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new ApiError(
+      response.status >= 500
+        ? "The service is taking a pause. Please try again shortly."
+        : "We could not load the information. Please try again.",
+      response.status,
+    );
+  }
+
+  return (await response.json()) as TResponse;
+}
+
 export function submitVolunteerApplication(
   payload: VolunteerApplication,
 ): Promise<VolunteerApplicationResult> {

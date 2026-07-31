@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { navigation } from "../content/en";
+import { useLanguage } from "../hooks/useLanguage";
+import { useAuth } from "../hooks/useAuth";
 
 function Wordmark() {
   return (
@@ -15,6 +17,9 @@ function Wordmark() {
 }
 
 function Header() {
+  const { lang, setLang } = useLanguage();
+  const { family, logout } = useAuth();
+
   return (
     <header className="site-header">
       <div className="shell header-inner">
@@ -34,9 +39,40 @@ function Header() {
           ))}
         </nav>
 
-        <Link className="button button-small button-dark header-cta" to="/volunteer">
-          Join the community
-        </Link>
+        {family ? (
+          <div className="header-actions">
+            <div className="header-auth">
+              <Link className="button button-small button-dark" to="/dashboard">
+                Dashboard
+              </Link>
+              <button className="lang-toggle" type="button" onClick={logout}>
+                Sign out
+              </button>
+            </div>
+            <button
+              className="lang-toggle"
+              type="button"
+              onClick={() => setLang(lang === "en" ? "zh" : "en")}
+              aria-label={`Switch to ${lang === "en" ? "Traditional Chinese" : "English"}`}
+            >
+              {lang === "en" ? "繁" : "EN"}
+            </button>
+          </div>
+        ) : (
+          <div className="header-actions">
+            <Link className="button button-small button-dark header-cta" to="/login">
+              Sign in
+            </Link>
+            <button
+              className="lang-toggle"
+              type="button"
+              onClick={() => setLang(lang === "en" ? "zh" : "en")}
+              aria-label={`Switch to ${lang === "en" ? "Traditional Chinese" : "English"}`}
+            >
+              {lang === "en" ? "繁" : "EN"}
+            </button>
+          </div>
+        )}
 
         <details className="mobile-menu">
           <summary aria-label="Open navigation">Menu</summary>
@@ -46,6 +82,24 @@ function Header() {
                 {item.label}
               </NavLink>
             ))}
+            <hr style={{ margin: "0.5rem 0", borderColor: "var(--line)" }} />
+            {family ? (
+              <>
+                <NavLink to="/dashboard">Dashboard</NavLink>
+                <button type="button" onClick={logout} className="mobile-nav-button">
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <NavLink to="/login">Sign in</NavLink>
+            )}
+            <button
+              type="button"
+              onClick={() => setLang(lang === "en" ? "zh" : "en")}
+              className="mobile-nav-button"
+            >
+              {lang === "en" ? "繁體中文" : "English"}
+            </button>
           </nav>
         </details>
       </div>

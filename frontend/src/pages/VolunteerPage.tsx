@@ -8,9 +8,9 @@ import {
   submitVolunteerApplication,
   type VolunteerApplicationResult,
 } from "../api/client";
-import { PageHero, StatusPanel } from "../components/Cards";
+import { OpportunityCard, PageHero, SectionHeading, StatusPanel } from "../components/Cards";
 import { ChoiceCard, Field } from "../components/FormControls";
-import { availabilityOptions, volunteerInterests } from "../content/en";
+import { availabilityOptions, opportunities, volunteerInterests } from "../content/en";
 
 const volunteerSchema = z.object({
   name: z.string().trim().min(2, "Please enter your name.").max(80),
@@ -88,6 +88,21 @@ export function VolunteerPage() {
               <h2>Share the moment</h2>
               <p>Show up, participate and build trust through a real experience.</p>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Upcoming opportunities"
+            title="Find a place to start"
+            body="Every session is an invitation to connect, learn and contribute."
+          />
+          <div className="opportunity-grid">
+            {opportunities.map((opp) => (
+              <OpportunityCard key={opp.id} opportunity={opp} />
+            ))}
           </div>
         </div>
       </section>

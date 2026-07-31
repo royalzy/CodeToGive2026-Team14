@@ -6,7 +6,7 @@ import {
   ProgramCard,
   SectionHeading,
 } from "../components/Cards";
-import { crystalMilestones, metrics, programs } from "../content/en";
+import { crystalMilestones, metrics, moments, programs } from "../content/en";
 
 export function ImpactPage() {
   return (
@@ -86,6 +86,30 @@ export function ImpactPage() {
                 </li>
               ))}
             </ol>
+          </div>
+        </div>
+      </section>
+
+      <section className="section section-soft">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="In the community"
+            title="Moments that matter"
+            body="Every activity, performance and shared meal is a chance to grow."
+          />
+          <div className="moments-feed">
+            {moments.map((moment, i) => (
+              <article key={`${moment.member}-${i}`} className="moment-card">
+                <span className="moment-date">{moment.date}</span>
+                <strong>{moment.member}</strong>
+                <p>{moment.activity}</p>
+              </article>
+            ))}
+          </div>
+          <div className="section-cta">
+            <Link className="button button-dark" to="/members">
+              Explore member profiles
+            </Link>
           </div>
         </div>
       </section>
