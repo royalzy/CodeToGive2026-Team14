@@ -7,9 +7,11 @@ import {
   ProgramCard,
   SectionHeading,
 } from "../components/Cards";
-import { metrics, personas, programs } from "../content/en";
+import { useLanguage } from "../hooks/useLanguage";
 
 export function HomePage() {
+  const { t } = useLanguage();
+
   return (
     <>
       <section className="home-hero">
@@ -69,7 +71,7 @@ export function HomePage() {
             Love 21 impact by the numbers
           </h2>
           <div className="metric-grid">
-            {metrics.map((metric) => (
+            {t.metrics.map((metric) => (
               <MetricCard key={metric.label} metric={metric} />
             ))}
           </div>
@@ -84,7 +86,7 @@ export function HomePage() {
             body="Every part of Love 21 connects: health, confidence, family, friendship and a place in the wider community."
           />
           <div className="program-grid program-grid-home">
-            {programs.map((program) => (
+            {t.programs.map((program) => (
               <ProgramCard compact key={program.slug} program={program} />
             ))}
           </div>
@@ -166,7 +168,7 @@ export function HomePage() {
             align="center"
           />
           <div className="persona-grid">
-            {personas.map((persona) => (
+            {t.personas.map((persona) => (
               <PersonaCard
                 key={persona.href}
                 icon={persona.icon}

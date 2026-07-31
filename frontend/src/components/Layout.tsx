@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 
-import { navigation } from "../content/en";
 import { useLanguage } from "../hooks/useLanguage";
 import { useAuth } from "../hooks/useAuth";
 
@@ -17,7 +16,7 @@ function Wordmark() {
 }
 
 function Header() {
-  const { lang, setLang } = useLanguage();
+  const { lang, setLang, t } = useLanguage();
   const { family, logout } = useAuth();
 
   return (
@@ -28,7 +27,7 @@ function Header() {
         </Link>
 
         <nav className="desktop-nav" aria-label="Main navigation">
-          {navigation.map((item) => (
+          {t.navigation.map((item) => (
             <NavLink
               className={({ isActive }) => (isActive ? "active" : undefined)}
               key={item.href}
@@ -77,7 +76,7 @@ function Header() {
         <details className="mobile-menu">
           <summary aria-label="Open navigation">Menu</summary>
           <nav aria-label="Mobile navigation">
-            {navigation.map((item) => (
+            {t.navigation.map((item) => (
               <NavLink key={item.href} to={item.href}>
                 {item.label}
               </NavLink>
@@ -108,6 +107,8 @@ function Header() {
 }
 
 function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="site-footer">
       <div className="shell footer-grid">
@@ -117,7 +118,7 @@ function Footer() {
         </div>
         <div>
           <p className="footer-heading">Explore</p>
-          {navigation.map((item) => (
+          {t.navigation.map((item) => (
             <Link key={item.href} to={item.href}>
               {item.label}
             </Link>

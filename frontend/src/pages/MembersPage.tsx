@@ -1,7 +1,8 @@
 import { PageHero, MemberCard, SectionHeading } from "../components/Cards";
-import { memberProfiles } from "../content/en";
+import { useLanguage } from "../hooks/useLanguage";
 
 export function MembersPage() {
+  const { t } = useLanguage();
   const defaultPoints = [450, 180, 720];
 
   return (
@@ -21,7 +22,7 @@ export function MembersPage() {
             body="Tap a member to see their journey, milestones and achievements."
           />
           <div className="member-grid">
-            {memberProfiles.map((member, i) => (
+            {t.memberProfiles.map((member, i) => (
               <MemberCard
                 key={member.slug}
                 member={member}

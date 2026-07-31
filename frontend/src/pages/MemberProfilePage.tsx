@@ -2,12 +2,13 @@ import { useParams } from "react-router-dom";
 import { useState } from "react";
 
 import { AchievementBadge, LevelBar, PageHero, SectionHeading } from "../components/Cards";
-import { memberProfiles } from "../content/en";
+import { useLanguage } from "../hooks/useLanguage";
 import { awardPoints, earnedBadges } from "../content/gamification";
 
 export function MemberProfilePage() {
+  const { t } = useLanguage();
   const { slug } = useParams<{ slug: string }>();
-  const member = memberProfiles.find((m) => m.slug === slug);
+  const member = t.memberProfiles.find((m) => m.slug === slug);
 
   const [points, setPoints] = useState(0);
   const [sessions, setSessions] = useState(0);

@@ -6,9 +6,11 @@ import {
   ProgramCard,
   SectionHeading,
 } from "../components/Cards";
-import { crystalMilestones, metrics, moments, programs } from "../content/en";
+import { useLanguage } from "../hooks/useLanguage";
 
 export function ImpactPage() {
+  const { t } = useLanguage();
+
   return (
     <>
       <PageHero
@@ -26,7 +28,7 @@ export function ImpactPage() {
             body="Programmes connect around each member and family rather than operating as isolated services."
           />
           <div className="program-grid">
-            {programs.map((program) => (
+            {t.programs.map((program) => (
               <ProgramCard key={program.slug} program={program} />
             ))}
           </div>
@@ -40,7 +42,7 @@ export function ImpactPage() {
             title="Every number holds a moment"
           />
           <div className="metric-grid metric-grid-dark">
-            {metrics.map((metric) => (
+            {t.metrics.map((metric) => (
               <MetricCard key={metric.label} metric={metric} />
             ))}
           </div>
@@ -73,7 +75,7 @@ export function ImpactPage() {
               </div>
             </div>
             <ol className="milestone-list">
-              {crystalMilestones.map((milestone, index) => (
+              {t.crystalMilestones.map((milestone, index) => (
                 <li key={milestone.label}>
                   <span className="milestone-number">
                     {String(index + 1).padStart(2, "0")}
@@ -98,7 +100,7 @@ export function ImpactPage() {
             body="Every activity, performance and shared meal is a chance to grow."
           />
           <div className="moments-feed">
-            {moments.map((moment, i) => (
+            {t.moments.map((moment, i) => (
               <article key={`${moment.member}-${i}`} className="moment-card">
                 <span className="moment-date">{moment.date}</span>
                 <strong>{moment.member}</strong>

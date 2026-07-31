@@ -71,3 +71,29 @@ export function createDonationIntent(
   return postJson("/api/v1/donation-intents", payload);
 }
 
+export interface BookingPayload {
+  member_slug: string;
+  event_id: string;
+  event_date: string;
+}
+
+export interface BookingResult {
+  id: string;
+  member_slug: string;
+  event_id: string;
+  event_date: string;
+  status: "confirmed";
+  booked_at: string;
+}
+
+export function createBooking(payload: BookingPayload): Promise<BookingResult> {
+  return postJson("/api/v1/bookings", payload);
+}
+
+export function listBookings(memberSlug?: string): Promise<BookingResult[]> {
+  const query = memberSlug
+    ? `?member_slug=${encodeURIComponent(memberSlug)}`
+    : "";
+  return getJson(`/api/v1/bookings${query}`);
+}
+

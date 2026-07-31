@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes.bookings import router as bookings_router
 from app.api.routes.donations import router as donations_router
 from app.api.routes.health import router as health_router
 from app.api.routes.volunteers import router as volunteers_router
@@ -10,8 +11,9 @@ app = FastAPI(
     title=settings.app_name,
     version="0.1.0",
     description=(
-        "Non-persistent demonstration API for the Love 21 volunteer and "
-        "donation journeys."
+        "Demonstration API for the Love 21 volunteer, donation, and booking "
+        "journeys. Volunteer and donation data is discarded; bookings are "
+        "persisted to a local SQLite store to survive refreshes."
     ),
 )
 
@@ -26,4 +28,5 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(volunteers_router, prefix="/api/v1")
 app.include_router(donations_router, prefix="/api/v1")
+app.include_router(bookings_router, prefix="/api/v1")
 

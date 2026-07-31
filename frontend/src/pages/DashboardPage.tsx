@@ -3,19 +3,20 @@ import { Link, Navigate } from "react-router-dom";
 
 import { MemberCard, SectionHeading } from "../components/Cards";
 import { useAuth } from "../hooks/useAuth";
+import { useLanguage } from "../hooks/useLanguage";
 import { addBooking, canBookMember, isAlreadyBooked, MAX_PER_WEEK } from "../content/booking";
-import { bookableEvents, memberProfiles } from "../content/en";
 import type { Booking } from "../content/types";
 
 export function DashboardPage() {
   const { family, logout } = useAuth();
+  const { t } = useLanguage();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [message, setMessage] = useState<string | null>(null);
 
   if (!family) return <Navigate to="/login" replace />;
 
   const members = family.memberSlugs
-    .map((slug) => memberProfiles.find((m) => m.slug === slug))
+    .map((slug) => t.memberProfiles.find((m) => m.slug === slug))
     .filter(Boolean);
 
   const memberBookings = (slug: string) =>
@@ -36,7 +37,7 @@ export function DashboardPage() {
 
   const allBookings = members.flatMap((m) =>
     memberBookings(m!.slug).map((b) => {
-      const ev = bookableEvents.find((e) => e.id === b.eventId);
+      const ev = t.bookableEvents.find((e) => e.id === b.eventId);
       return { ...b, memberName: m!.name, event: ev };
     }),
   );
@@ -111,7 +112,7 @@ export function DashboardPage() {
             body="Choose a session and select which member to sign up."
           />
           <div className="opportunity-grid">
-            {bookableEvents.map((ev) => (
+            {t.bookableEvents.map((ev) => (
               <article key={ev.id} className={`opportunity-card accent-${ev.accent}`}>
                 <p className="eyebrow">{ev.date} · {ev.time}</p>
                 <h3>{ev.title}</h3>

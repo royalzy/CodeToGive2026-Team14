@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { PageHero } from "../components/Cards";
 import { useAuth } from "../hooks/useAuth";
-import { demoFamilies, memberProfiles } from "../content/en";
+import { useLanguage } from "../hooks/useLanguage";
 
 export function LoginPage() {
   const { login, family } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   if (family) {
@@ -29,9 +30,9 @@ export function LoginPage() {
       <section className="section">
         <div className="shell">
           <div className="help-grid">
-            {demoFamilies.map((fam) => {
+            {t.demoFamilies.map((fam) => {
               const members = fam.memberSlugs
-                .map((slug) => memberProfiles.find((m) => m.slug === slug))
+                .map((slug) => t.memberProfiles.find((m) => m.slug === slug))
                 .filter(Boolean);
 
               return (

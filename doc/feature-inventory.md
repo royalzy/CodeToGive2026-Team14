@@ -96,3 +96,38 @@ New types (`content/types.ts`): `Outcome`, `Member`, `Moment`, `VolunteerOpportu
 
 ---
 
+## Maintainability refactor (infrastructure)
+
+### Content split by domain
+`content/en.ts` is now a barrel that re-exports domain modules, so existing imports are untouched:
+- `content/navigation.ts` — nav + personas
+- `content/programs.ts` — metrics + programs
+- `content/members.ts` — member profiles + moments
+- `content/volunteering.ts` — opportunities, interests, availability
+- `content/donations.ts` — donation programs, wishlist, allocation
+- `content/gamification-data.ts` — levels + badges
+- `content/booking-data.ts` — bookable events + demo families
+
+### Cards split into a folder
+`components/Cards.tsx` is now a barrel over `components/cards/`:
+- `cards/PageStructure.tsx` — SectionHeading, PageHero, StatusPanel
+- `cards/ImpactCards.tsx` — MetricCard, ProgramCard, PathwayCard
+- `cards/MemberCards.tsx` — MemberCard, LevelBar, AchievementBadge
+- `cards/EngagementCards.tsx` — OpportunityCard, WishlistCard, AllocationBar, PersonaCard
+
+### Real i18n (Traditional Chinese)
+- `content/zh.ts` mirrors the English content with Traditional Chinese for user-facing copy (nav, personas, programs, levels, badges, moments, events)
+- `LanguageProvider` now swaps `t` between en/zh — the 繁/EN toggle actually translates content
+- Layout, Home, Impact, Volunteer, Donate, Members, Member profile, Login, and Dashboard pages read content via `useLanguage().t`
+- Long-form body copy (member bios) and member names stay English for accuracy — extend `zh.ts` as translations are reviewed
+
+### SQLite booking backend
+- `backend/app/db.py` — SQLite connection + schema init; path overridable via `LOVE21_DB_PATH`
+- `backend/app/schemas/booking.py` — `BookingCreate` / `BookingResponse`
+- `backend/app/api/routes/bookings.py` — `POST /api/v1/bookings` (enforces max 4/week, 2/day with 409 conflicts) and `GET /api/v1/bookings` (optional `member_slug` filter)
+- `backend/tests/conftest.py` — points tests at a temp SQLite DB for isolation
+- New booking endpoint tests in `backend/tests/test_api.py`
+- Frontend client: `createBooking(payload)` and `listBookings(memberSlug?)` added to `api/client.ts`
+
+---
+

@@ -16,7 +16,7 @@ import {
   WishlistCard,
 } from "../components/Cards";
 import { Field } from "../components/FormControls";
-import { allocation, donationPrograms, wishlistItems } from "../content/en";
+import { useLanguage } from "../hooks/useLanguage";
 
 const donationSchema = z.object({
   amount: z.number().int().positive("Enter an amount greater than HK$0.").max(1_000_000),
@@ -43,6 +43,7 @@ type DonationFormData = z.infer<typeof donationSchema>;
 const amountOptions = [250, 500, 1000] as const;
 
 export function DonatePage() {
+  const { t } = useLanguage();
   const [result, setResult] = useState<DonationIntentResult | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
@@ -65,7 +66,7 @@ export function DonatePage() {
   const selectedAmount = watch("amount");
   const selectedProgram = watch("program");
   const selectedProgramLabel =
-    donationPrograms.find((program) => program.value === selectedProgram)?.label ??
+    t.donationPrograms.find((program) => program.value === selectedProgram)?.label ??
     "Love 21";
 
   async function onSubmit(data: DonationFormData) {
@@ -124,7 +125,7 @@ export function DonatePage() {
             title="Transparency you can see"
             body="Every dollar is directed to specific programmes that connect around members and families."
           />
-          <AllocationBar shares={allocation} />
+          <AllocationBar shares={t.allocation} />
         </div>
       </section>
 
@@ -136,7 +137,7 @@ export function DonatePage() {
             body="Choose an item to support a specific programme. Every contribution makes a real difference."
           />
           <div className="wishlist-grid">
-            {wishlistItems.map((item) => (
+            {t.wishlistItems.map((item) => (
               <WishlistCard key={item.id} item={item} />
             ))}
           </div>
@@ -229,7 +230,7 @@ export function DonatePage() {
 
                 <Field label="Where would you like to direct support?">
                   <select {...register("program")}>
-                    {donationPrograms.map((program) => (
+                    {t.donationPrograms.map((program) => (
                       <option key={program.value} value={program.value}>
                         {program.label}
                       </option>
