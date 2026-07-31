@@ -45,12 +45,16 @@ class DonationIntentResponse(BaseModel):
     simulation: Literal[True] = True
     impact_message: str
     acknowledgement: str
-    persistence: Literal["none"] = "none"
+    persistence: Literal["stored"] = "stored"
 
     @classmethod
-    def create(cls, program: DonationProgram) -> "DonationIntentResponse":
+    def create(
+        cls,
+        program: DonationProgram,
+        reference: str | None = None,
+    ) -> "DonationIntentResponse":
         return cls(
-            reference=f"DON-{uuid4().hex[:8].upper()}",
+            reference=reference or f"DON-{uuid4().hex[:8].upper()}",
             status="simulated",
             impact_message=f"Your preference {PROGRAM_MESSAGES[program]}.",
             acknowledgement=(

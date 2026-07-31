@@ -12,8 +12,8 @@ app = FastAPI(
     version="0.1.0",
     description=(
         "Demonstration API for the Love 21 volunteer, donation, and booking "
-        "journeys. Volunteer and donation data is discarded; bookings are "
-        "persisted to a local SQLite store to survive refreshes."
+        "journeys. Volunteer data is discarded; donation intents (anonymized) "
+        "and bookings are persisted to a local SQLite store."
     ),
 )
 
