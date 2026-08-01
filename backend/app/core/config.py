@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     environment: str = "development"
     allowed_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
+    umami_enabled: bool = False
+    umami_host: str = ""
+    umami_website_id: str = ""
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @cached_property

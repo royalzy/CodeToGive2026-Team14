@@ -9,6 +9,7 @@ import {
   type DonationIntentResult,
   type ImpactPreview,
 } from "../api/client";
+import { track, trackFormStarted } from "../analytics/umami";
 import {
   getAmountBucket,
   trackDonationEvent,
@@ -289,6 +290,10 @@ export function DonatePage() {
         amount_bucket: getAmountBucket(nextResult.impact.amount_hkd),
         impact_mode: nextResult.impact.mode,
       });
+      track("donation_intent", {
+        program: causeId,
+        amount: amountHkd,
+      });
     } catch (error) {
       setSubmitError(
         error instanceof Error
@@ -340,6 +345,7 @@ export function DonatePage() {
               className="donation-flow-card"
               ref={flowPanelRef}
               tabIndex={-1}
+              onFocusCapture={() => trackFormStarted("donation")}
             >
               <div className="simulation-banner" role="note">
                 Hackathon simulation — no payment is taken and no personal
