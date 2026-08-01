@@ -7,8 +7,6 @@ export type DonorCommunityCopy = {
   join: string;
   meet: string;
   supportersEyebrow: string;
-  supportersTitle: string;
-  supportersBody: string;
   partnersEyebrow: string;
   partnersTitle: string;
   wallEyebrow: string;
@@ -32,9 +30,6 @@ export const donorCommunityCopy: Record<"en" | "zh", DonorCommunityCopy> = {
     join: "Join the community",
     meet: "Meet our people",
     supportersEyebrow: "People making this possible",
-    supportersTitle: "A community, not a leaderboard.",
-    supportersBody:
-      "Every circle represents a person. Gift amounts stay private so participation, not wealth, remains the story.",
     partnersEyebrow: "Alongside us",
     partnersTitle: "10 organisations sharing the work",
     wallEyebrow: "Donor wall · moderated",
@@ -57,9 +52,6 @@ export const donorCommunityCopy: Record<"en" | "zh", DonorCommunityCopy> = {
     join: "加入這個社群",
     meet: "認識支持者",
     supportersEyebrow: "People making this possible",
-    supportersTitle: "這是一個社群，不是排行榜。",
-    supportersBody:
-      "每個圓形都代表一位支持者。捐款金額保持私密，讓參與本身成為主角。",
     partnersEyebrow: "與我們同行",
     partnersTitle: "10 家機構一起把事情做好",
     wallEyebrow: "支持者留言牆 · 經審核",

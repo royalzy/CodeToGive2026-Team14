@@ -52,7 +52,10 @@ describe("donor community experience", () => {
     renderRoute("/community");
 
     expect(screen.getAllByText("1,284").length).toBeGreaterThan(0);
-    expect(screen.getByText("No amounts. No rankings. Every circle is equal.")).toBeInTheDocument();
+    expect(screen.getByText("People making this possible")).toBeInTheDocument();
+    expect(screen.queryByText("A community, not a leaderboard.")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Every circle represents a person/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("No amounts. No rankings. Every circle is equal.")).not.toBeInTheDocument();
     expect(screen.getByText(/I hope every child feels seen/i)).toBeInTheDocument();
     expect(screen.getByText(/Visible only to you · awaiting review/i)).toBeInTheDocument();
     expect(screen.queryByText(/Loading new supporters/i)).not.toBeInTheDocument();

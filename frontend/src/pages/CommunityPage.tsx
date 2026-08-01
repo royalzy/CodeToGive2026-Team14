@@ -59,10 +59,7 @@ export function CommunityPage() {
 
       <section className="donor-community-mosaic-band" id="supporters">
         <div className="donor-community-section">
-          <div className="donor-community-section-heading">
-            <div><p className="donor-community-eyebrow">{copy.supportersEyebrow}</p><h2>{copy.supportersTitle}</h2></div>
-            <p>{copy.supportersBody}</p>
-          </div>
+          <p className="donor-community-eyebrow donor-community-mosaic-title">{copy.supportersEyebrow}</p>
           <ul className="donor-community-face-grid" aria-label="Supporter mosaic">
             {supporterFaces.map(([name, color], index) => (
               <li key={`${name}-${index}`} style={{ "--supporter-color": color } as CSSProperties}>
@@ -70,7 +67,6 @@ export function CommunityPage() {
               </li>
             ))}
           </ul>
-          <p className="donor-community-mosaic-note">No amounts. No rankings. Every circle is equal.</p>
         </div>
       </section>
 
