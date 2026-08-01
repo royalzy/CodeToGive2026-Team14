@@ -1,4 +1,5 @@
 import { PageHero, SectionHeading } from "../components/Cards";
+import { analyticsDashboardUrl } from "../analytics/umami";
 
 const adminMetrics = [
   { value: "1,234", label: "visitors this month", accent: "blue" as const },
@@ -51,6 +52,33 @@ export function AdminPage() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Audience insights"
+            title="Site analytics"
+            body="Live visitor trends, referrers and conversion funnels from Umami."
+          />
+          {analyticsDashboardUrl ? (
+            <iframe
+              title="Umami analytics dashboard"
+              src={analyticsDashboardUrl}
+              style={{ width: "100%", height: "640px", border: 0, borderRadius: "12px" }}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="privacy-note" style={{ maxWidth: "600px", margin: "0 auto" }}>
+              <strong>Analytics not configured</strong>
+              <p>
+                Set <code>VITE_UMAMI_DASHBOARD_URL</code> to the shareable Umami
+                dashboard link to display live audience insights here.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

@@ -9,12 +9,16 @@ declare global {
 export function umamiConfig(): {
   host?: string;
   websiteId?: string;
+  dashboardUrl?: string;
 } {
   return {
     host: import.meta.env.VITE_UMAMI_HOST,
     websiteId: import.meta.env.VITE_UMAMI_WEBSITE_ID,
+    dashboardUrl: import.meta.env.VITE_UMAMI_DASHBOARD_URL,
   };
 }
+
+export const analyticsDashboardUrl = umamiConfig().dashboardUrl;
 
 export function isConfigured(): boolean {
   const { host, websiteId } = umamiConfig();
