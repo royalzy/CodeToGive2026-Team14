@@ -3221,7 +3221,7 @@ h3 {
 .donor-community-hero-copy h1 {
   min-height: var(--pretext-height, auto);
   margin: 0;
-  font-size: clamp(3.5rem, 6vw, 5.7rem);
+  font-size: clamp(3.1rem, 5vw, 4.8rem);
   line-height: 0.98;
   letter-spacing: -0.052em;
 }
@@ -3293,7 +3293,7 @@ h3 {
 .donor-community-section { width: min(1160px, calc(100% - 3rem)); margin-inline: auto; padding: clamp(4rem, 8vw, 6rem) 0; }
 .donor-community-section-heading { display: flex; gap: 2rem; align-items: end; justify-content: space-between; margin-bottom: 2.4rem; }
 .donor-community-section-heading h2,
-.donor-community-wall-intro h2 { max-width: 720px; margin: 0; font-size: clamp(2.7rem, 5vw, 4.2rem); line-height: 1; letter-spacing: -0.04em; }
+.donor-community-wall-intro h2 { max-width: 720px; margin: 0; font-size: clamp(2.3rem, 4vw, 3.4rem); line-height: 1.03; letter-spacing: -0.035em; }
 .donor-community-section-heading > p { max-width: 390px; margin: 0; color: var(--donor-muted); }
 .donor-community-mosaic-band { margin: 1.5rem; overflow: hidden; border-radius: 2.2rem; color: white; background: var(--donor-ox); }
 .donor-community-mosaic-band .donor-community-eyebrow { color: var(--donor-apricot); }
@@ -3320,16 +3320,11 @@ h3 {
 .donor-community-wall article p { margin: 0.25rem 0 0; color: #625650; font: italic 1rem var(--donor-serif); }
 .donor-community-post-meta { display: grid; justify-items: end; gap: 0.35rem; color: #8a807b; font-size: 0.7rem; }
 .donor-community-post-meta span { padding: 0.28rem 0.5rem; border-radius: 999px; color: var(--donor-ox); background: var(--donor-peach); font-weight: 850; }
-.donor-community-wall-states { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
-.donor-community-wall-states p { margin: 0; padding: 1rem; border: 1px dashed #b6a49a; border-radius: 1rem; color: #766a64; background: rgba(255, 255, 255, 0.42); font-size: 0.78rem; }
-.donor-community-loader { display: inline-block; width: 14px; height: 14px; margin-right: 0.4rem; border: 2px solid #d8c6b8; border-top-color: var(--donor-ox); border-radius: 50%; animation: donor-spin 1s linear infinite; vertical-align: -2px; }
-@keyframes donor-spin { to { transform: rotate(360deg); } }
-
 .donor-community-thanks { display: grid; grid-template-columns: 0.78fr 1.22fr; gap: 2rem; align-items: stretch; }
 .donor-community-thanks figure { min-height: 390px; margin: 0; overflow: hidden; border-radius: 1.75rem; }
 .donor-community-thanks img { width: 100%; height: 100%; object-fit: cover; }
 .donor-community-thanks > div { display: flex; flex-direction: column; justify-content: center; padding: clamp(2rem, 5vw, 3.5rem); border-radius: 1.75rem; background: var(--donor-paper); }
-.donor-community-thanks h2 { margin: 0; font-size: clamp(2.2rem, 4vw, 3.55rem); line-height: 1.08; }
+.donor-community-thanks h2 { margin: 0; font-size: clamp(2rem, 3.4vw, 3rem); line-height: 1.1; }
 .donor-community-thanks > div > p:not(.donor-community-eyebrow, .donor-community-signature) { color: var(--donor-muted); }
 .donor-community-signature { color: var(--donor-ox); font-weight: 850; }
 .donor-community-thanks .donor-community-button { align-self: flex-start; margin-top: 0.7rem; }
@@ -3426,7 +3421,7 @@ h3 {
 
 @media (max-width: 620px) {
   .donor-community-hero { width: calc(100% - 2rem); padding-top: 2.6rem; }
-  .donor-community-hero-copy h1 { font-size: clamp(3rem, 15vw, 4rem); }
+  .donor-community-hero-copy h1 { font-size: clamp(2.7rem, 12vw, 3.35rem); }
   .donor-community-counts { gap: 1rem; }
   .donor-community-counts dt { font-size: 1.8rem; }
   .donor-community-constellation { min-height: 340px; }
@@ -3439,14 +3434,13 @@ h3 {
   .donor-community-section { width: calc(100% - 2rem); padding-block: 3.8rem; }
   .donor-community-section-heading { align-items: start; flex-direction: column; }
   .donor-community-section-heading h2,
-  .donor-community-wall-intro h2 { font-size: 2.65rem; }
+  .donor-community-wall-intro h2 { font-size: 2.25rem; }
   .donor-community-mosaic-band { margin: 0.55rem; border-radius: 1.5rem; }
   .donor-community-face-grid { grid-template-columns: repeat(6, 1fr); gap: 0.45rem; }
   .donor-community-partner-grid { grid-template-columns: 1fr 1fr; }
   .donor-community-wall article { grid-template-columns: 46px 1fr; }
   .donor-community-post-avatar { width: 46px; height: 46px; }
   .donor-community-post-meta { grid-column: 2; justify-items: start; }
-  .donor-community-wall-states { grid-template-columns: 1fr; }
   .donor-community-thanks figure { min-height: 280px; }
   .supporter-quick-actions { right: 0.5rem; bottom: 0.5rem; left: 0.5rem; justify-content: center; border-radius: 1.1rem; }
   .supporter-quick-action { flex: 1; justify-content: center; padding-inline: 0.6rem; text-align: center; }

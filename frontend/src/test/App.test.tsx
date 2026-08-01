@@ -53,7 +53,10 @@ describe("donor community experience", () => {
 
     expect(screen.getAllByText("1,284").length).toBeGreaterThan(0);
     expect(screen.getByText("No amounts. No rankings. Every circle is equal.")).toBeInTheDocument();
+    expect(screen.getByText(/I hope every child feels seen/i)).toBeInTheDocument();
     expect(screen.getByText(/Visible only to you · awaiting review/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Loading new supporters/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No public messages yet/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "My donor profile" })).toHaveAttribute(
       "href",
       "/donor-profile",

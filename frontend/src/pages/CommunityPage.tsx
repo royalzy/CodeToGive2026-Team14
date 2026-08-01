@@ -99,10 +99,6 @@ export function CommunityPage() {
                 <div className="donor-community-post-meta"><time>{post.time}</time>{post.status === "pending" && <span>{copy.pending}</span>}</div>
               </article>
             ))}
-            <div className="donor-community-wall-states" aria-label="Donor wall service states">
-              <p><span className="donor-community-loader" aria-hidden="true" />Loading new supporters…</p>
-              <p><strong>No public messages yet?</strong> The supporter mosaic remains visible while the first note is reviewed.</p>
-            </div>
           </div>
         </div>
       </section>

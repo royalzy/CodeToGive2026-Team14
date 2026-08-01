@@ -98,25 +98,25 @@ export const communityPartners = [
 export const donorWallPosts = [
   {
     name: "小鲸鱼",
-    message: "希望每个孩子都能被看见。",
+    message: "I hope every child feels seen.",
     time: "Today · 10:42",
     status: "public",
   },
   {
     name: "Annie",
-    message: "很高兴加入这个大家庭。",
+    message: "So glad to be part of this community.",
     time: "Yesterday",
     status: "public",
   },
   {
     name: "Mountain",
-    message: "谢谢你们持续做这件事。",
+    message: "Thank you for continuing this work.",
     time: "2 days ago",
     status: "public",
   },
   {
     name: "阿木",
-    message: "愿每一个孩子，都能在自己的节奏里闪光。",
+    message: "May every child have space to shine at their own pace.",
     time: "Just now",
     status: "pending",
   },
