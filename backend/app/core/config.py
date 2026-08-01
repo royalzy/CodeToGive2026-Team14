@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     umami_enabled: bool = False
     umami_host: str = ""
     umami_website_id: str = ""
+    umami_api_key: str = ""
+    umami_api_base: str = "https://api.umami.is/v1"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes.analytics import router as analytics_router
 from app.api.routes.bookings import router as bookings_router
 from app.api.routes.donations import router as donations_router
 from app.api.routes.health import router as health_router
@@ -31,4 +32,5 @@ app.include_router(volunteers_router, prefix="/api/v1")
 app.include_router(donations_router, prefix="/api/v1")
 app.include_router(bookings_router, prefix="/api/v1")
 app.include_router(questionnaire_router, prefix="/api/v1")
+app.include_router(analytics_router, prefix="/api/v1")
 
