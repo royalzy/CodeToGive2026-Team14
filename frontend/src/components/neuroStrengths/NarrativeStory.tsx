@@ -13,7 +13,7 @@ export function NarrativeStory({ archetype }: { archetype: Archetype }) {
           Meet the archetype
         </p>
         <h3 className="mt-1 text-2xl font-bold text-love-ink">{archetype.name}</h3>
-        <p className="mt-3 text-love-ink/80">{archetype.story}</p>
+        <p className="mt-3 leading-relaxed text-love-ink/80">{archetype.story}</p>
       </div>
     </div>
   );
