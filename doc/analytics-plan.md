@@ -82,7 +82,9 @@ FastAPI ──► Umami REST API      (later: monthly report automation)
    No-op by default (`UMAMI_ENABLED=false`) so existing behavior/tests unchanged.
 3. **Wire donation conversion event** — 2-line change in
    `backend/app/api/routes/donations.py` via FastAPI `BackgroundTasks` +
-   `app/services/umami.py::track_event`.
+   `app/services/umami.py::track_event`. *(Removed in review: server-side
+   duplicates of client-side events double-counted in Umami; conversion
+   events are now client-only, except `questionnaire_completed`.)*
 4. **Frontend snippet + typed wrapper** — `frontend/src/analytics/umami.ts`
    (guarded by `VITE_UMAMI_HOST` / `VITE_UMAMI_WEBSITE_ID`, no-op when unset),
    one-line init in `main.tsx`, vitest tests.
@@ -100,8 +102,8 @@ FastAPI ──► Umami REST API      (later: monthly report automation)
 | Event | When | Client / Server | Data (anonymized) |
 |---|---|---|---|
 | pageview | every navigation | client (script) | auto |
-| `donation_intent` | donate form submitted | client + server | program, amount, lang |
-| `volunteer_application` | volunteer form submitted | client + server | interests, availability, lang |
+| `donation_intent` | donate form submitted | client | program, amount, lang |
+| `volunteer_application` | volunteer form submitted | client | interests, availability, lang |
 | `questionnaire_completed` | questionnaire submitted (API) | server | path |
 | `donation_form_started` / `volunteer_form_started` | first focus in form | client | lang |
 | `cta_click` | any element with `data-cta` clicked | client | cta, lang |

@@ -1,10 +1,9 @@
-from fastapi import APIRouter, BackgroundTasks, status
+from fastapi import APIRouter, status
 
 from app.schemas.volunteer import (
     VolunteerApplicationRequest,
     VolunteerApplicationResponse,
 )
-from app.services.umami import track_event
 
 router = APIRouter(prefix="/volunteer-applications", tags=["volunteer"])
 
@@ -16,18 +15,9 @@ router = APIRouter(prefix="/volunteer-applications", tags=["volunteer"])
 )
 async def create_volunteer_application(
     application: VolunteerApplicationRequest,
-    background_tasks: BackgroundTasks,
 ) -> VolunteerApplicationResponse:
     # The prototype deliberately validates and discards the submitted data.
     # Avoid logging `application`: it contains personally identifiable information.
-    background_tasks.add_task(
-        track_event,
-        "volunteer_application",
-        {
-            "interests": list(application.interests),
-            "availability": application.availability,
-        },
-        url="https://love21.org/volunteer",
-    )
+    _ = application
     return VolunteerApplicationResponse.create()
 
