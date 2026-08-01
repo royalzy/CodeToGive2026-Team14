@@ -78,7 +78,6 @@ export function VolunteerMatchPage() {
   return (
     <>
       <PageHero
-        eyebrow="60-second quiz"
         title="What type of volunteer are you?"
         body="Answer five quick, situational questions and we'll match you with the volunteer role that fits your personality best."
         tone="red"
@@ -106,6 +105,24 @@ export function VolunteerMatchPage() {
           )}
         </div>
       </section>
+
+      {resultLetter && (
+        <>
+          <section className="section section-soft">
+            <div className="shell">
+              <VolunteerOtherWaysToHelp />
+            </div>
+          </section>
+          <section className="section">
+            <div className="shell">
+              <VolunteerNewsletterSignup
+                source="volunteer_quiz_results"
+                title="Prefer to hear from us by email?"
+              />
+            </div>
+          </section>
+        </>
+      )}
     </>
   );
 }
@@ -113,17 +130,29 @@ export function VolunteerMatchPage() {
 function QuizIntroView({ onStart }: { onStart: () => void }) {
   return (
     <div className="volunteer-quiz-card volunteer-quiz-intro">
-      <p className="eyebrow">Before you start</p>
-      <h2 className="volunteer-quiz-prompt">Five quick questions, one fun result.</h2>
-      <p className="volunteer-quiz-disclaimer">
-        This quiz is just for fun — it might not be fully accurate and can&apos;t capture
-        every part of your personality in five questions. Treat your result as a friendly
-        starting point for exploring volunteer roles, not a fixed label. You are always
-        welcome to browse every role yourself, whatever your result says.
-      </p>
-      <button type="button" className="button button-dark" onClick={onStart}>
-        Start the quiz
-      </button>
+      <img
+        className="volunteer-quiz-banner"
+        src="/images/quiz-question-banner.jpg"
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        onError={(event) => {
+          event.currentTarget.style.display = "none";
+        }}
+      />
+      <div className="volunteer-quiz-card-body">
+        <p className="eyebrow">Before you start</p>
+        <h2 className="volunteer-quiz-prompt">Five quick questions, one fun result.</h2>
+        <p className="volunteer-quiz-disclaimer">
+          This quiz is just for fun, it might not be fully accurate and can&apos;t capture
+          every part of your personality in five questions. Treat your result as a friendly
+          starting point for exploring volunteer roles, not a fixed label. You are always
+          welcome to browse every role yourself, whatever your result says.
+        </p>
+        <button type="button" className="button button-dark" onClick={onStart}>
+          Start the quiz
+        </button>
+      </div>
     </div>
   );
 }
@@ -147,40 +176,52 @@ function QuizQuestionView({
 }) {
   return (
     <div className="volunteer-quiz-card">
-      <div
-        className="volunteer-quiz-progress"
-        role="progressbar"
-        aria-valuenow={progress}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={`Question ${index + 1} of ${total}`}
-      >
-        <div className="volunteer-quiz-progress-fill" style={{ width: `${progress}%` }} />
-      </div>
-      <p className="volunteer-quiz-step">
-        Question {index + 1} of {total}
-      </p>
-      <h2 className="volunteer-quiz-prompt">{question.prompt}</h2>
-      <div className="volunteer-quiz-options">
-        {question.options.map((option) => (
-          <button
-            key={option.letter}
-            type="button"
-            className="volunteer-quiz-option"
-            onClick={() => onSelect(option.letter)}
-          >
-            <span className="volunteer-quiz-option-letter" aria-hidden="true">
-              {option.letter}
-            </span>
-            <span>{option.text}</span>
+      <img
+        className="volunteer-quiz-banner"
+        src="/images/quiz-question-banner.jpg"
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        onError={(event) => {
+          event.currentTarget.style.display = "none";
+        }}
+      />
+      <div className="volunteer-quiz-card-body">
+        <div
+          className="volunteer-quiz-progress"
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Question ${index + 1} of ${total}`}
+        >
+          <div className="volunteer-quiz-progress-fill" style={{ width: `${progress}%` }} />
+        </div>
+        <p className="volunteer-quiz-step">
+          Question {index + 1} of {total}
+        </p>
+        <h2 className="volunteer-quiz-prompt">{question.prompt}</h2>
+        <div className="volunteer-quiz-options">
+          {question.options.map((option) => (
+            <button
+              key={option.letter}
+              type="button"
+              className="volunteer-quiz-option"
+              onClick={() => onSelect(option.letter)}
+            >
+              <span className="volunteer-quiz-option-letter" aria-hidden="true">
+                {option.letter}
+              </span>
+              <span>{option.text}</span>
+            </button>
+          ))}
+        </div>
+        {canGoBack && (
+          <button type="button" className="text-link volunteer-quiz-back" onClick={onBack}>
+            <span aria-hidden="true">←</span> Back to previous question
           </button>
-        ))}
+        )}
       </div>
-      {canGoBack && (
-        <button type="button" className="text-link volunteer-quiz-back" onClick={onBack}>
-          <span aria-hidden="true">←</span> Back to previous question
-        </button>
-      )}
     </div>
   );
 }
@@ -204,58 +245,67 @@ function QuizResultView({
 
   return (
     <div className="volunteer-quiz-result">
-      {arrivedViaSharedLink && (
-        <p className="volunteer-quiz-shared-banner">
-          A friend shared their result with you — take the quiz to find yours!
-        </p>
-      )}
-      <div className="volunteer-quiz-progress">
-        <div className="volunteer-quiz-progress-fill" style={{ width: "100%" }} />
-      </div>
-      <p className="eyebrow">Your result</p>
-      <h2 className="volunteer-quiz-archetype">{result.archetype}</h2>
-      <p className="volunteer-quiz-title-tag">You are a &ldquo;{result.title}&rdquo;</p>
-      <p className="volunteer-quiz-personality">{result.personality}</p>
-
-      <h3>Your perfect volunteer match</h3>
-      <div className="volunteer-quiz-match-grid">
-        {result.matches.map((match) => {
-          const role = getVolunteerRole(match.roleId);
-          if (!role) return null;
-          return (
-            <div key={match.roleId} className="volunteer-quiz-match-item">
-              <p className="volunteer-quiz-match-note">{match.note}</p>
-              <VolunteerRoleCard role={role} journeyPath="guided" />
-            </div>
-          );
-        })}
+      <div className="volunteer-quiz-result-hero">
+        {arrivedViaSharedLink && (
+          <p className="volunteer-quiz-shared-banner">
+            A friend shared their result with you — take the quiz to find yours!
+          </p>
+        )}
+        <img
+          className="volunteer-quiz-result-image"
+          src={result.image}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+          }}
+        />
+        <p className="eyebrow">Your result</p>
+        <h2 className="volunteer-quiz-archetype">{result.archetype}</h2>
+        <p className="volunteer-quiz-title-tag">You are a &ldquo;{result.title}&rdquo;</p>
+        <p className="volunteer-quiz-personality">{result.personality}</p>
       </div>
 
-      <div className="volunteer-quiz-special">
-        <p className="eyebrow">What makes you special</p>
-        <p>{result.whatMakesYouSpecial}</p>
-      </div>
+      <div className="volunteer-quiz-result-body">
+        <h3>Your perfect volunteer match</h3>
+        <div className="volunteer-quiz-match-grid">
+          {result.matches.map((match) => {
+            const role = getVolunteerRole(match.roleId);
+            if (!role) return null;
+            return (
+              <div key={match.roleId} className="volunteer-quiz-match-item">
+                <p className="volunteer-quiz-match-note">{match.note}</p>
+                <VolunteerRoleCard role={role} journeyPath="guided" />
+              </div>
+            );
+          })}
+        </div>
 
-      <div className="volunteer-quiz-cta-row">
-        <Link
-          className="button button-dark"
-          to={`/volunteer/roles${relatedPrograms.length ? `?program=${relatedPrograms.join(",")}` : ""}`}
-        >
-          Explore more related roles
-        </Link>
-        <button type="button" className="button button-outline" onClick={() => setIsShareOpen(true)}>
-          Share my result
-        </button>
-        <button type="button" className="text-link" onClick={onRetake}>
-          Retake the quiz
-        </button>
-      </div>
+        <div className="volunteer-quiz-special">
+          <p className="eyebrow">What makes you special</p>
+          <p>{result.whatMakesYouSpecial}</p>
+        </div>
 
-      <VolunteerOtherWaysToHelp />
-      <VolunteerNewsletterSignup
-        source="volunteer_quiz_results"
-        title="Prefer to hear from us by email?"
-      />
+        <div className="volunteer-quiz-cta-row">
+          <Link
+            className="button button-dark"
+            to={`/volunteer/roles${relatedPrograms.length ? `?program=${relatedPrograms.join(",")}` : ""}`}
+          >
+            Explore more related roles
+          </Link>
+          <button
+            type="button"
+            className="button button-outline"
+            onClick={() => setIsShareOpen(true)}
+          >
+            Share my result
+          </button>
+          <button type="button" className="text-link" onClick={onRetake}>
+            Retake the quiz
+          </button>
+        </div>
+      </div>
 
       {isShareOpen && <QuizShareModal result={result} onClose={() => setIsShareOpen(false)} />}
     </div>

@@ -32,20 +32,28 @@ export function VolunteerPage() {
           />
           <div className="volunteer-path-grid volunteer-path-grid-single">
             <article className="volunteer-path-card volunteer-path-quiz">
-              <span>60-second quiz</span>
-              <h2>Find out which type of volunteer you are</h2>
-              <p>
-                Answer five quick, fun questions and we'll match you with a role that
-                fits your personality. It's a starting point, never a test or restriction.
-              </p>
-              <div className="volunteer-inline-actions">
-                <Link className="button button-light" to="/volunteer/match">
-                  Find out which type of volunteer you are{" "}
-                  <span aria-hidden="true">→</span>
-                </Link>
-                <Link className="button button-dark" to="/volunteer/roles">
-                  Browse all roles
-                </Link>
+              <img
+                className="volunteer-path-quiz-image"
+                src="/images/quiz-cta-girl.jpg"
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+              />
+              <div className="volunteer-path-quiz-content">
+                <h2>Find out which type of volunteer you are</h2>
+                <br></br>
+                <p>
+                  Take our 1 minute quiz and discover the role that was made for you.
+                </p>
+                <div className="volunteer-inline-actions">
+                  <Link className="button button-light" to="/volunteer/match">
+                    Find out{" "}
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                  <Link className="button button-dark" to="/volunteer/roles">
+                    Browse all roles
+                  </Link>
+                </div>
               </div>
             </article>
           </div>

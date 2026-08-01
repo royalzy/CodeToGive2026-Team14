@@ -1,23 +1,17 @@
 import type { QuizResult } from "../content/volunteerQuiz";
 
-const CARD_WIDTH = 1200;
-const CARD_HEIGHT = 630;
+export type ShareImageOrientation = "vertical" | "horizontal";
 
-function roundRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number,
-) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.arcTo(x + width, y, x + width, y + height, radius);
-  ctx.arcTo(x + width, y + height, x, y + height, radius);
-  ctx.arcTo(x, y + height, x, y, radius);
-  ctx.arcTo(x, y, x + width, y, radius);
-  ctx.closePath();
+const NAVY = "#223969";
+const GOLD = "#ffd21c";
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`Could not load ${src}`));
+    img.src = src;
+  });
 }
 
 function wrapText(
@@ -55,57 +49,132 @@ function wrapText(
   return cursorY + lineHeight;
 }
 
-export function generateQuizResultImage(result: QuizResult): string | null {
+async function loadIllustration(result: QuizResult): Promise<HTMLImageElement | null> {
+  try {
+    return await loadImage(result.image);
+  } catch {
+    return null;
+  }
+}
+
+function drawVertical(
+  ctx: CanvasRenderingContext2D,
+  result: QuizResult,
+  illustration: HTMLImageElement | null,
+): { width: number; height: number } {
+  // Instagram Story ratio (9:16).
+  const width = 1080;
+  const height = 1920;
+  const imageHeight = illustration
+    ? Math.round((width / illustration.width) * illustration.height)
+    : 1150;
+  ctx.canvas.width = width;
+  ctx.canvas.height = height;
+
+  ctx.fillStyle = NAVY;
+  ctx.fillRect(0, 0, width, height);
+  if (illustration) {
+    ctx.drawImage(illustration, 0, 0, width, imageHeight);
+  }
+
+  const padX = 80;
+  let cursorY = imageHeight + 170;
+  ctx.fillStyle = GOLD;
+  ctx.font = "800 28px Arial, sans-serif";
+  ctx.fillText("LOVE 21 · WHAT TYPE OF VOLUNTEER ARE YOU?", padX, cursorY);
+
+  cursorY += 74;
+  ctx.fillStyle = "white";
+  ctx.font = "700 44px Arial, sans-serif";
+  cursorY = wrapText(ctx, `You are a "${result.title}"`, padX, cursorY, width - padX * 2, 54, 3);
+
+  cursorY += 34;
+  ctx.fillStyle = "rgb(255 255 255 / 85%)";
+  ctx.font = "600 30px Arial, sans-serif";
+  wrapText(
+    ctx,
+    "Take the quiz → https://love21foundation.com/volunteer/match",
+    padX,
+    cursorY,
+    width - padX * 2,
+    38,
+    2,
+  );
+
+  return { width, height };
+}
+
+function drawHorizontal(
+  ctx: CanvasRenderingContext2D,
+  result: QuizResult,
+  illustration: HTMLImageElement | null,
+): { width: number; height: number } {
+  const height = 630;
+  const imageWidth = illustration
+    ? Math.round((height / illustration.height) * illustration.width)
+    : 592;
+  const panelWidth = 560;
+  const width = imageWidth + panelWidth;
+  ctx.canvas.width = width;
+  ctx.canvas.height = height;
+
+  ctx.fillStyle = NAVY;
+  ctx.fillRect(0, 0, width, height);
+  if (illustration) {
+    ctx.drawImage(illustration, 0, 0, imageWidth, height);
+  }
+
+  const padX = imageWidth + 56;
+  const panelTextWidth = panelWidth - 96;
+  let cursorY = 130;
+  ctx.fillStyle = GOLD;
+  ctx.font = "800 20px Arial, sans-serif";
+  cursorY = wrapText(
+    ctx,
+    "LOVE 21 · WHAT TYPE OF VOLUNTEER ARE YOU?",
+    padX,
+    cursorY,
+    panelTextWidth,
+    28,
+    3,
+  );
+
+  cursorY += 30;
+  ctx.fillStyle = "white";
+  ctx.font = "700 32px Arial, sans-serif";
+  cursorY = wrapText(ctx, `You are a "${result.title}"`, padX, cursorY, panelTextWidth, 40, 4);
+
+  cursorY += 32;
+  ctx.fillStyle = "rgb(255 255 255 / 85%)";
+  ctx.font = "600 22px Arial, sans-serif";
+  wrapText(
+    ctx,
+    "Take the quiz → https://love21foundation.com/volunteer/match",
+    padX,
+    cursorY,
+    panelTextWidth,
+    30,
+    3,
+  );
+
+  return { width, height };
+}
+
+export async function generateQuizResultImage(
+  result: QuizResult,
+  orientation: ShareImageOrientation,
+): Promise<string | null> {
   const canvas = document.createElement("canvas");
-  canvas.width = CARD_WIDTH;
-  canvas.height = CARD_HEIGHT;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
 
-  const gradient = ctx.createLinearGradient(0, 0, CARD_WIDTH, CARD_HEIGHT);
-  gradient.addColorStop(0, "#e9003f");
-  gradient.addColorStop(1, "#ffd21c");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+  const illustration = await loadIllustration(result);
 
-  ctx.fillStyle = "rgba(255, 255, 255, 0.14)";
-  ctx.beginPath();
-  ctx.arc(CARD_WIDTH - 150, 90, 220, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(90, CARD_HEIGHT - 60, 140, 0, Math.PI * 2);
-  ctx.fill();
-
-  const pad = 56;
-  roundRect(ctx, pad, pad, CARD_WIDTH - pad * 2, CARD_HEIGHT - pad * 2, 32);
-  ctx.fillStyle = "#fffdf8";
-  ctx.fill();
-
-  const textX = pad + 56;
-  let cursorY = pad + 76;
-
-  ctx.fillStyle = "#e9003f";
-  ctx.font = "800 20px Arial, sans-serif";
-  ctx.fillText("LOVE 21 · WHAT TYPE OF VOLUNTEER ARE YOU?", textX, cursorY);
-
-  cursorY += 64;
-  ctx.fillStyle = "#171625";
-  ctx.font = "900 52px Arial, sans-serif";
-  ctx.fillText(result.archetype, textX, cursorY);
-
-  cursorY += 46;
-  ctx.fillStyle = "#1455c0";
-  ctx.font = "700 28px Arial, sans-serif";
-  ctx.fillText(`You are a "${result.title}"`, textX, cursorY);
-
-  cursorY += 50;
-  ctx.fillStyle = "#5e5b68";
-  ctx.font = "400 22px Arial, sans-serif";
-  cursorY = wrapText(ctx, result.personality, textX, cursorY, CARD_WIDTH - pad * 2 - 112, 32, 4);
-
-  ctx.fillStyle = "#171625";
-  ctx.font = "800 22px Arial, sans-serif";
-  ctx.fillText("Take the quiz → love21.org/volunteer/match", textX, CARD_HEIGHT - pad - 30);
+  if (orientation === "vertical") {
+    drawVertical(ctx, result, illustration);
+  } else {
+    drawHorizontal(ctx, result, illustration);
+  }
 
   return canvas.toDataURL("image/png");
 }

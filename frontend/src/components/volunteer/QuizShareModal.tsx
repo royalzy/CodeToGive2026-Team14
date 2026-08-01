@@ -1,8 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 
 import type { QuizResult } from "../../content/volunteerQuiz";
-import { dataUrlToBlob, generateQuizResultImage } from "../../lib/quizShareImage";
+import {
+  dataUrlToBlob,
+  generateQuizResultImage,
+  type ShareImageOrientation,
+} from "../../lib/quizShareImage";
 import { trackVolunteerEvent } from "../../lib/volunteerAnalytics";
+
+const orientationOptions: { value: ShareImageOrientation; label: string }[] = [
+  { value: "vertical", label: "Vertical" },
+  { value: "horizontal", label: "Horizontal" },
+];
 
 interface SocialTarget {
   key: string;
@@ -44,6 +53,7 @@ export function QuizShareModal({
   result: QuizResult;
   onClose: () => void;
 }) {
+  const [orientation, setOrientation] = useState<ShareImageOrientation>("vertical");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -52,8 +62,15 @@ export function QuizShareModal({
   const shareText = `I just found out I'm "${result.archetype}" (${result.title}) on Love 21's "What type of volunteer are you?" quiz.`;
 
   useEffect(() => {
-    setImageUrl(generateQuizResultImage(result));
-  }, [result]);
+    let cancelled = false;
+    setImageUrl(null);
+    generateQuizResultImage(result, orientation).then((url) => {
+      if (!cancelled) setImageUrl(url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [result, orientation]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -73,7 +90,7 @@ export function QuizShareModal({
     if (!imageUrl) return;
     const link = document.createElement("a");
     link.href = imageUrl;
-    link.download = `love21-volunteer-quiz-${result.letter.toLowerCase()}.png`;
+    link.download = `love21-volunteer-quiz-${result.letter.toLowerCase()}-${orientation}.png`;
     link.click();
     trackVolunteerEvent("role_shared", { role_id: result.matches[0].roleId });
     flash("Image downloaded");
@@ -139,7 +156,23 @@ export function QuizShareModal({
           Save the image, copy the link, or post it straight to your favourite app.
         </p>
 
-        <div className="quiz-share-preview">
+        <div className="quiz-share-orientation" role="group" aria-label="Image orientation">
+          {orientationOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={`quiz-share-orientation-button ${
+                orientation === option.value ? "is-active" : ""
+              }`}
+              aria-pressed={orientation === option.value}
+              onClick={() => setOrientation(option.value)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+
+        <div className={`quiz-share-preview quiz-share-preview-${orientation}`}>
           {imageUrl ? (
             <img src={imageUrl} alt={`${result.archetype} — ${result.title} quiz result card`} />
           ) : (
@@ -164,9 +197,6 @@ export function QuizShareModal({
           </button>
           <button type="button" className="button button-outline" onClick={handleCopyImage}>
             Copy image
-          </button>
-          <button type="button" className="button button-outline" onClick={handleCopyLink}>
-            Copy link
           </button>
         </div>
 

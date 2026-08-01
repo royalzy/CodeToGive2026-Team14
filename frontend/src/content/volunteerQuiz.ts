@@ -25,6 +25,8 @@ export interface QuizResult {
   personality: string;
   matches: QuizRoleMatch[];
   whatMakesYouSpecial: string;
+  // Illustration with a #223969 navy background — see public/images/result-*.png
+  image: string;
 }
 
 export const quizQuestions: QuizQuestion[] = [
@@ -132,6 +134,7 @@ export const quizResults: Record<QuizLetter, QuizResult> = {
     ],
     whatMakesYouSpecial:
       "Your positive energy is contagious! You have a gift for making people feel capable and motivated, no matter their starting point.",
+    image: "/images/result-motivational-coach.png",
   },
   B: {
     letter: "B",
@@ -151,6 +154,7 @@ export const quizResults: Record<QuizLetter, QuizResult> = {
     ],
     whatMakesYouSpecial:
       "You understand that creativity is a form of expression and connection that transcends words. You help people find their voice through art.",
+    image: "/images/result-creative.png",
   },
   C: {
     letter: "C",
@@ -170,6 +174,7 @@ export const quizResults: Record<QuizLetter, QuizResult> = {
     ],
     whatMakesYouSpecial:
       "Your empathy and warmth create a safe space where people feel heard, valued and cared for.",
+    image: "/images/result-nurturing-guide.png",
   },
   D: {
     letter: "D",
@@ -189,6 +194,7 @@ export const quizResults: Record<QuizLetter, QuizResult> = {
     ],
     whatMakesYouSpecial:
       "You are the reliable foundation that makes the entire volunteer programme possible. You turn chaos into calm and make sure every detail is handled so others can focus on their role.",
+    image: "/images/result-behind-the-scene.png",
   },
 };
 
