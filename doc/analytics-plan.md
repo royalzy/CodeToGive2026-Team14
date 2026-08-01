@@ -48,7 +48,7 @@ anonymized events go to Umami.**
 | Data | Where it lives | Notes |
 |---|---|---|
 | Pageviews, referrers, devices, geo (aggregate) | Umami | Automatic via the ~2KB script; cookieless |
-| Conversions: donation intent, volunteer signup, booking, questionnaire completion | Umami (custom events) | Sent server-side or client-side, **no PII** in event names/props |
+| Conversions: donation intent, volunteer signup, booking, questionnaire completion | Umami (custom events) | Sent client-side, **no PII** in event names/props |
 | Donation intents (anonymized subset) | SQLite (existing) | Already implemented |
 | Questionnaire answers with personal info (name, contact, needs) | SQLite via FastAPI (new endpoint) | System of record; never sent to Umami |
 | Member profiles, gamification | SQLite (existing) | Already in the prototype |
@@ -171,8 +171,8 @@ flow must be added — out of scope for the prototype.
 1. Open `http://localhost:5173` and click around → Umami dashboard **Live**
    view shows pageviews immediately.
 2. Submit a donation on `/donate` → **Events** tab shows `donation_intent`
-   (fired client-side from the same browser session, plus a server-side copy
-   via the API).
+   (fired client-side from the same browser session, so it chains into
+   funnels).
 3. Server-side smoke test: `uv run python -c "from app.services.umami import
    track_event; print(track_event('smoke_test'))"` (run from `backend/`) →
    the event appears in **Events**.
