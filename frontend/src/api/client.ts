@@ -90,25 +90,6 @@ export function createBooking(payload: BookingPayload): Promise<BookingResult> {
   return postJson("/api/v1/bookings", payload);
 }
 
-export interface AnalyticsReportResponse {
-  configured: boolean;
-  report: {
-    period_days: number;
-    pageviews: number;
-    visitors: number;
-    visits: number;
-    bounce_rate: number;
-    totaltime_seconds: number;
-    top_pages: { path: string; visitors: number }[];
-    top_events: { name: string; count: number }[];
-  } | null;
-  error: string | null;
-}
-
-export function getAnalyticsReport(): Promise<AnalyticsReportResponse> {
-  return getJson("/api/v1/analytics/report");
-}
-
 export function listBookings(memberSlug?: string): Promise<BookingResult[]> {
   const query = memberSlug
     ? `?member_slug=${encodeURIComponent(memberSlug)}`

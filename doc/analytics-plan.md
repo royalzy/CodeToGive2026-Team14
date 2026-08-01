@@ -26,8 +26,10 @@ Why Umami over the alternatives:
 - It is deliberately **privacy-first**: cookieless tracking (hashed daily-rotating
   identifiers), no consent banner required, GDPR-friendly by default. This matters
   for a charity audience (families with children) — no cookie popups on the site.
-- The REST API lets our FastAPI backend query metrics later for the automated
-  monthly reports the admin section wants.
+- The shareable dashboard URL lets admins embed live analytics in the React
+  Admin page without any API access. (Note: Umami Cloud's REST API is a **Pro
+  plan** feature — free tier only gets the share URL + tracker. Monthly report
+  automation would need Pro or a self-hosted instance.)
 
 Rejected:
 - **Plausible CE** — prettier UI and Google Search Console integration, but funnels
@@ -86,17 +88,12 @@ FastAPI ──► Umami REST API      (later: monthly report automation)
    one-line init in `main.tsx`, vitest tests.
 5. Questionnaire endpoint + anonymized `questionnaire_completed` event;
    conversion events on volunteer/booking flows; admin dashboard embed.
-   **Done** — remaining planned items: frontend questionnaire form, monthly
-   report automation via the Umami API, and the Umami deployment (Docker
-   Compose or Cloud).
+   **Done** — remaining planned items: frontend questionnaire form, and the
+   Umami deployment (Docker Compose or Cloud).
 6. **Tracking enrichment** — `frontend/src/analytics/umami.ts` auto-merges
    `lang` into every event; `trackFormStarted()` (fires `<form>_form_started`
    once); delegated `data-cta` click listener (`cta_click`); `accessibility_pref`
    event when the visitor prefers reduced motion / high contrast.
-7. **Admin report** — `GET /api/v1/analytics/report` (`backend/app/services/
-   umami_report.py`) queries the Umami Cloud API (`api.umami.is/v1`, key via
-   `UMAMI_API_KEY`) for the last 30 days: pageviews, visitors, visits, bounce
-   rate, top pages, top events. Shown in a "Core metrics" section on `/admin`.
 
 ## 4b. Event inventory
 
@@ -128,8 +125,6 @@ Backend (`.env`):
 UMAMI_ENABLED=false
 UMAMI_HOST=https://analytics.example.org
 UMAMI_WEBSITE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-UMAMI_API_KEY=            # Umami Cloud: Settings > API keys (report only)
-UMAMI_API_BASE=https://api.umami.is/v1
 ```
 
 Frontend (`VITE_` vars, Vite loads them at build time):
