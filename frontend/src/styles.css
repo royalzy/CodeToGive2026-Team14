@@ -3581,6 +3581,13 @@ h3 {
   color: var(--donor-apricot);
 }
 
+.donate-a-evidence a {
+  color: #fff0e3;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+}
+
 .donate-a-promise {
   position: sticky;
   top: 7rem;
@@ -3873,7 +3880,7 @@ h3 {
 
 .donate-a-impact-preview .impact-card footer {
   margin-top: 1rem;
-  color: #75645d;
+  color: #6f5d56;
   border-top-color: rgba(108, 31, 42, 0.18);
 }
 
