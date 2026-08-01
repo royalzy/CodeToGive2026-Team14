@@ -30,10 +30,10 @@ export function HomePage() {
               neurodiversity move, create, connect and lead.
             </p>
             <div className="button-row">
-              <Link className="button button-dark" to="/impact">
+              <Link className="button button-dark" to="/impact" data-cta="impact-hero">
                 Discover our impact
               </Link>
-              <Link className="button button-light" to="/volunteer">
+              <Link className="button button-light" to="/volunteer" data-cta="volunteer-hero">
                 Find your place
               </Link>
             </div>

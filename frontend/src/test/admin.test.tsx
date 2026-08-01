@@ -1,19 +1,39 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { AdminPage } from "../pages/AdminPage";
+async function renderAdminPage() {
+  vi.resetModules();
+  const { AdminPage } = await import("../pages/AdminPage");
+  return render(<AdminPage />);
+}
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllEnvs();
+  vi.resetModules();
 });
 
 describe("AdminPage analytics embed", () => {
-  it("shows the fallback note when the dashboard URL is not configured", () => {
-    render(<AdminPage />);
+  it("shows the fallback note when the dashboard URL is not configured", async () => {
+    vi.stubEnv("VITE_UMAMI_DASHBOARD_URL", "");
+    await renderAdminPage();
 
-    expect(
-      screen.getByText("Analytics not configured"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Analytics not configured")).toBeInTheDocument();
     expect(screen.getByText("Site analytics")).toBeInTheDocument();
+  });
+
+  it("embeds the Umami dashboard iframe when configured", async () => {
+    vi.stubEnv(
+      "VITE_UMAMI_DASHBOARD_URL",
+      "https://cloud.umami.is/share/nyrKt3D5zDUxsziQ",
+    );
+    await renderAdminPage();
+
+    const frame = screen.getByTitle("Umami analytics dashboard");
+    expect(frame).toHaveAttribute(
+      "src",
+      "https://cloud.umami.is/share/nyrKt3D5zDUxsziQ",
+    );
+    expect(screen.queryByText("Analytics not configured")).not.toBeInTheDocument();
   });
 });

@@ -8,7 +8,7 @@ import {
   createDonationIntent,
   type DonationIntentResult,
 } from "../api/client";
-import { track } from "../analytics/umami";
+import { track, trackFormStarted } from "../analytics/umami";
 import {
   AllocationBar,
   PageHero,
@@ -182,7 +182,11 @@ export function DonatePage() {
                 </div>
               </StatusPanel>
             ) : (
-              <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                onFocusCapture={() => trackFormStarted("donation")}
+                noValidate
+              >
                 <div className="form-heading">
                   <p>Meaningful giving prototype</p>
                   <h2>Create a demo intention</h2>

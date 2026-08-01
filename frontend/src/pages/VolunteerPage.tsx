@@ -8,7 +8,7 @@ import {
   submitVolunteerApplication,
   type VolunteerApplicationResult,
 } from "../api/client";
-import { track } from "../analytics/umami";
+import { track, trackFormStarted } from "../analytics/umami";
 import { OpportunityCard, PageHero, SectionHeading, StatusPanel } from "../components/Cards";
 import { ChoiceCard, Field } from "../components/FormControls";
 import { useLanguage } from "../hooks/useLanguage";
@@ -151,7 +151,11 @@ export function VolunteerPage() {
                 </Link>
               </StatusPanel>
             ) : (
-              <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                onFocusCapture={() => trackFormStarted("volunteer")}
+                noValidate
+              >
                 <div className="form-heading">
                   <p>Step 1 of your volunteer journey</p>
                   <h2>Tell us about you</h2>

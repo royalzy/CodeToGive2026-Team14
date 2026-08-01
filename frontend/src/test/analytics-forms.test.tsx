@@ -82,6 +82,7 @@ describe("client-side analytics events", () => {
     expect(trackMock).toHaveBeenCalledWith("donation_intent", {
       program: "community",
       amount: 1000,
+      lang: "en",
     });
   });
 
@@ -118,6 +119,7 @@ describe("client-side analytics events", () => {
     expect(trackMock).toHaveBeenCalledWith("volunteer_application", {
       interests: ["sports"],
       availability: "weekend",
+      lang: "en",
     });
   });
 });

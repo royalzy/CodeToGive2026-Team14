@@ -6,7 +6,9 @@ afterEach(() => {
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
   document.head.innerHTML = "";
+  document.body.innerHTML = "";
   delete window.umami;
+  umami.__resetState();
 });
 
 describe("umami analytics", () => {
@@ -46,6 +48,76 @@ describe("umami analytics", () => {
     expect(trackMock).toHaveBeenCalledWith("donation_intent", {
       program: "sports",
       amount: 500,
+      lang: "en",
+    });
+  });
+
+  it("track merges the current language into event data", () => {
+    vi.stubEnv("VITE_UMAMI_HOST", "https://analytics.example.org");
+    vi.stubEnv("VITE_UMAMI_WEBSITE_ID", "site-123");
+    const trackMock = vi.fn();
+    window.umami = { track: trackMock };
+
+    umami.setCurrentLang("zh");
+    umami.track("donation_intent", { program: "sports" });
+
+    expect(trackMock).toHaveBeenCalledWith("donation_intent", {
+      program: "sports",
+      lang: "zh",
+    });
+  });
+
+  it("trackFormStarted fires once per form", () => {
+    vi.stubEnv("VITE_UMAMI_HOST", "https://analytics.example.org");
+    vi.stubEnv("VITE_UMAMI_WEBSITE_ID", "site-123");
+    const trackMock = vi.fn();
+    window.umami = { track: trackMock };
+
+    umami.trackFormStarted("donation");
+    umami.trackFormStarted("donation");
+    umami.trackFormStarted("volunteer");
+
+    expect(trackMock).toHaveBeenCalledTimes(2);
+    expect(trackMock).toHaveBeenCalledWith("donation_form_started", { lang: "en" });
+    expect(trackMock).toHaveBeenCalledWith("volunteer_form_started", { lang: "en" });
+  });
+
+  it("tracks clicks on elements with a data-cta attribute", () => {
+    vi.stubEnv("VITE_UMAMI_HOST", "https://analytics.example.org");
+    vi.stubEnv("VITE_UMAMI_WEBSITE_ID", "site-123");
+    const trackMock = vi.fn();
+    window.umami = { track: trackMock };
+
+    umami.initAnalytics();
+    const button = document.createElement("button");
+    button.setAttribute("data-cta", "impact-hero");
+    document.body.appendChild(button);
+    button.click();
+
+    expect(trackMock).toHaveBeenCalledWith("cta_click", { cta: "impact-hero", lang: "en" });
+  });
+
+  it("tracks accessibility preferences only when set", () => {
+    vi.stubEnv("VITE_UMAMI_HOST", "https://analytics.example.org");
+    vi.stubEnv("VITE_UMAMI_WEBSITE_ID", "site-123");
+    const trackMock = vi.fn();
+    window.umami = { track: trackMock };
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockImplementation((query: string) => ({
+        matches: query.includes("prefers-reduced-motion"),
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    );
+
+    umami.initAnalytics();
+
+    expect(trackMock).toHaveBeenCalledWith("accessibility_pref", {
+      reduced_motion: true,
+      high_contrast: false,
+      lang: "en",
     });
   });
 
