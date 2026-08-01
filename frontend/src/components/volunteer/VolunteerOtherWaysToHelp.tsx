@@ -16,20 +16,6 @@ interface OtherWayItem {
 
 const otherWays: OtherWayItem[] = [
   {
-    key: "learn",
-    eyebrow: "Learn",
-    title: "Learn from our education resources",
-    body: "Read plain-language guides on neurodiversity, inclusion and communication, then pass one on to a friend, colleague or classroom that might find it useful.",
-    linkTo: "/resources",
-    linkLabel: "Browse education resources",
-    share: {
-      url: "/resources",
-      title: "Love 21 education resources",
-      text: "Plain-language guides on neurodiversity, inclusion and communication from Love 21 Foundation.",
-      source: "other_ways_learn",
-    },
-  },
-  {
     key: "spread-word",
     eyebrow: "Spread the word",
     title: "Tell someone who might care",
@@ -50,14 +36,6 @@ const otherWays: OtherWayItem[] = [
     body: "A one-off or regular donation funds coaching, nutrition support and equipment for members who cannot take part without it.",
     linkTo: "/donate",
     linkLabel: "Make a donation",
-  },
-  {
-    key: "partner",
-    eyebrow: "Partner",
-    title: "Bring your company on board",
-    body: "Ask your employer about a CSR day, an in-kind donation or a sponsorship — a good fit if a single day works better than an ongoing role.",
-    linkTo: "/partners",
-    linkLabel: "Explore corporate partnership",
   },
 ];
 

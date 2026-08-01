@@ -31,10 +31,7 @@ export const navigation = [
   { label: "支持者社群", href: "/community" },
   { label: "義工服務", href: "/volunteer" },
   { label: "捐款", href: "/donate" },
-  { label: "會員", href: "/members" },
-  { label: "企業夥伴", href: "/partners" },
   { label: "支援", href: "/help" },
-  { label: "學習資源", href: "/resources" },
   { label: "了解更多", href: "/neuro-strengths" },
 ];
 
@@ -42,8 +39,7 @@ export const personas = [
   { icon: "❤️", label: "我想當義工", description: "付出時間與心力，支持這個社群。", href: "/volunteer" },
   { icon: "💰", label: "我想捐款", description: "清楚了解您的捐款支持了甚麼。", href: "/donate" },
   { icon: "👨‍👩‍👦", label: "我是會員或家人", description: "登入瀏覽課程並報名活動。", href: "/login" },
-  { icon: "🏢", label: "我是企業夥伴", description: "了解贊助及企業社會責任機會。", href: "/partners" },
-  { icon: "🌍", label: "我想了解更多", description: "認識神經多樣性、共融及如何協助。", href: "/resources" },
+  { icon: "🌍", label: "我想了解更多", description: "認識神經多樣性、共融及如何協助。", href: "/neuro-strengths" },
 ];
 
 export const metrics: Metric[] = [
@@ -304,16 +300,6 @@ export const supportPathways: SupportPathway[] = [
     startTags: ["conversation", "group", "read"],
   },
   {
-    id: "community",
-    title: "認識其他家庭和會員",
-    body: "認識明白日常照顧生活的人。",
-    href: "/members",
-    actionLabel: "認識社群",
-    audienceTags: ["self", "carer", "exploring", "unspecified"],
-    needTags: ["community", "activities", "unsure"],
-    startTags: ["group"],
-  },
-  {
     id: "programmes",
     title: "探索我們的活動",
     body: "了解我們在運動、舞蹈及營養方面的健康活動。",
@@ -324,16 +310,6 @@ export const supportPathways: SupportPathway[] = [
     startTags: ["group", "action", "read"],
   },
   {
-    id: "resources",
-    title: "按自己的步伐閱讀",
-    body: "以簡明語言介紹神經多樣性、共融，以及家庭最常提出的問題。",
-    href: "/resources",
-    actionLabel: "瀏覽資源",
-    audienceTags: ["self", "carer", "professional", "exploring", "unspecified"],
-    needTags: ["practical", "discrimination", "unsure"],
-    startTags: ["read"],
-  },
-  {
     id: "volunteer",
     title: "參與其中",
     body: "與其他人一起做點事，本身也是一種支援。",
@@ -342,16 +318,6 @@ export const supportPathways: SupportPathway[] = [
     audienceTags: ["exploring", "professional", "self", "unspecified"],
     needTags: ["community", "activities"],
     startTags: ["action"],
-  },
-  {
-    id: "partners",
-    title: "與 Love 21 合作",
-    body: "學校、僱主及機構可以在共融、培訓和合作項目上與我們同行。",
-    href: "/partners",
-    actionLabel: "查看合作方案",
-    audienceTags: ["professional"],
-    needTags: ["practical", "activities", "discrimination"],
-    startTags: ["action", "conversation"],
   },
 ];
 

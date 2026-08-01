@@ -33,9 +33,6 @@ describe("route backbone", () => {
     ["/donate", "received"],
     ["/donor-profile", "Your impact, kept honest."],
     ["/help", "Support for families and carers"],
-    ["/resources", "Learning for belonging"],
-    ["/members", "Meet the community"],
-    ["/partners", "Partner with Love 21"],
     ["/admin", "Love 21 Admin"],
     ["/login", "Welcome back"],
   ])("renders %s", (route, heading) => {
@@ -45,6 +42,20 @@ describe("route backbone", () => {
       screen.getByRole("heading", { name: new RegExp(heading, "i"), level: 1 }),
     ).toBeInTheDocument();
   });
+
+  it.each(["/resources", "/members", "/partners"])(
+    "does not expose the removed route %s",
+    (route) => {
+      renderRoute(route);
+
+      expect(
+        screen.getByRole("heading", {
+          name: "This path has not been added yet.",
+          level: 1,
+        }),
+      ).toBeInTheDocument();
+    },
+  );
 });
 
 describe("donor community experience", () => {

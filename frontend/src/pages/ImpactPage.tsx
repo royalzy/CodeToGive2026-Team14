@@ -108,11 +108,6 @@ export function ImpactPage() {
               </article>
             ))}
           </div>
-          <div className="section-cta">
-            <Link className="button button-dark" to="/members">
-              Explore member profiles
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -135,4 +130,3 @@ export function ImpactPage() {
     </>
   );
 }
-

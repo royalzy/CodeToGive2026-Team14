@@ -155,16 +155,6 @@ export const supportPathways: SupportPathway[] = [
     startTags: ["conversation", "group", "read"],
   },
   {
-    id: "community",
-    title: "Meet other families and members",
-    body: "Get to know people who understand the everyday routines.",
-    href: "/members",
-    actionLabel: "Meet the community",
-    audienceTags: ["self", "carer", "exploring", "unspecified"],
-    needTags: ["community", "activities", "unsure"],
-    startTags: ["group"],
-  },
-  {
     id: "programmes",
     title: "Explore the programmes",
     body: "Find out our healthy activities across sports, dance and nutrition.",
@@ -175,16 +165,6 @@ export const supportPathways: SupportPathway[] = [
     startTags: ["group", "action", "read"],
   },
   {
-    id: "resources",
-    title: "Read at your own pace",
-    body: "Plain-language guidance on neurodiversity, inclusion and the questions families ask most often.",
-    href: "/resources",
-    actionLabel: "Browse resources",
-    audienceTags: ["self", "carer", "professional", "exploring", "unspecified"],
-    needTags: ["practical", "discrimination", "unsure"],
-    startTags: ["read"],
-  },
-  {
     id: "volunteer",
     title: "Get involved",
     body: "Doing something alongside others is its own kind of support.",
@@ -193,16 +173,6 @@ export const supportPathways: SupportPathway[] = [
     audienceTags: ["exploring", "professional", "self", "unspecified"],
     needTags: ["community", "activities"],
     startTags: ["action"],
-  },
-  {
-    id: "partners",
-    title: "Work with Love 21",
-    body: "Schools, employers and organisations can partner on inclusion, training and shared programmes.",
-    href: "/partners",
-    actionLabel: "See partnership options",
-    audienceTags: ["professional"],
-    needTags: ["practical", "activities", "discrimination"],
-    startTags: ["action", "conversation"],
   },
 ];
 

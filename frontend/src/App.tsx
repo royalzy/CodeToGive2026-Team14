@@ -11,11 +11,8 @@ import { HomePage } from "./pages/HomePage";
 import { ImpactPage } from "./pages/ImpactPage";
 import { LoginPage } from "./pages/LoginPage";
 import { MemberProfilePage } from "./pages/MemberProfilePage";
-import { MembersPage } from "./pages/MembersPage";
 import { NeuroStrengthsConstellationPage } from "./pages/NeuroStrengthsConstellationPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
-import { PartnersPage } from "./pages/PartnersPage";
-import { ResourcesPage } from "./pages/ResourcesPage";
 import { VolunteerPage } from "./pages/VolunteerPage";
 import { VolunteerApplicationPage } from "./pages/VolunteerApplicationPage";
 import { VolunteerConfirmedPage } from "./pages/VolunteerConfirmedPage";
@@ -41,9 +38,6 @@ export function App() {
         <Route path="donate" element={<DonatePage />} />
         <Route path="donor-profile" element={<DonorProfilePage />} />
         <Route path="help" element={<HelpPage />} />
-        <Route path="resources" element={<ResourcesPage />} />
-        <Route path="partners" element={<PartnersPage />} />
-        <Route path="members" element={<MembersPage />} />
         <Route path="members/:slug" element={<MemberProfilePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="dashboard" element={<DashboardPage />} />

@@ -51,24 +51,24 @@ describe("support pathway matching", () => {
     expect(first.reasons).toHaveLength(3);
   });
 
-  it("sends someone who wants to read first to resources", () => {
+  it("sends someone who wants to read first to programmes", () => {
     const [first] = recommendSupportPathways({
       audience: "self",
       need: "practical",
       start: "read",
     });
 
-    expect(first.pathway.id).toBe("resources");
+    expect(first.pathway.id).toBe("programmes");
   });
 
-  it("sends a professional wanting practical action to partnership options", () => {
+  it("sends a professional wanting practical action to programmes", () => {
     const [first] = recommendSupportPathways({
       audience: "professional",
       need: "practical",
       start: "action",
     });
 
-    expect(first.pathway.id).toBe("partners");
+    expect(first.pathway.id).toBe("programmes");
   });
 
   it("always returns every pathway so nothing is hidden", () => {
@@ -91,33 +91,6 @@ describe("support pathway matching", () => {
     for (const recommendation of recommendations) {
       expect(recommendation.reasons.length).toBeGreaterThan(0);
     }
-  });
-
-  it("does not offer partnership options to an exhausted carer", () => {
-    // "Work with Love 21" is aimed at partner organisations. It used to float
-    // into the top three on the "conversation" tag alone.
-    const top3 = recommendSupportPathways({
-      audience: "carer",
-      need: "carer_rest",
-      start: "conversation",
-    })
-      .slice(0, 3)
-      .map((r) => r.pathway.id);
-
-    expect(top3).not.toContain("partners");
-  });
-
-  it("ranks a pathway below relevant ones when the audience does not match", () => {
-    const ranked = recommendSupportPathways({
-      audience: "carer",
-      need: "carer_rest",
-      start: "conversation",
-    });
-
-    const partners = ranked.find((r) => r.pathway.id === "partners")!;
-    const resources = ranked.find((r) => r.pathway.id === "resources")!;
-
-    expect(partners.score).toBeLessThan(resources.score);
   });
 
   it("breaks ties using catalogue order so results are stable", () => {

@@ -356,7 +356,7 @@ export function DonatePage() {
                 </div>
               ))}
             </div>
-            <div className="donate-a-evidence"><strong>Evidence, not estimates:</strong> attendance logs, coach records and 90-day employment follow-ups support these figures. <a href="/resources">Read the impact note</a>.</div>
+            <div className="donate-a-evidence"><strong>Evidence, not estimates:</strong> attendance logs, coach records and 90-day employment follow-ups support these figures.</div>
           </article>
 
           <section
