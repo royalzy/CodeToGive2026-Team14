@@ -23,7 +23,7 @@ export function NeuroStrengthsConstellation() {
   return (
     <div className="flex flex-col">
       {/* Chapter 1: The Premise */}
-      <section className="page-hero page-hero-blue">
+      <section className="page-hero page-hero-blue neuro-hero">
         <div className="shell page-hero-inner">
           <p className="eyebrow">Neurodiversity</p>
           <h1>Beyond the Linear Spectrum</h1>
@@ -37,13 +37,13 @@ export function NeuroStrengthsConstellation() {
       </section>
 
       {/* Chapter 2: The Proof */}
-      <section className="py-16">
-        <div className="shell flex flex-col gap-10">
+      <section className="neuro-proof-section">
+        <div className="shell neuro-proof-layout flex flex-col">
           <ArchetypeSwitcher activeId={activeArchetype.id} onSelect={setActiveArchetypeId} />
 
           <NarrativeStory key={activeArchetype.id} archetype={activeArchetype} />
 
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
+          <div className="neuro-proof-grid grid grid-cols-1 lg:grid-cols-2">
             <TraitDials values={animatedStats} />
             <ConstellationRadar archetype={activeArchetype} values={animatedStats} />
           </div>

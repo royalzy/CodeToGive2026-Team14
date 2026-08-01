@@ -1,7 +1,6 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { PageHero } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerRoleCard } from "../components/volunteer/VolunteerRoleCard";
@@ -72,12 +71,6 @@ export function VolunteerMatchPage() {
 
   return (
     <>
-      <PageHero
-        eyebrow="60-second role match"
-        title="Begin with what feels realistic."
-        body="A few answers help reduce the choice. They do not decide whether you can volunteer."
-        tone="red"
-      />
       <section className="section volunteer-match-section">
         <div className="shell volunteer-match-layout">
           <form className="volunteer-match-form" onSubmit={submitMatch}>

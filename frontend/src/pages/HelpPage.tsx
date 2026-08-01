@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { z } from "zod";
 
-import { PageHero, SectionHeading, StatusPanel } from "../components/Cards";
+import { SectionHeading, StatusPanel } from "../components/Cards";
 import { Field } from "../components/FormControls";
 import { SupportFinder } from "../components/help/SupportFinder";
 import { type SupportAnswers } from "../content/support";
@@ -50,13 +50,6 @@ export function HelpPage() {
   }
   return (
     <>
-      <PageHero
-        eyebrow="Support for families and carers"
-        title="Support for families and carers"
-        body="Love 21 offers practical guidance, warm connection and a clear path to support for parents, carers and families."
-        tone="red"
-      />
-
       <section className="section">
         <div className="shell help-finder">
           <SectionHeading

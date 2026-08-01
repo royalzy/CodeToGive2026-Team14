@@ -26,20 +26,20 @@ afterEach(() => {
 
 describe("route backbone", () => {
   it.each([
-    ["/", "Every Life is"],
-    ["/impact", "Not what we provide."],
-    ["/community", "People making this possible."],
-    ["/volunteer", "Your first step can be a small one."],
-    ["/donate", "received"],
-    ["/donor-profile", "Your impact, kept honest."],
-    ["/help", "Support for families and carers"],
-    ["/admin", "Love 21 Admin"],
-    ["/login", "Welcome back"],
-  ])("renders %s", (route, heading) => {
+    ["/", "Every Life is", 1],
+    ["/impact", "Crystal steps forward.", 1],
+    ["/community", "People making this possible.", 1],
+    ["/volunteer", "Start with what you already know.", 2],
+    ["/donate", "received", 1],
+    ["/donor-profile", "Your impact, kept honest.", 1],
+    ["/help", "Let us find a starting point together", 2],
+    ["/admin", "Love 21 Admin", 1],
+    ["/login", "Sarah's family", 3],
+  ])("renders %s", (route, heading, level) => {
     renderRoute(route);
 
     expect(
-      screen.getByRole("heading", { name: new RegExp(heading, "i"), level: 1 }),
+      screen.getByRole("heading", { name: new RegExp(heading, "i"), level }),
     ).toBeInTheDocument();
   });
 
@@ -56,6 +56,20 @@ describe("route backbone", () => {
       ).toBeInTheDocument();
     },
   );
+});
+
+describe("impact story", () => {
+  it("keeps Crystal and Love 21 support together while retaining service data", () => {
+    renderRoute("/impact");
+
+    expect(screen.getByText("She worked through the movement.")).toBeInTheDocument();
+    expect(screen.getByText("Structured sessions, hands-on support.")).toBeInTheDocument();
+    expect(
+      screen.getByText(/90\+ activity types and 500\+ volunteer hours/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Wider service" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
 });
 
 describe("donor community experience", () => {
@@ -100,9 +114,6 @@ describe("closed-loop forms", () => {
     renderRoute("/volunteer");
     await user.click(screen.getByRole("link", { name: "Browse all roles" }));
 
-    expect(
-      screen.getByRole("heading", { name: "Explore without being boxed in.", level: 1 }),
-    ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Creative Arts Class Assistant" }),
     ).toBeInTheDocument();

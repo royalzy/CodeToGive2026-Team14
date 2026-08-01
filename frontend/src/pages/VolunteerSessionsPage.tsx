@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 
-import { PageHero, StatusPanel } from "../components/Cards";
+import { StatusPanel } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerSessionCard } from "../components/volunteer/VolunteerSessionCard";
@@ -38,12 +38,6 @@ export function VolunteerSessionsPage() {
 
   return (
     <>
-      <PageHero
-        eyebrow="Demo opportunities"
-        title={selectedRole ? `First steps for ${selectedRole.shortTitle}.` : "See a first step before you commit."}
-        body="These activities are demonstration data. Selecting one does not reserve a place or send information to Love 21."
-        tone="blue"
-      />
       <section className="section volunteer-sessions-section">
         <div className="shell">
           <div className="demo-notice" role="note">

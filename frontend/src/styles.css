@@ -2492,6 +2492,162 @@ h3 {
   }
 }
 
+/* Neuro strengths workspace: keep the full interactive comparison in one view. */
+.neuro-hero {
+  padding-block: 0;
+}
+
+.neuro-hero::before {
+  top: -9rem;
+  right: -6rem;
+  width: 24rem;
+  height: 24rem;
+  border-width: 4rem;
+}
+
+.neuro-hero::after {
+  width: 7rem;
+  height: 7rem;
+}
+
+.neuro-hero .page-hero-inner {
+  padding-block: clamp(2.75rem, 5vw, 4rem);
+}
+
+.neuro-hero h1 {
+  max-width: 850px;
+  margin-bottom: 0.8rem;
+  font-size: clamp(3rem, 5.2vw, 5rem);
+}
+
+.neuro-hero .page-hero-inner > p:not(.eyebrow) {
+  max-width: 760px;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.neuro-facts-marquee {
+  margin-top: 1.25rem;
+  padding-block: 0.55rem;
+}
+
+.neuro-proof-section {
+  padding-block: 2rem;
+}
+
+.neuro-proof-layout {
+  gap: 1.25rem;
+}
+
+.neuro-archetype-switcher {
+  gap: 0.5rem;
+}
+
+.neuro-archetype-tab {
+  min-height: 44px;
+  padding: 0.25rem 0.8rem 0.25rem 0.25rem;
+  font-size: 0.78rem;
+}
+
+.neuro-archetype-tab-avatar {
+  width: 34px;
+  height: 34px;
+}
+
+.neuro-narrative {
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px !important;
+}
+
+.neuro-narrative-avatar {
+  width: 78px;
+  height: 78px;
+}
+
+.neuro-narrative-title {
+  margin-top: 0.15rem;
+  font-size: 1.35rem;
+}
+
+.neuro-narrative-copy {
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.neuro-proof-grid {
+  gap: 1rem;
+}
+
+.neuro-trait-dials {
+  gap: 0.65rem;
+}
+
+.neuro-trait-dial {
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px !important;
+}
+
+.neuro-trait-range {
+  min-height: 24px;
+  margin-top: 0.2rem;
+}
+
+.neuro-radar-column {
+  gap: 0.65rem;
+}
+
+.neuro-radar-frame {
+  height: min(48vh, 430px);
+  min-height: 340px;
+}
+
+.neuro-radar-frame > div:last-child {
+  border-radius: 8px !important;
+  padding: 0.75rem;
+}
+
+.neuro-radar-note {
+  padding: 0.85rem 1rem;
+  border-radius: 8px !important;
+}
+
+.neuro-radar-note p {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.neuro-radar-note p + p {
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 1023px) {
+  .neuro-radar-frame {
+    height: min(78vw, 430px);
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 640px) {
+  .neuro-hero .page-hero-inner {
+    padding-block: 2.5rem;
+  }
+
+  .neuro-hero h1 {
+    font-size: clamp(2.6rem, 13vw, 3.8rem);
+  }
+
+  .neuro-proof-section {
+    padding-block: 1.5rem;
+  }
+
+  .neuro-narrative-avatar {
+    width: 68px;
+    height: 68px;
+  }
+}
+
 .volunteer-testimonial-section {
   background: #f3efe8;
 }

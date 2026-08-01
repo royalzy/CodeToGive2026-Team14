@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { PageHero } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerRoleCard } from "../components/volunteer/VolunteerRoleCard";
@@ -46,12 +45,6 @@ export function VolunteerRolesPage() {
 
   return (
     <>
-      <PageHero
-        eyebrow="All volunteer roles"
-        title="Explore without being boxed in."
-        body="Compare every first-step role across Love 21's programmes. You do not need a recommendation to choose what feels right for you."
-        tone="yellow"
-      />
       <section className="section volunteer-role-preview-section">
         <div className="shell">
           <div className="volunteer-filter-bar">

@@ -83,8 +83,8 @@ export function ConstellationRadar({
   );
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="relative aspect-square w-full">
+    <div className="neuro-radar-column flex flex-col">
+      <div className="neuro-radar-frame relative w-full">
         <div
           className="pointer-events-none absolute inset-0 rounded-full bg-love-blue/20 blur-3xl"
           aria-hidden="true"
@@ -96,7 +96,7 @@ export function ConstellationRadar({
 
       <div
         key={archetype.id}
-        className="rounded-2xl border border-love-teal/20 bg-love-ink p-5 text-love-cream shadow-sm"
+        className="neuro-radar-note rounded-2xl border border-love-teal/20 bg-love-ink text-love-cream shadow-sm"
       >
         <p className="text-sm">
           <span className="font-semibold text-love-yellow">The Myth: </span>

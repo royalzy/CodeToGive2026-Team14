@@ -21,7 +21,7 @@ function FactsRow() {
 
 export function FactsMarquee() {
   return (
-    <div className="mt-8 overflow-hidden rounded-full bg-black/10 py-3">
+    <div className="neuro-facts-marquee overflow-hidden rounded-full bg-black/10">
       {/* Decorative, looping copy — the same facts are exposed to assistive tech once, below. */}
       <div className="flex w-max animate-marquee motion-reduce:animate-none gap-3 px-3" aria-hidden="true">
         <FactsRow />
