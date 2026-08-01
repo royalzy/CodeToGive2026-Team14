@@ -20,6 +20,12 @@ logger = logging.getLogger(__name__)
 TIMEOUT_SECONDS = 2.0
 """Short timeout: analytics must never slow down the request path."""
 
+BROWSER_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+)
+"""Umami requires a parseable browser User-Agent or the event is dropped."""
+
 
 def is_enabled() -> bool:
     """True only when all three Umami settings are configured."""
@@ -57,7 +63,7 @@ def track_event(
         response = httpx.post(
             f"{settings.umami_host.rstrip('/')}/api/send",
             json=payload,
-            headers={"User-Agent": "love21-backend/0.1"},
+            headers={"User-Agent": BROWSER_USER_AGENT},
             timeout=TIMEOUT_SECONDS,
         )
         response.raise_for_status()
