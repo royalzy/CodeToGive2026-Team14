@@ -16,7 +16,8 @@ export type VolunteerAnalyticsEvent =
   | "first_session_plan_viewed"
   | "newsletter_subscribed"
   | "role_shared"
-  | "session_shared";
+  | "session_shared"
+  | "resource_shared";
 
 interface VolunteerAnalyticsProperties {
   journey_path?: "quick" | "guided";

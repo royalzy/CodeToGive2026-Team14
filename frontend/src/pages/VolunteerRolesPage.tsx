@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { PageHero } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
+import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerRoleCard } from "../components/volunteer/VolunteerRoleCard";
 import { programs } from "../content/programs";
 import {
@@ -144,6 +145,12 @@ export function VolunteerRolesPage() {
             title="None of these feel right for now?"
             body="Subscribe and we'll let you know when new roles or programmes open up."
           />
+        </div>
+      </section>
+
+      <section className="section section-soft">
+        <div className="shell">
+          <VolunteerOtherWaysToHelp />
         </div>
       </section>
     </>

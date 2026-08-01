@@ -3,6 +3,7 @@ import { Link, useSearchParams, useParams } from "react-router-dom";
 
 import { PageHero, StatusPanel } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
+import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerStoryVideo } from "../components/volunteer/VolunteerStoryVideo";
 import { VolunteerSessionCard } from "../components/volunteer/VolunteerSessionCard";
 import { programs } from "../content/programs";
@@ -194,7 +195,16 @@ export function VolunteerRolePage() {
               </Link>
             </div>
           </div>
-          <VolunteerNewsletterSignup source="volunteer_role_detail" />
+          <VolunteerNewsletterSignup
+            source="volunteer_role_detail"
+            title="Prefer to hear from us by email?"
+          />
+        </div>
+      </section>
+
+      <section className="section section-soft">
+        <div className="shell">
+          <VolunteerOtherWaysToHelp />
         </div>
       </section>
     </>

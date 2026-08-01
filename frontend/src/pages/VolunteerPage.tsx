@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { PageHero, SectionHeading } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
+import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerProgramAccordion } from "../components/volunteer/VolunteerProgramAccordion";
 import { volunteerTestimonials } from "../content/volunteer";
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
@@ -108,7 +109,7 @@ export function VolunteerPage() {
       <section className="section">
         <div className="shell volunteer-alternatives-panel">
           <div>
-            <p className="eyebrow">Not seeing the right fit yet?</p>
+            <p className="eyebrow">Still deciding between roles?</p>
             <h3>Try the guided match, or explore every role.</h3>
             <div className="volunteer-alternative-links">
               <Link className="text-link" to="/volunteer/match">
@@ -119,7 +120,16 @@ export function VolunteerPage() {
               </Link>
             </div>
           </div>
-          <VolunteerNewsletterSignup source="volunteer_landing" />
+          <VolunteerNewsletterSignup
+            source="volunteer_landing"
+            title="Prefer to hear from us by email?"
+          />
+        </div>
+      </section>
+
+      <section className="section section-soft">
+        <div className="shell">
+          <VolunteerOtherWaysToHelp />
         </div>
       </section>
     </>

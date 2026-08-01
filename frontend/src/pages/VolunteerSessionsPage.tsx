@@ -2,6 +2,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { PageHero, StatusPanel } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
+import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerSessionCard } from "../components/volunteer/VolunteerSessionCard";
 import {
   getVolunteerRole,
@@ -102,6 +103,12 @@ export function VolunteerSessionsPage() {
             title="Nothing on the calendar for you right now?"
             body="Subscribe and we'll let you know as soon as new demo sessions and opportunities are added."
           />
+        </div>
+      </section>
+
+      <section className="section section-soft">
+        <div className="shell">
+          <VolunteerOtherWaysToHelp />
         </div>
       </section>
     </>

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { PageHero } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
+import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerRoleCard } from "../components/volunteer/VolunteerRoleCard";
 import { programs } from "../content/programs";
 import {
@@ -258,8 +259,13 @@ export function VolunteerMatchPage() {
                       Compare every role <span aria-hidden="true">→</span>
                     </Link>
                   </div>
-                  <VolunteerNewsletterSignup source="volunteer_match_results" />
+                  <VolunteerNewsletterSignup
+                    source="volunteer_match_results"
+                    title="Prefer to hear from us by email?"
+                  />
                 </div>
+
+                <VolunteerOtherWaysToHelp />
               </>
             ) : (
               <div className="match-placeholder">
