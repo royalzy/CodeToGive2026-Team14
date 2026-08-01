@@ -301,6 +301,7 @@ export function DonatePage() {
         consent_to_updates: details.anonymous ? false : details.consentToUpdates,
       });
       setResult(nextResult);
+      setDetails((current) => ({ ...current, donorPassword: "" }));
       setStep("success");
       trackDonationEvent("donation_success_displayed", {
         cause_id: nextResult.impact.cause_id,

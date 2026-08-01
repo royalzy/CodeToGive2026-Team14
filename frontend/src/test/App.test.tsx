@@ -28,8 +28,10 @@ describe("route backbone", () => {
   it.each([
     ["/", "See the ability."],
     ["/impact", "Not what we provide."],
+    ["/community", "People making this possible."],
     ["/volunteer", "Your first step can be a small one."],
-    ["/donate", "What kind of opportunity would you like to create?"],
+    ["/donate", "See where it goes. Then choose what matters."],
+    ["/donor-profile", "Your impact, kept honest."],
     ["/help", "Support for families and carers"],
     ["/resources", "Learning for belonging"],
     ["/members", "Meet the community"],
@@ -42,6 +44,34 @@ describe("route backbone", () => {
     expect(
       screen.getByRole("heading", { name: new RegExp(heading, "i"), level: 1 }),
     ).toBeInTheDocument();
+  });
+});
+
+describe("donor community experience", () => {
+  it("centres participation and keeps a new wall message private while moderated", () => {
+    renderRoute("/community");
+
+    expect(screen.getAllByText("1,284").length).toBeGreaterThan(0);
+    expect(screen.getByText("No amounts. No rankings. Every circle is equal.")).toBeInTheDocument();
+    expect(screen.getByText(/Visible only to you · awaiting review/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "My donor profile" })).toHaveAttribute(
+      "href",
+      "/donor-profile",
+    );
+  });
+
+  it("reveals the private, evidence-backed donor record after demo sign in", async () => {
+    const user = userEvent.setup();
+    renderRoute("/donor-profile");
+
+    await user.type(screen.getByLabelText("Email"), "supporter@example.com");
+    await user.type(screen.getByLabelText("Password"), "private-demo");
+    await user.click(screen.getByRole("button", { name: "View my profile" }));
+
+    expect(screen.getByRole("heading", { name: "阿木", level: 1 })).toBeInTheDocument();
+    expect(screen.getByText("HK$2,400")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Your impact timeline" })).toBeInTheDocument();
+    expect(screen.getByText(/Only you can see this/i)).toBeInTheDocument();
   });
 });
 
@@ -207,6 +237,7 @@ describe("closed-loop forms", () => {
     await user.click(
       screen.getByRole("button", { name: "Continue to your details" }),
     );
+    await user.click(screen.getByLabelText(/Give completely anonymously/i));
     await user.click(
       screen.getByRole("button", { name: "Review your intention" }),
     );

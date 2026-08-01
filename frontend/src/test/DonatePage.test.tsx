@@ -246,7 +246,7 @@ describe("donor impact journey", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("requires an email for the prototype updates preference", async () => {
+  it("requires credentials for a donor profile", async () => {
     installApiMock();
     const user = userEvent.setup();
     renderDonatePage();
@@ -255,21 +255,19 @@ describe("donor impact journey", () => {
       screen.getByRole("button", { name: "Continue to your details" }),
     );
     await user.click(
-      screen.getByLabelText(/I would like occasional Love 21 updates/i),
-    );
-    await user.click(
       screen.getByRole("button", { name: "Review your intention" }),
     );
 
     expect(
-      await screen.findByText(/Enter an email to express an updates preference/i),
+      await screen.findByText(/Enter the email for your donor profile/i),
     ).toBeInTheDocument();
+    expect(screen.getByText(/Use at least 6 characters/i)).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Tell us how to thank you" }),
     ).toBeInTheDocument();
   });
 
-  it("keeps the donor name visible when public acknowledgement is anonymous", async () => {
+  it("hides and clears every identity field for a completely anonymous gift", async () => {
     installApiMock();
     const user = userEvent.setup();
     renderDonatePage();
@@ -277,18 +275,31 @@ describe("donor impact journey", () => {
     await user.click(
       screen.getByRole("button", { name: "Continue to your details" }),
     );
+    await user.click(screen.getByLabelText(/Create a donor profile/i));
+    await user.type(screen.getByLabelText("Email"), "alex@example.com");
+    await user.type(screen.getByLabelText("Password"), "secret1");
+    await user.type(screen.getByLabelText("Unique nickname"), "Alex C");
     await user.type(screen.getByLabelText("Name (optional)"), "Alex Chan");
     await user.click(
-      screen.getByLabelText(/prototype intention to be anonymous/i),
+      screen.getByLabelText(/Give completely anonymously/i),
     );
+
+    expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Unique nickname")).not.toBeInTheDocument();
+    expect(screen.getByText(/Identity fields have been cleared/i)).toBeInTheDocument();
+
+    await user.click(screen.getByLabelText(/Give completely anonymously/i));
+    expect(screen.getByLabelText("Email")).toHaveValue("");
+    expect(screen.getByLabelText("Unique nickname")).toHaveValue("");
+    expect(screen.getByLabelText("Name (optional)")).toHaveValue("");
+
+    await user.click(screen.getByLabelText(/Give completely anonymously/i));
     await user.click(
       screen.getByRole("button", { name: "Review your intention" }),
     );
 
-    expect(screen.getByText("Alex Chan")).toBeInTheDocument();
-    expect(
-      screen.getByText("Public acknowledgement: Anonymous"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Completely anonymous")).toBeInTheDocument();
+    expect(screen.queryByText("Alex Chan")).not.toBeInTheDocument();
   });
 
   it("shows the backend result on success and emits no PII to analytics", async () => {
@@ -307,11 +318,14 @@ describe("donor impact journey", () => {
     await user.click(
       screen.getByRole("button", { name: "Continue to your details" }),
     );
+    await user.click(screen.getByLabelText(/Create a donor profile/i));
+    await user.type(screen.getByLabelText("Unique nickname"), "Alex Private");
     await user.type(screen.getByLabelText("Name (optional)"), "Alex Private");
     await user.type(
-      screen.getByLabelText("Email (optional)"),
+      screen.getByLabelText("Email"),
       "private@example.com",
     );
+    await user.type(screen.getByLabelText("Password"), "secret1");
     await user.click(
       screen.getByRole("button", { name: "Review your intention" }),
     );
@@ -338,5 +352,12 @@ describe("donor impact journey", () => {
     expect(window.dataLayer?.some(
       (entry) => entry.event === "donation_success_displayed",
     )).toBe(true);
+
+    await user.type(
+      screen.getByLabelText(/Message to the community/i),
+      "Thank you for keeping this work going.",
+    );
+    await user.click(screen.getByRole("button", { name: "Send for review" }));
+    expect(screen.getByText(/Visible to you now · public after review/i)).toBeInTheDocument();
   });
 });
