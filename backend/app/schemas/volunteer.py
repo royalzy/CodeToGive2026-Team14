@@ -8,11 +8,19 @@ class VolunteerRoleId(StrEnum):
     DANCE_ACTIVITY_BUDDY = "dance_activity_buddy"
     SPORTS_ACTIVITY_BUDDY = "sports_activity_buddy"
     COMMUNITY_EVENT_VOLUNTEER = "community_event_volunteer"
+    NUTRITION_CLASS_ASSISTANT = "nutrition_class_assistant"
+    FAMILY_SUPPORT_ASSISTANT = "family_support_assistant"
+    SPORTS_CLASS_LEADER = "sports_class_leader"
+    ENRICHMENT_CLASS_LEADER = "enrichment_class_leader"
 
 
 class VolunteerSessionId(StrEnum):
     SATURDAY_DANCE_PROJECT = "saturday_dance_project"
     SUNDAY_SPORTS_SESSION = "sunday_sports_session"
+    DRAGON_BOAT_TRAINING_DAY = "dragon_boat_training_day"
+    NUTRITION_COOKING_WORKSHOP = "nutrition_cooking_workshop"
+    FAMILY_SUPPORT_AFTERNOON = "family_support_afternoon"
+    COMMUNITY_CSR_VOLUNTEER_DAY = "community_csr_volunteer_day"
 
 
 class VolunteerFirstStep(StrEnum):
@@ -24,6 +32,10 @@ class VolunteerFirstStep(StrEnum):
 SESSION_ROLES: dict[VolunteerSessionId, VolunteerRoleId] = {
     VolunteerSessionId.SATURDAY_DANCE_PROJECT: VolunteerRoleId.DANCE_ACTIVITY_BUDDY,
     VolunteerSessionId.SUNDAY_SPORTS_SESSION: VolunteerRoleId.SPORTS_ACTIVITY_BUDDY,
+    VolunteerSessionId.DRAGON_BOAT_TRAINING_DAY: VolunteerRoleId.SPORTS_CLASS_LEADER,
+    VolunteerSessionId.NUTRITION_COOKING_WORKSHOP: VolunteerRoleId.NUTRITION_CLASS_ASSISTANT,
+    VolunteerSessionId.FAMILY_SUPPORT_AFTERNOON: VolunteerRoleId.FAMILY_SUPPORT_ASSISTANT,
+    VolunteerSessionId.COMMUNITY_CSR_VOLUNTEER_DAY: VolunteerRoleId.COMMUNITY_EVENT_VOLUNTEER,
 }
 
 

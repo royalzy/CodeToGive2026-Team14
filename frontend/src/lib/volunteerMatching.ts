@@ -1,3 +1,4 @@
+import { programs } from "../content/programs";
 import {
   type VolunteerMatchAnswers,
   type VolunteerRole,
@@ -13,6 +14,10 @@ export interface VolunteerRecommendation {
   reasons: string[];
 }
 
+function programTitle(programSlug: string): string {
+  return programs.find((program) => program.slug === programSlug)?.title ?? programSlug;
+}
+
 function recommendationForRole(
   role: VolunteerRole,
   answers: VolunteerMatchAnswers,
@@ -20,16 +25,20 @@ function recommendationForRole(
   let score = 0;
   const reasons: string[] = [];
 
-  if (role.interestTags.includes(answers.interest)) {
-    score += 40;
-    reasons.push(`It connects with your interest in ${answers.interest}.`);
+  if (role.interestTags.some((tag) => answers.programs.includes(tag))) {
+    score += 35;
+    reasons.push(`It connects with your interest in ${programTitle(role.programSlug)}.`);
+  }
+  if (answers.roleType && role.roleType === answers.roleType) {
+    score += 20;
+    reasons.push("It matches how you would like to contribute.");
   }
   if (role.availabilityTags.includes(answers.availability)) {
-    score += 35;
+    score += 30;
     reasons.push("Its usual rhythm fits the time you can realistically offer.");
   }
   if (role.styleTags.includes(answers.participationStyle)) {
-    score += 25;
+    score += 15;
     reasons.push("It matches how you would prefer to take part.");
   }
   if (reasons.length === 0) {

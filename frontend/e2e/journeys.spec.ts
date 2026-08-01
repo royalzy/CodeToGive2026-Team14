@@ -12,8 +12,8 @@ test("guided volunteer path creates a provisional first-session plan", async ({
   page,
 }) => {
   await page.goto("/volunteer");
-  await page.getByRole("link", { name: "Start the 60-second match" }).click();
-  await page.getByLabel("Dance & movement").check();
+  await page.getByRole("link", { name: "Start the guided match" }).click();
+  await page.getByLabel("Enrichment & intervention").check();
   await page.getByLabel("About once a month").check();
   await page.getByLabel("Join activities directly").check();
   await page.getByRole("button", { name: "Show my starting point" }).click();
@@ -43,8 +43,8 @@ test("quick volunteer path can skip matching and the story video", async ({ page
   await expect(page.getByText(/no place has been reserved/i)).toBeVisible();
 });
 
-test("community volunteer can register interest without a session", async ({ page }) => {
-  await page.goto("/volunteer/roles/community_event_volunteer");
+test("volunteer can register interest for a role without a session", async ({ page }) => {
+  await page.goto("/volunteer/roles/enrichment_class_leader");
   await page.getByRole("link", { name: "Register demo interest" }).click();
   await completeDemoApplication(page);
 

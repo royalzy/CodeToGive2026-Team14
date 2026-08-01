@@ -92,32 +92,36 @@ describe("closed-loop forms", () => {
     expect(
       screen.getByRole("heading", { name: "Explore without being boxed in.", level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Dance Activity Buddy" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Creative Arts Class Assistant" }),
+    ).toBeInTheDocument();
   });
 
   it("returns an explainable guided recommendation without restricting alternatives", async () => {
     const user = userEvent.setup();
 
     renderRoute("/volunteer/match");
-    await user.click(screen.getByLabelText("Dance & movement"));
-    await user.click(screen.getByLabelText("About once a month"));
-    await user.click(screen.getByLabelText("Join activities directly"));
+    await user.click(screen.getByLabelText("Community & education"));
+    await user.click(screen.getByLabelText("One activity for now"));
+    await user.click(screen.getByLabelText("Help behind the scenes"));
     await user.click(screen.getByRole("button", { name: "Show my starting point" }));
 
     expect(screen.getByText("Strong fit")).toBeInTheDocument();
-    expect(screen.getByText(/connects with your interest in dance/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/connects with your interest in community/i),
+    ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Two other roles worth exploring" })).toBeInTheDocument();
 
-    const communityHeading = screen.getByRole("heading", {
-      name: "Community Event Volunteer",
+    const eventHelperHeading = screen.getByRole("heading", {
+      name: "Community Event Helper",
     });
     await user.click(
-      within(communityHeading.closest("article")!).getByRole("link", {
+      within(eventHelperHeading.closest("article")!).getByRole("link", {
         name: "Explore this role",
       }),
     );
     expect(
-      screen.getByRole("heading", { name: "Community Event Volunteer", level: 1 }),
+      screen.getByRole("heading", { name: "Community Event Helper", level: 1 }),
     ).toBeInTheDocument();
   });
 
@@ -125,7 +129,7 @@ describe("closed-loop forms", () => {
     renderRoute("/volunteer/roles/dance_activity_buddy?journey=guided");
 
     expect(
-      screen.getByLabelText(/Volunteer story for people exploring the Dance Activity Buddy/i),
+      screen.getByLabelText(/Volunteer story for people exploring the Creative Arts Class Assistant/i),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Try this session" })).toBeInTheDocument();
   });

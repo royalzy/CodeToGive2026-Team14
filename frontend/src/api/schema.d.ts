@@ -358,12 +358,12 @@ export interface components {
          * VolunteerRoleId
          * @enum {string}
          */
-        VolunteerRoleId: "dance_activity_buddy" | "sports_activity_buddy" | "community_event_volunteer";
+        VolunteerRoleId: "dance_activity_buddy" | "sports_activity_buddy" | "community_event_volunteer" | "nutrition_class_assistant" | "family_support_assistant" | "sports_class_leader" | "enrichment_class_leader";
         /**
          * VolunteerSessionId
          * @enum {string}
          */
-        VolunteerSessionId: "saturday_dance_project" | "sunday_sports_session";
+        VolunteerSessionId: "saturday_dance_project" | "sunday_sports_session" | "dragon_boat_training_day" | "nutrition_cooking_workshop" | "family_support_afternoon" | "community_csr_volunteer_day";
     };
     responses: never;
     parameters: never;
