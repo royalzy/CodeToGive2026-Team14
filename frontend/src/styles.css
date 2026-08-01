@@ -1,14 +1,15 @@
+@import url("https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,500;0,7..72,600;1,7..72,500&family=Work+Sans:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --color-love-red: #e9003f;
-  --color-love-pink: #f6a9bb;
-  --color-love-yellow: #ffd21c;
-  --color-love-blue: #1455c0;
-  --color-love-teal: #49a99d;
-  --color-love-orange: #f47721;
-  --color-love-ink: #171625;
-  --color-love-cream: #fff9ef;
+  --color-love-red: #e7634f;
+  --color-love-pink: #f7d9d1;
+  --color-love-yellow: #ffd84d;
+  --color-love-blue: #1687a7;
+  --color-love-teal: #237f82;
+  --color-love-orange: #e7634f;
+  --color-love-ink: #17313b;
+  --color-love-cream: #fff9ed;
 
   --animate-marquee: marquee 28s linear infinite;
   --animate-fade-in: fade-in 0.5s ease-out;
@@ -44,27 +45,28 @@
 }
 
 :root {
-  color: #171625;
-  background: #fffdf8;
+  color: #17313b;
+  background: #fff9ed;
   font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+    "Work Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --red: #e9003f;
-  --red-text: #910028;
-  --pink: #f6a9bb;
-  --yellow: #ffd21c;
-  --blue: #1455c0;
-  --teal: #49a99d;
-  --orange: #f47721;
-  --ink: #171625;
-  --cream: #fff9ef;
-  --paper: #fffdf8;
-  --muted: #5e5b68;
-  --line: #ded9d0;
-  --surface: white;
-  --shadow: 0 22px 55px rgb(23 22 37 / 12%);
+  --red: #e7634f;
+  --red-text: #a4372a;
+  --pink: #f7d9d1;
+  --yellow: #ffd84d;
+  --blue: #1687a7;
+  --teal: #237f82;
+  --orange: #e7634f;
+  --ink: #17313b;
+  --cream: #fff9ed;
+  --paper: #fff9ed;
+  --muted: #56676d;
+  --line: #c9d9d8;
+  --surface: #ffffff;
+  --sky: #dff4f7;
+  --shadow: 0 14px 40px rgb(23 49 59 / 12%);
 }
 
 * {
@@ -79,9 +81,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 4% 3%, rgb(246 169 187 / 16%), transparent 22rem),
-    var(--paper);
+  background: var(--paper);
 }
 
 img {
@@ -119,18 +119,18 @@ h3,
 .eyebrow,
 .metric-card strong {
   font-family:
-    "Arial Rounded MT Bold", "Trebuchet MS", ui-rounded, system-ui, sans-serif;
+    "Literata", Iowan Old Style, Georgia, serif;
 }
 
 h1,
 h2,
 h3 {
-  line-height: 1.05;
-  letter-spacing: -0.035em;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
 }
 
 h2 {
-  font-size: clamp(2rem, 4vw, 4rem);
+  font-size: clamp(2rem, 4vw, 3.65rem);
 }
 
 h3 {
@@ -6059,5 +6059,970 @@ h3 {
 
   .donor-profile-login-copy h1 {
     font-size: 2.7rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Whole-site theme: Sunlit Portraits
+   Visual overrides only. Component structure and interaction rules stay intact.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --donor-cream: #fff9ed;
+  --donor-paper: #ffffff;
+  --donor-ink: #17313b;
+  --donor-muted: #56676d;
+  --donor-ox: #1687a7;
+  --donor-apricot: #ffd84d;
+  --donor-peach: #dff4f7;
+  --donor-line: #c9d9d8;
+  --donor-serif: "Literata", Iowan Old Style, Georgia, serif;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family:
+    "Work Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+body {
+  color: var(--ink);
+  background: var(--cream);
+}
+
+h1,
+h2,
+h3,
+.landing-title,
+.landing-mission-copy h2,
+.landing-whatwedo-header h2,
+.page-hero h1,
+.form-heading h1,
+.donor-community-page h1,
+.donor-community-page h2,
+.donor-profile-page h1,
+.donate-a-page h1,
+.donate-a-page h2 {
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+h1,
+.landing-title,
+.page-hero h1 {
+  font-size: clamp(2.75rem, 6.3vw, 5.9rem);
+}
+
+h2,
+.landing-section h2,
+.donor-community-page h2,
+.donate-a-page h2 {
+  font-size: clamp(2rem, 4vw, 3.65rem);
+}
+
+h3 {
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+}
+
+p,
+li,
+label,
+input,
+select,
+textarea {
+  color: inherit;
+}
+
+::selection {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.shell {
+  width: min(1200px, calc(100% - 2rem));
+}
+
+.section,
+.landing-section,
+.donor-community-section {
+  padding-block: clamp(4rem, 7vw, 7rem);
+}
+
+.section-soft,
+.landing-section-soft,
+.landing-section-alt,
+.donor-community-partners-section,
+.donor-community-wall-section,
+.volunteer-principles-section,
+.volunteer-reassurance-section,
+.volunteer-testimonial-section,
+.volunteer-role-preview-section,
+.volunteer-role-next-section,
+.volunteer-sessions-section,
+.volunteer-confirmation-section,
+.donor-profile-login-section {
+  background: var(--sky);
+}
+
+.section-dark {
+  color: white;
+  background: var(--ink);
+}
+
+.eyebrow,
+.landing-eyebrow,
+.donor-community-eyebrow,
+.volunteer-accordion-eyebrow,
+.volunteer-other-way-eyebrow {
+  color: #a4372a;
+  font-family: "Work Sans", Inter, sans-serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.button,
+.landing-hero-cta-primary,
+.landing-cta-btn,
+.donor-community-button,
+.supporter-quick-action,
+.landing-quiz-next,
+.landing-quiz-retry {
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-family: "Work Sans", Inter, sans-serif;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  box-shadow: none;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.button,
+.header-cta,
+.landing-hero-cta-primary,
+.landing-cta-btn-red,
+.donor-community-button-primary,
+.supporter-quick-action-primary,
+.landing-quiz-next {
+  color: var(--ink);
+  background: var(--yellow);
+  border-color: #e4bd2f;
+}
+
+.button:hover,
+.header-cta:hover,
+.landing-hero-cta-primary:hover,
+.landing-cta-btn-red:hover,
+.donor-community-button-primary:hover,
+.supporter-quick-action-primary:hover,
+.landing-quiz-next:hover {
+  color: var(--ink);
+  background: #ffe474;
+  border-color: #d8ab1c;
+  transform: translateY(-1px);
+}
+
+.button-dark,
+.landing-cta-btn-teal {
+  color: white;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.button-light {
+  color: var(--ink);
+  background: white;
+  border-color: white;
+}
+
+.button-outline,
+.landing-hero-cta-secondary,
+.donor-community-button:not(.donor-community-button-primary),
+.landing-cta-tertiary,
+.landing-quiz-retry {
+  color: var(--ink);
+  background: transparent;
+  border-color: var(--ink);
+}
+
+.landing-hero-cta-secondary {
+  color: white;
+  border-color: rgb(255 255 255 / 72%);
+}
+
+.button-outline:hover,
+.donor-community-button:not(.donor-community-button-primary):hover,
+.landing-cta-tertiary:hover,
+.landing-quiz-retry:hover {
+  color: white;
+  background: var(--ink);
+}
+
+input,
+select,
+textarea,
+.currency-input {
+  min-height: 44px;
+  color: var(--ink);
+  background: white;
+  border-color: var(--line);
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.currency-input:focus-within {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgb(22 135 167 / 14%);
+}
+
+.site-header {
+  color: var(--ink);
+  background: rgb(255 249 237 / 94%);
+  border-bottom: 1px solid var(--line);
+  box-shadow: none;
+  backdrop-filter: blur(14px);
+}
+
+.header-inner {
+  min-height: 76px;
+}
+
+.wordmark {
+  color: var(--ink);
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+.desktop-nav a,
+.header-auth,
+.lang-toggle,
+.mobile-nav-button {
+  color: var(--ink);
+  font-family: "Work Sans", Inter, sans-serif;
+  font-weight: 650;
+}
+
+.desktop-nav a:hover,
+.desktop-nav a[aria-current="page"],
+.header-auth:hover,
+.lang-toggle:hover {
+  color: var(--blue);
+}
+
+.mobile-menu {
+  background: var(--cream);
+  border-color: var(--line);
+  box-shadow: var(--shadow);
+}
+
+.site-footer {
+  color: white;
+  background: var(--ink);
+  border-top: 0;
+}
+
+.site-footer a:hover {
+  color: var(--yellow);
+}
+
+.footer-heading,
+.footer-tagline {
+  color: white;
+}
+
+.footer-bottom {
+  border-color: rgb(255 255 255 / 18%);
+}
+
+/* Home page */
+.landing-hero {
+  color: white;
+  background: var(--ink);
+}
+
+.landing-hero-overlay {
+  background:
+    linear-gradient(90deg, rgb(10 37 45 / 88%) 0%, rgb(10 37 45 / 55%) 52%, rgb(10 37 45 / 12%) 100%),
+    linear-gradient(0deg, rgb(10 37 45 / 44%), transparent 48%);
+}
+
+.landing-title {
+  max-width: 12ch;
+  color: white;
+  text-wrap: balance;
+  text-shadow: 0 2px 24px rgb(0 0 0 / 24%);
+}
+
+.landing-hero-lede,
+.landing-hero-tagline,
+.landing-desc {
+  color: rgb(255 255 255 / 90%);
+}
+
+.landing-hero-stat {
+  background: rgb(255 255 255 / 94%);
+  border: 1px solid rgb(255 255 255 / 62%);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgb(10 37 45 / 18%);
+}
+
+.landing-hero-stat strong,
+.landing-hero-stat span {
+  color: var(--ink);
+}
+
+.landing-hero-dots button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.landing-section {
+  color: var(--ink);
+  background: var(--cream);
+}
+
+.landing-section-warm {
+  background: #f8ead8;
+}
+
+.landing-mission-image,
+.landing-pillar-image-wrap,
+.landing-cta-card-image {
+  overflow: hidden;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+.landing-mission-copy h2,
+.landing-whatwedo-header h2,
+.landing-why21 h2 {
+  color: var(--ink);
+}
+
+.landing-section:not(.landing-myth-bust):not(.landing-why21) h2,
+.landing-section-alt h2,
+.landing-section-warm h2,
+.landing-section-soft h2 {
+  color: var(--ink);
+}
+
+.landing-mission-pillar,
+.landing-impact-card,
+.landing-quiz-card,
+.landing-cta-card,
+.landing-fact-body,
+.landing-pillar-info {
+  color: var(--ink);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgb(23 49 59 / 8%);
+}
+
+.landing-pillar-number,
+.why21-number,
+.landing-quiz-num,
+.landing-quiz-score,
+.ds-stat-num,
+.landing-fact-stat {
+  color: var(--blue);
+}
+
+.landing-pillar-tabs button,
+.landing-quiz-options button,
+.landing-cta-amount {
+  min-height: 44px;
+  color: var(--ink);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.landing-pillar-tabs button:hover,
+.landing-pillar-tabs button[aria-selected="true"],
+.landing-quiz-options button:hover,
+.landing-quiz-options button[aria-pressed="true"],
+.landing-cta-amount:hover,
+.landing-cta-amount[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--yellow);
+  border-color: #d8ab1c;
+}
+
+.landing-quiz-progress,
+.level-track,
+.allocation-track {
+  background: #e2eceb;
+}
+
+.landing-quiz-progress > span,
+.level-fill,
+.allocation-fill {
+  background: var(--blue);
+}
+
+.landing-myth-bust,
+.landing-why21,
+.landing-cta-header {
+  color: white;
+  background: var(--ink);
+}
+
+.landing-myth-bust h2,
+.landing-why21 h2,
+.landing-section-alt .landing-cta-header h2 {
+  color: white;
+}
+
+.landing-myth-bust p,
+.landing-why21 p,
+.landing-cta-header p {
+  color: rgb(255 255 255 / 82%);
+}
+
+/* Shared internal-page foundations */
+.page-hero,
+.page-hero-blue {
+  color: white;
+  background: var(--blue);
+}
+
+.page-hero h1,
+.page-hero h2,
+.page-hero p,
+.page-hero .eyebrow {
+  color: white;
+}
+
+.page-hero-inner {
+  padding-block: clamp(4.25rem, 8vw, 7.5rem);
+}
+
+:is(
+    .metric-card,
+    .program-card,
+    .pathway-card,
+    .member-card,
+    .opportunity-card,
+    .wishlist-card,
+    .persona-card,
+    .cause-card,
+    .choice-card,
+    .impact-card,
+    .support-card,
+    .moment-card,
+    .profile-main,
+    .profile-activity,
+    .login-card,
+    .form-card,
+    .form-aside,
+    .application-selection-card,
+    .volunteer-path-card,
+    .volunteer-other-way-card,
+    .volunteer-testimonial-card,
+    .volunteer-session-card,
+    .volunteer-role-main,
+    .volunteer-role-sidebar,
+    .volunteer-newsletter-card,
+    .donation-flow-card,
+    .donation-review,
+    .donation-success,
+    .donation-outcome-record,
+    .support-finder,
+    .support-finder-alt,
+    .next-step-banner
+  ) {
+  color: var(--ink);
+  background: white;
+  border-color: var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgb(23 49 59 / 8%);
+}
+
+:is(
+    .metric-card,
+    .program-card,
+    .pathway-card,
+    .member-card,
+    .opportunity-card,
+    .wishlist-card,
+    .persona-card,
+    .cause-card,
+    .choice-card,
+    .impact-card,
+    .support-card,
+    .moment-card,
+    .volunteer-path-card,
+    .volunteer-other-way-card,
+    .volunteer-testimonial-card,
+    .volunteer-session-card
+  ):hover {
+  border-color: #9bbab9;
+  box-shadow: 0 16px 38px rgb(23 49 59 / 13%);
+}
+
+.metric-card strong,
+.stat-value,
+.profile-stat strong,
+.impact-amount,
+.level-points,
+.milestone-number,
+.program-number,
+.result-score {
+  color: var(--blue);
+}
+
+.text-link,
+.landing-pillar-link,
+.support-finder-link {
+  color: #0c6f8c;
+  text-decoration-color: rgb(12 111 140 / 42%);
+}
+
+.badge-icon,
+.persona-icon,
+.impact-icon,
+.mp-icon,
+.myth-icon,
+.cta-icon {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+.accent-border,
+.program-card,
+.pathway-card,
+.opportunity-card,
+.impact-card {
+  border-top-color: var(--blue);
+}
+
+.demo-notice,
+.form-notice,
+.privacy-note,
+.plan-support-note,
+.impact-service-note,
+.donation-email-note,
+.anonymous-confirmation,
+.anonymous-success-note,
+.donor-acknowledgement,
+.volunteer-match-acknowledgement,
+.booking-limit,
+.simulation-banner,
+.simulation-confirmation {
+  color: var(--ink);
+  background: var(--sky);
+  border-color: #a7d8df;
+  border-radius: 6px;
+}
+
+.form-alert,
+.field-message,
+.result-msg {
+  color: #a4372a;
+}
+
+.choice-card:has(input:checked),
+.application-selection-card:has(input:checked),
+.match-option-grid label:has(input:checked),
+.donation-amount-grid label:has(input:checked),
+.amount-grid label:has(input:checked) {
+  background: #fff5c5;
+  border-color: #d8ab1c;
+  box-shadow: 0 0 0 2px rgb(255 216 77 / 25%);
+}
+
+.donation-steps li[aria-current="step"],
+.status-mark,
+.volunteer-role-badge {
+  color: var(--ink);
+  background: var(--yellow);
+  border-color: #d8ab1c;
+}
+
+.volunteer-role-badge-muted,
+.demo-badge {
+  color: var(--ink);
+  background: var(--sky);
+  border-color: var(--line);
+}
+
+.volunteer-program-accordion,
+.volunteer-accordion-panel,
+.volunteer-filter-bar,
+.volunteer-alternatives-panel,
+.volunteer-match-form,
+.volunteer-match-results,
+.volunteer-story,
+.volunteer-video-frame,
+.first-session-plan,
+.plan-timeline,
+.role-expectation-grid > *,
+.volunteer-role-facts > *,
+.donor-profile-receipts,
+.donor-profile-record {
+  border-color: var(--line);
+  border-radius: 8px;
+}
+
+.volunteer-accordion-trigger,
+.volunteer-filter-chips button,
+.volunteer-inline-actions button,
+.activity-buttons button,
+.card-options-trigger,
+.card-options-panel button {
+  min-height: 44px;
+}
+
+.volunteer-filter-chips button {
+  color: var(--ink);
+  background: white;
+  border-color: var(--line);
+  border-radius: 999px;
+}
+
+.volunteer-filter-chips button[aria-pressed="true"] {
+  background: var(--yellow);
+  border-color: #d8ab1c;
+}
+
+/* Donor community, profile, and donation flow */
+.donor-community-page,
+.donor-profile-page,
+.donor-profile-login-section,
+.donate-a-page {
+  --donor-cream: #fff9ed;
+  --donor-paper: #ffffff;
+  --donor-ink: #17313b;
+  --donor-muted: #56676d;
+  --donor-ox: #1687a7;
+  --donor-apricot: #ffd84d;
+  --donor-peach: #dff4f7;
+  --donor-line: #c9d9d8;
+  --donor-serif: "Literata", Iowan Old Style, Georgia, serif;
+  color: var(--ink);
+  background: var(--cream);
+}
+
+.donor-community-hero,
+.donor-profile-header,
+.donate-a-transparency,
+.donor-community-mosaic-band {
+  color: white;
+  background: var(--ink);
+}
+
+.donor-community-hero p,
+.donor-profile-header p,
+.donate-a-transparency p,
+.donor-community-mosaic-band p {
+  color: rgb(255 255 255 / 82%);
+}
+
+.donor-community-hero-copy blockquote {
+  color: rgb(255 255 255 / 74%);
+}
+
+.donor-community-core,
+.donor-community-orbit-inner,
+.donor-community-post-avatar,
+.donor-community-wall,
+.donor-community-partner-grid > *,
+.donor-profile-achievement,
+.donor-profile-grid > *,
+.donor-profile-login-card,
+.donate-a-flow-card,
+.donate-a-evidence,
+.donate-a-promise,
+.donate-a-impact-preview,
+.donation-outcome-thanks figcaption {
+  color: var(--ink);
+  background: white;
+  border-color: var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgb(23 49 59 / 8%);
+}
+
+.donor-community-signature,
+.donor-profile-lifetime,
+.donate-a-flow-topline,
+.donate-a-impact-after,
+.donation-outcome-timeline strong,
+.donation-outcome-thanks figcaption > span {
+  color: var(--blue);
+}
+
+.donor-community-counts,
+.donor-community-thanks,
+.donor-profile-note,
+.donate-a-promise {
+  background: var(--sky);
+  border-color: #a7d8df;
+}
+
+.donor-profile-achievement {
+  color: white;
+  background: var(--ink) !important;
+}
+
+.donor-profile-achievement h2,
+.donor-profile-achievement p,
+.donor-profile-achievement li,
+.donor-profile-achievement strong {
+  color: white;
+}
+
+.donor-community-face-grid img,
+.donor-community-post-avatar img,
+.member-card-photo,
+.profile-photo-frame,
+.crystal-photo-main,
+.crystal-photo-stack img,
+.donation-outcome-thanks img {
+  border-radius: 12px;
+}
+
+.donate-a-allocation-row[aria-current="true"],
+.donate-a-allocation-row:has(input:checked),
+.donor-give-mode button[aria-pressed="true"],
+.donor-profile-mode button[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--yellow);
+  border-color: #d8ab1c;
+}
+
+.donor-give-mode label:has(input:checked),
+.donate-a-flow-card .donor-profile-mode label:has(input:checked),
+.donate-a-flow-card .cause-card:has(input:checked) {
+  color: var(--ink);
+  background: #fff5c5;
+  border-color: #d8ab1c;
+  box-shadow: inset 0 0 0 1px #d8ab1c;
+}
+
+.donor-give-mode input,
+.donate-a-flow-card .donor-profile-mode input {
+  accent-color: var(--blue);
+}
+
+.donate-a-flow-card .donation-steps li.current,
+.donate-a-flow-card .donation-steps li.complete {
+  color: var(--blue);
+  border-color: var(--blue);
+}
+
+.donate-a-flow-card .donation-steps li.current > span,
+.donate-a-flow-card .donation-steps li.complete > span {
+  color: var(--ink);
+  background: var(--yellow);
+  border-color: #d8ab1c;
+}
+
+.donate-a-flow-card .simulation-banner,
+.donate-a-flow-card .consent-row,
+.donate-a-flow-card .anonymous-confirmation {
+  color: var(--ink);
+  background: var(--sky);
+  border-color: #a7d8df;
+}
+
+.donate-a-flow-card .field input,
+.donate-a-flow-card .field textarea,
+.donate-a-flow-card .currency-input,
+.donate-a-flow-card .cause-card,
+.donate-a-flow-card .donation-amount-grid button {
+  border-color: var(--line);
+  border-radius: 6px;
+}
+
+.donate-a-flow-card .donation-amount-grid button:hover,
+.donate-a-flow-card .donation-amount-grid button.selected {
+  color: var(--ink);
+  background: var(--yellow);
+  border-color: #d8ab1c;
+}
+
+.donate-a-impact-preview .impact-card {
+  color: var(--ink);
+  background: var(--sky);
+  border-color: #a7d8df;
+}
+
+.donate-a-impact-preview .impact-card h2,
+.donate-a-impact-preview .impact-card-topline span,
+.donate-a-impact-preview .impact-card footer strong {
+  color: var(--blue);
+}
+
+.donate-a-impact-preview .impact-card-topline strong {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+.donate-a-flow-card .button-dark {
+  color: var(--ink);
+  background: var(--yellow);
+  border-color: #d8ab1c;
+}
+
+.donate-a-flow-card .button-dark:hover {
+  color: var(--ink);
+  background: #ffe474;
+}
+
+.donate-a-flow-card .button-outline {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.donation-outcome-record,
+.donation-outcome-thanks figcaption {
+  background: white;
+}
+
+.donation-outcome-timeline,
+.donation-outcome-timeline div {
+  border-color: var(--line);
+}
+
+.donation-outcome-thanks blockquote {
+  color: var(--ink);
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
+}
+
+/* Tailwind utilities used by member/admin surfaces inherit the same palette. */
+.bg-love-cream {
+  background-color: var(--cream) !important;
+}
+
+.bg-love-ink,
+.bg-love-ink\/70,
+.bg-love-ink\/80 {
+  background-color: var(--ink) !important;
+}
+
+.bg-love-blue {
+  background-color: var(--blue) !important;
+}
+
+.text-love-ink,
+.text-love-ink\/40,
+.text-love-ink\/50,
+.text-love-ink\/60,
+.text-love-ink\/70,
+.text-love-ink\/80 {
+  color: var(--ink) !important;
+}
+
+.text-love-blue,
+.text-love-blue\/70 {
+  color: var(--blue) !important;
+}
+
+.text-love-red {
+  color: var(--red-text) !important;
+}
+
+.text-love-teal {
+  color: var(--teal) !important;
+}
+
+.border-love-ink\/10,
+.border-love-ink\/20,
+.border-love-blue\/10,
+.border-love-blue\/15,
+.border-love-blue\/20,
+.border-love-teal\/20 {
+  border-color: var(--line) !important;
+}
+
+.rounded-2xl,
+.rounded-3xl {
+  border-radius: 8px !important;
+}
+
+.shadow-xl {
+  box-shadow: var(--shadow) !important;
+}
+
+@media (max-width: 760px) {
+  h1,
+  .landing-title,
+  .page-hero h1 {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+
+  h2,
+  .landing-section h2,
+  .donor-community-page h2,
+  .donate-a-page h2 {
+    font-size: clamp(2rem, 9vw, 3rem);
+  }
+
+  .header-inner {
+    min-height: 68px;
+  }
+
+  .landing-hero-overlay {
+    background: linear-gradient(0deg, rgb(10 37 45 / 88%) 0%, rgb(10 37 45 / 58%) 72%, rgb(10 37 45 / 18%) 100%);
+  }
+
+  .donor-community-hero-copy {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .donor-community-hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 7.25rem;
+  }
+
+  .donor-community-constellation {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .section,
+  .landing-section,
+  .donor-community-section {
+    padding-block: 4rem;
+  }
+
+  button,
+  a.button,
+  input,
+  select {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .landing-hero-cta-primary,
+  .landing-cta-btn,
+  .donor-community-button,
+  .supporter-quick-action,
+  .landing-quiz-next,
+  .landing-quiz-retry {
+    transition: none;
   }
 }
