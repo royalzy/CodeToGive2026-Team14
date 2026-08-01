@@ -213,16 +213,23 @@ export type PlatformId = "instagram" | "facebook";
 export interface SocialPostResult {
   platform: PlatformId;
   status: "published" | "failed";
+  caption: string | null;
   permalink: string | null;
   media_url: string | null;
   error: string | null;
 }
 
 export interface SocialPostResponse {
-  caption: string;
-  image_url: string;
+  /** Empty for a text-only post, which Facebook supports and Instagram does not. */
+  image_urls: string[];
   results: SocialPostResult[];
 }
+
+/** Instagram's caption cap. Facebook allows far more. */
+export const IG_MAX_CAPTION = 2200;
+export const FB_MAX_CAPTION = 63206;
+/** Instagram carousels take 2-10 items; Facebook's feed limit matches. */
+export const MAX_IMAGES = 10;
 
 // Meta's publish calls routinely take 10-30s, well past API_TIMEOUT_MS.
 const SOCIAL_PUBLISH_TIMEOUT_MS = 90_000;
@@ -257,13 +264,24 @@ async function extractDetail(response: Response): Promise<string | null> {
 }
 
 export async function publishSocialPost(input: {
-  image: File;
+  /**
+   * Optional and repeatable. Empty means a text-only post (Facebook only);
+   * more than one becomes an Instagram carousel / Facebook multi-photo post.
+   */
+  images?: File[];
   caption: string;
+  /** Optional per-platform overrides; each falls back to `caption`. */
+  captionInstagram?: string;
+  captionFacebook?: string;
   platforms: PlatformId[];
 }): Promise<SocialPostResponse> {
   const body = new FormData();
-  body.append("image", input.image);
+  for (const image of input.images ?? []) {
+    body.append("images", image);
+  }
   body.append("caption", input.caption);
+  if (input.captionInstagram) body.append("caption_instagram", input.captionInstagram);
+  if (input.captionFacebook) body.append("caption_facebook", input.captionFacebook);
   for (const platform of input.platforms) {
     body.append("platforms", platform);
   }

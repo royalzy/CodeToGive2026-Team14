@@ -1,12 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 
-import { publishSocialPost, type PlatformId, type SocialPostResult } from "../../api/client";
+import {
+  FB_MAX_CAPTION,
+  IG_MAX_CAPTION,
+  MAX_IMAGES,
+  publishSocialPost,
+  type PlatformId,
+  type SocialPostResult,
+} from "../../api/client";
 import "./SocialComposer.css";
 
-const MAX_CAPTION = 2200;
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const IMAGE_REQUIREMENTS = "JPEG, PNG or WebP, up to 10MB. Large photos are resized automatically.";
+const IMAGE_REQUIREMENTS =
+  `JPEG, PNG or WebP, up to 10MB each and ${MAX_IMAGES} images per post. ` +
+  "Large photos are resized automatically. Two or more become an Instagram " +
+  "carousel and a Facebook multi-photo post.";
 
 function InstagramIcon({ className = "" }: { className?: string }) {
   return (
@@ -43,6 +52,11 @@ const PLATFORMS: {
   { id: "instagram", label: "Instagram", Icon: InstagramIcon, brand: "text-[#E4405F]" },
   { id: "facebook", label: "Facebook", Icon: FacebookIcon, brand: "text-[#1877F2]" },
 ];
+
+const PLATFORM_LABEL: Record<PlatformId, string> = {
+  instagram: "Instagram",
+  facebook: "Facebook",
+};
 
 /** Shared pill styling so "View post" and "Copy link" read as one control pair.
  *
@@ -141,40 +155,79 @@ function InfoTooltip({ text }: { text: string }) {
 }
 
 export function SocialComposer() {
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [caption, setCaption] = useState("");
+  const [splitCaptions, setSplitCaptions] = useState(false);
+  const [captionIg, setCaptionIg] = useState("");
+  const [captionFb, setCaptionFb] = useState("");
   const [selected, setSelected] = useState<PlatformId[]>(["instagram", "facebook"]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<SocialPostResult[] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Object URLs leak if not revoked when the file changes or the form unmounts.
+  // Object URLs leak if not revoked when the selection changes or unmounts.
   useEffect(() => {
-    if (!file) {
-      setPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setPreviewUrls(urls);
+    // Wrapped rather than passed by reference: forEach would hand it an index
+    // as a second argument and unbind it from URL.
+    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+  }, [files]);
 
-  function chooseFile(next: File | undefined) {
+  // Instagram always needs media, so drop it when there is no image rather
+  // than letting the request fail server-side.
+  useEffect(() => {
+    if (files.length === 0) {
+      setSelected((current) => current.filter((p) => p !== "instagram"));
+    }
+  }, [files]);
+
+  function addFiles(picked: FileList | null) {
     setError(null);
     setResults(null);
-    if (!next) return;
+    if (!picked || picked.length === 0) return;
 
-    if (!ACCEPTED_TYPES.includes(next.type)) {
-      setError("Choose a JPEG, PNG or WebP image.");
-      return;
-    }
-    if (next.size > MAX_UPLOAD_BYTES) {
-      setError("That image is over 10MB. Please choose a smaller file.");
-      return;
-    }
-    setFile(next);
+    const incoming = [...picked];
+    const rejected = incoming.filter(
+      (f) => !ACCEPTED_TYPES.includes(f.type) || f.size > MAX_UPLOAD_BYTES,
+    );
+    const accepted = incoming.filter((f) => !rejected.includes(f));
+
+    setFiles((current) => {
+      const room = MAX_IMAGES - current.length;
+      if (room <= 0) {
+        setError(`You can attach up to ${MAX_IMAGES} images.`);
+        return current;
+      }
+      if (accepted.length > room) {
+        setError(`Only the first ${room} of those fit; the limit is ${MAX_IMAGES} images.`);
+      } else if (rejected.length > 0) {
+        setError(
+          `Skipped ${rejected.length} file(s): use JPEG, PNG or WebP under 10MB.`,
+        );
+      }
+      const next = [...current, ...accepted.slice(0, room)];
+      if (next.length > 0) {
+        setSelected((sel) => (sel.includes("instagram") ? sel : ["instagram", ...sel]));
+      }
+      return next;
+    });
+
+    // Allow re-picking the same file after removing it.
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function removeFileAt(index: number) {
+    setError(null);
+    setFiles((current) => current.filter((_, i) => i !== index));
+  }
+
+  function clearFiles() {
+    setFiles([]);
+    setError(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   function togglePlatform(id: PlatformId) {
@@ -184,8 +237,11 @@ export function SocialComposer() {
   }
 
   function reset() {
-    setFile(null);
+    setFiles([]);
     setCaption("");
+    setCaptionIg("");
+    setCaptionFb("");
+    setSplitCaptions(false);
     setResults(null);
     setError(null);
     setSelected(["instagram", "facebook"]);
@@ -196,24 +252,35 @@ export function SocialComposer() {
     event.preventDefault();
     setError(null);
 
-    if (!file) {
-      setError("Choose an image to post.");
-      return;
-    }
-    if (!caption.trim()) {
-      setError("Write a caption before posting.");
-      return;
-    }
     if (selected.length === 0) {
       setError("Choose at least one platform.");
+      return;
+    }
+    if (files.length === 0 && selected.includes("instagram")) {
+      setError("Instagram needs an image. Add one, or post to Facebook only.");
+      return;
+    }
+
+    // Each platform uses its override when splitting, otherwise the shared one.
+    const igText = (splitCaptions ? captionIg : caption).trim();
+    const fbText = (splitCaptions ? captionFb : caption).trim();
+    const missing = selected.filter((p) => (p === "instagram" ? !igText : !fbText));
+    if (missing.length > 0) {
+      setError(
+        splitCaptions
+          ? `Write a caption for ${missing.map((p) => PLATFORM_LABEL[p]).join(" and ")}.`
+          : "Write a caption before posting.",
+      );
       return;
     }
 
     setBusy(true);
     try {
       const response = await publishSocialPost({
-        image: file,
-        caption: caption.trim(),
+        images: files,
+        caption: splitCaptions ? "" : caption.trim(),
+        captionInstagram: splitCaptions ? igText : undefined,
+        captionFacebook: splitCaptions ? fbText : undefined,
         platforms: selected,
       });
       setResults(response.results);
@@ -223,6 +290,11 @@ export function SocialComposer() {
       setBusy(false);
     }
   }
+
+  // Without an image only Facebook is possible, so the shared caption can use
+  // Facebook's much larger limit.
+  const sharedLimit = selected.includes("instagram") ? IG_MAX_CAPTION : FB_MAX_CAPTION;
+  const bothSelected = selected.length === 2;
 
   const publishedCount = results?.filter((r) => r.status === "published").length ?? 0;
 
@@ -268,8 +340,13 @@ export function SocialComposer() {
           ) : null}
 
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold">Image</span>
+            <span className="text-sm font-semibold">Images</span>
             <InfoTooltip text={IMAGE_REQUIREMENTS} />
+            {files.length > 0 ? (
+              <span className="ml-auto text-xs text-love-ink/60">
+                {files.length} / {MAX_IMAGES}
+              </span>
+            ) : null}
           </div>
 
           {/* Native file input is visually hidden; the label is the click target. */}
@@ -277,75 +354,187 @@ export function SocialComposer() {
             id="social-image"
             ref={fileInputRef}
             type="file"
+            multiple
             accept={ACCEPTED_TYPES.join(",")}
-            onChange={(e) => chooseFile(e.target.files?.[0])}
+            onChange={(e) => addFiles(e.target.files)}
             className="sr-only"
           />
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <label
               htmlFor="social-image"
-              className="cursor-pointer rounded-full border border-love-ink bg-white px-5 py-2 text-sm font-semibold text-love-ink transition-colors hover:bg-love-ink hover:text-white focus-within:ring-2 focus-within:ring-love-ink"
+              className={`rounded-full border border-love-ink bg-white px-5 py-2 text-sm font-semibold text-love-ink transition-colors focus-within:ring-2 focus-within:ring-love-ink ${
+                files.length >= MAX_IMAGES
+                  ? "cursor-not-allowed opacity-40"
+                  : "cursor-pointer hover:bg-love-ink hover:text-white"
+              }`}
             >
-              {file ? "Change image" : "Choose image"}
+              {files.length > 0 ? "Add more" : "Choose images"}
             </label>
 
-            {file ? (
-              <span className="text-sm text-love-ink/70">{file.name}</span>
+            {files.length > 0 ? (
+              <button
+                type="button"
+                onClick={clearFiles}
+                className="text-xs text-love-ink/50 underline underline-offset-2 hover:text-love-ink"
+              >
+                Remove all
+              </button>
             ) : (
               <span className="flex items-center gap-1 text-xs text-love-ink/50">
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="h-3.5 w-3.5">
                   <path d="M12 2 1 21h22L12 2zm0 5 7.5 13h-15L12 7zm-1 4v4h2v-4h-2zm0 6v2h2v-2h-2z" />
                 </svg>
-                No file chosen
+                No file chosen — text-only post
               </span>
             )}
           </div>
 
-          {previewUrl ? (
-            <img
-              src={previewUrl}
-              alt="Selected upload preview"
-              className="mt-3 max-h-64 w-full rounded-xl object-contain"
-            />
+          {previewUrls.length > 0 ? (
+            <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {previewUrls.map((url, index) => (
+                <li key={url} className="group relative">
+                  <img
+                    src={url}
+                    alt={`Selected image ${index + 1}: ${files[index]?.name ?? ""}`}
+                    className="aspect-square w-full rounded-lg object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeFileAt(index)}
+                    aria-label={`Remove image ${index + 1}`}
+                    className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-love-ink/80 text-sm leading-none text-white opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
+                  >
+                    ×
+                  </button>
+                  {files.length > 1 ? (
+                    <span className="absolute bottom-1 left-1 rounded bg-love-ink/70 px-1.5 text-xs text-white">
+                      {index + 1}
+                    </span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {files.length > 1 ? (
+            <p className="mt-2 text-xs text-love-ink/60">
+              Posts as an Instagram carousel and a single Facebook photo post.
+            </p>
           ) : null}
 
-          <label className="mt-6 block text-sm font-semibold" htmlFor="social-caption">
-            Caption
-          </label>
-          <textarea
-            id="social-caption"
-            rows={4}
-            value={caption}
-            maxLength={MAX_CAPTION}
-            onChange={(e) => setCaption(e.target.value)}
-            placeholder="Share a moment..."
-            className="mt-1 w-full rounded-lg border border-love-ink/20 p-3"
-          />
-          <p className="mt-1 text-right text-xs text-love-ink/60">
-            {caption.length} / {MAX_CAPTION}
-          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-2">
+            <span className="text-sm font-semibold">Caption</span>
+            {/* Only meaningful when posting to both places at once. */}
+            {bothSelected ? (
+              <label className="flex cursor-pointer items-center gap-2 text-xs text-love-ink/70">
+                <input
+                  type="checkbox"
+                  checked={splitCaptions}
+                  onChange={(e) => {
+                    const on = e.target.checked;
+                    setSplitCaptions(on);
+                    // Carry the shared text across so nothing is retyped.
+                    if (on) {
+                      setCaptionIg((v) => v || caption);
+                      setCaptionFb((v) => v || caption);
+                    } else {
+                      setCaption((v) => v || captionIg || captionFb);
+                    }
+                  }}
+                />
+                Write a different caption for each platform
+              </label>
+            ) : null}
+          </div>
+
+          {splitCaptions && bothSelected ? (
+            <div className="mt-2 grid gap-4 sm:grid-cols-2">
+              {(
+                [
+                  ["instagram", captionIg, setCaptionIg, IG_MAX_CAPTION],
+                  ["facebook", captionFb, setCaptionFb, FB_MAX_CAPTION],
+                ] as const
+              ).map(([id, value, setValue, limit]) => {
+                const platform = PLATFORMS.find((p) => p.id === id)!;
+                return (
+                  <div key={id}>
+                    <label
+                      className="flex items-center gap-1.5 text-xs font-semibold"
+                      htmlFor={`social-caption-${id}`}
+                    >
+                      <platform.Icon className={`h-3.5 w-3.5 ${platform.brand}`} />
+                      {platform.label}
+                    </label>
+                    <textarea
+                      id={`social-caption-${id}`}
+                      rows={4}
+                      value={value}
+                      maxLength={limit}
+                      onChange={(e) => setValue(e.target.value)}
+                      placeholder="Share a moment..."
+                      className="mt-1 w-full rounded-lg border border-love-ink/20 p-3"
+                    />
+                    <p className="mt-1 text-right text-xs text-love-ink/60">
+                      {value.length} / {limit}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <>
+              <label className="sr-only" htmlFor="social-caption">
+                Caption
+              </label>
+              <textarea
+                id="social-caption"
+                rows={4}
+                value={caption}
+                maxLength={sharedLimit}
+                onChange={(e) => setCaption(e.target.value)}
+                placeholder="Share a moment..."
+                className="mt-2 w-full rounded-lg border border-love-ink/20 p-3"
+              />
+              <p className="mt-1 text-right text-xs text-love-ink/60">
+                {caption.length} / {sharedLimit}
+              </p>
+            </>
+          )}
 
           <fieldset className="mt-4">
             <legend className="text-sm font-semibold">Post to</legend>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              {PLATFORMS.map(({ id, label, Icon, brand }) => (
-                <label
-                  key={id}
-                  className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 ${
-                    selected.includes(id) ? "border-love-ink bg-love-ink/5" : "border-love-ink/20"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(id)}
-                    onChange={() => togglePlatform(id)}
-                  />
-                  <span className="flex items-center gap-1.5 font-semibold">
-                    <Icon className={`h-4 w-4 ${brand}`} />
-                    {label}
-                  </span>
-                </label>
-              ))}
+              {PLATFORMS.map(({ id, label, Icon, brand }) => {
+                // Instagram cannot post without media; Facebook can.
+                const blocked = id === "instagram" && files.length === 0;
+                return (
+                  <label
+                    key={id}
+                    className={`flex items-center gap-3 rounded-xl border p-3 ${
+                      blocked
+                        ? "cursor-not-allowed border-love-ink/10 opacity-50"
+                        : selected.includes(id)
+                          ? "cursor-pointer border-love-ink bg-love-ink/5"
+                          : "cursor-pointer border-love-ink/20"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(id)}
+                      disabled={blocked}
+                      onChange={() => togglePlatform(id)}
+                    />
+                    <span className="flex items-center gap-1.5 font-semibold">
+                      <Icon className={`h-4 w-4 ${brand}`} />
+                      {label}
+                    </span>
+                    {blocked ? (
+                      <span className="ml-auto text-xs font-normal text-love-ink/50">
+                        Needs an image
+                      </span>
+                    ) : null}
+                  </label>
+                );
+              })}
             </div>
           </fieldset>
 

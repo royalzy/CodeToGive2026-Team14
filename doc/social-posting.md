@@ -1,16 +1,27 @@
 # Social Posting Implementation
 
-The admin page can publish a post to Love 21's Instagram Business account and
-Facebook Page at the same time. An admin uploads an image, writes a caption,
-picks the platforms, and the backend handles resizing, hosting and publishing
-through the Meta Graph API (v26.0).
+The admin page can publish to Love 21's Instagram Business account and Facebook
+Page at the same time. An admin attaches images, writes a caption, picks the
+platforms, and the backend handles resizing, hosting and publishing through the
+Meta Graph API (v26.0).
+
+The shape of the post follows from what is attached:
+
+| Images | Instagram | Facebook |
+| ------ | --------- | -------- |
+| none   | not available — Instagram always requires media | text-only post |
+| one    | single image post | photo post |
+| 2–10   | carousel | multi-photo post |
+
+A carousel counts as one post against Instagram's quota, not one per image.
+Captions can be shared across both platforms or written separately for each.
 
 ## Structure
 
 ```text
 backend/app/
 ├── api/routes/social.py     # POST /api/v1/social-posts (multipart upload)
-├── schemas/social.py        # PlatformResult, SocialPostResponse
+├── schemas/social.py        # PlatformResult, SocialPostResponse, caption limits
 └── services/
     ├── meta.py              # Graph API calls, MetaError with Meta's own message
     └── image_host.py        # Cloudinary upload + reachability check
@@ -51,17 +62,26 @@ Then `make dev` is all that is needed. There is no tunnel to run.
 ## How a post is published
 
 ```text
-browser    pick image -> local preview -> FormData { image, caption, platforms[] }
+browser    attach images -> local previews -> FormData
+              { images[], caption, caption_instagram?, caption_facebook?, platforms[] }
               |
-backend    validate type and size
-           Pillow: fix EXIF rotation, resize to <=1440px, re-encode as JPEG
+backend    validate count, type and size
+           Pillow, per image: fix EXIF rotation, resize to <=1440px,
+           re-encode as JPEG
               |
-Cloudinary signed upload -> permanent CDN URL
+Cloudinary signed upload per image -> permanent CDN URLs
               |
-backend    fetch that URL as "facebookexternalhit" and confirm it is an image
+backend    fetch each URL as "facebookexternalhit" and confirm it is an image
               |
-Meta       Instagram: POST /media -> POST /media_publish -> GET permalink
-           Facebook:  POST /photos -> GET permalink
+Meta       Instagram, one image:  POST /media -> /media_publish
+           Instagram, carousel:   POST /media per child (is_carousel_item)
+                                  -> POST /media (CAROUSEL, children=...)
+                                  -> poll status_code until FINISHED
+                                  -> /media_publish
+           Facebook, no image:    POST /feed (message)
+           Facebook, one image:   POST /photos
+           Facebook, many:        POST /photos published=false per image
+                                  -> POST /feed with attached_media[n]
               |
 browser    one result card per platform: status, permalink, copy-link button
 ```
@@ -74,43 +94,67 @@ failure carries Meta's own `error.message`, `type` and `code`.
 
 `POST /api/v1/social-posts` — multipart form
 
-- `image` — JPEG, PNG or WebP, up to 10MB
-- `caption` — up to 2200 characters (Instagram's limit)
-- `platforms` — repeated field or comma-separated: `instagram`, `facebook`
+| Field | Required | Notes |
+| ----- | -------- | ----- |
+| `platforms` | yes | repeated or comma-separated: `instagram`, `facebook` |
+| `images` | no | repeated field, up to 10. JPEG, PNG or WebP, 10MB each |
+| `caption` | no* | shared caption, used when no per-platform override |
+| `caption_instagram` | no | overrides `caption` for Instagram, max 2200 |
+| `caption_facebook` | no | overrides `caption` for Facebook, max 63206 |
 
-Returns `201` with `caption`, `image_url`, and a `results` array holding
-`platform`, `status`, `permalink`, `media_url` and `error` per platform.
+\* Every selected platform must end up with a caption, from either its own
+override or the shared one.
+
+Returns `201` with `image_urls` (empty for a text-only post) and a `results`
+array holding `platform`, `status`, `caption`, `permalink`, `media_url` and
+`error` per platform.
 
 Error responses use `detail` and are safe to show to the user directly:
-`400` for a bad upload, `503` when configuration is missing or the image is
-not publicly reachable, `502` when Meta rejects the request outright.
+`400` for a bad request, `413` for an oversized image, `503` when
+configuration is missing or an image is not publicly reachable, `502` when
+Meta rejects the request outright.
 
 ## Things that cost time, documented so they do not again
 
 **Instagram cannot accept a file upload.** `POST /{ig-user-id}/media` takes an
-`image_url` and Meta's servers fetch it themselves, so the image must be
-publicly reachable. This is why Cloudinary is required rather than serving the
-file from the backend.
+`image_url` and Meta's servers fetch it themselves, so images must be publicly
+reachable. This is why Cloudinary is required rather than serving files from
+the backend.
 
 **Error 9004 / subcode 2207052 is misleading.** It reads "Only photo or video
 can be accepted as media type" but almost always means Meta could not fetch or
 decode the image — a dead URL, an HTML interstitial, or dimensions outside
-Instagram's limits. `image_host.verify_reachable()` exists to catch these and
-report the real cause before Meta is called.
+Instagram's limits. `image_host.verify_reachable()` catches these and reports
+the real cause before Meta is called.
+
+**Carousels must be polled before publishing.** A carousel parent container
+assembles its children asynchronously. Publishing too early fails with
+"Media ID is not available" (code 9007 / subcode 2207027), which says nothing
+about the real cause. `meta._wait_for_container()` polls `status_code` until
+`FINISHED`, with backoff and a 90 second timeout. Single-image containers are
+ready immediately, which is why this only shows up once carousels are used.
+A three-image carousel takes roughly 45 seconds end to end.
+
+**FastAPI will not parse `list[UploadFile] | None` as a file list.** It arrives
+empty with no error, so a multi-image request silently degrades to a text-only
+post. Use a plain `list[UploadFile]` with a default instead.
 
 **Instagram image limits:** 320–1440px wide, under 8MB, aspect ratio between
 4:5 and 1.91:1, JPEG. A raw phone or camera photo will fail, which is why the
 backend resizes every upload.
 
-**Instagram allows 100 posts per rolling 24 hours** per account. Check with
+**Instagram allows 100 posts per rolling 24 hours** per account, and a carousel
+counts as one. Check with
 `GET /{ig-user-id}/content_publishing_limit?fields=config,quota_usage`.
 Facebook Pages use engagement-based throttling instead, reported in the
 `X-Business-Use-Case-Usage` response header.
 
 **Tailwind utilities lose to `styles.css`.** Rules in `styles.css` are
 unlayered while Tailwind's are in `@layer utilities`, and unlayered CSS wins
-regardless of specificity. Anything that needs to override `styles.css` has to
-be written as CSS, which is what `SocialComposer.css` is for.
+regardless of specificity. Anything overriding `styles.css` has to be written
+as CSS, which is what `SocialComposer.css` is for. Watch for specificity ties
+too: `.section-heading > p:last-child` and `.admin-social .section-heading p`
+are both `(0,2,1)`, so source order decides and `styles.css` wins.
 
 ## Limitations
 
@@ -120,7 +164,10 @@ be written as CSS, which is what `SocialComposer.css` is for.
 - **The app is in Development mode**, so only users with a role on the
   `team14hk` app can publish. Public use needs Meta App Review plus Business
   Verification, which requires a registered legal entity.
+- **Video is not supported.** Instagram would need `media_type=REELS` plus the
+  same container polling, a much larger upload limit, and video handling in
+  Cloudinary.
 - **Images accumulate in Cloudinary.** Meta keeps its own copy once published,
-  so the original is disposable, but it is kept as a record.
+  so the originals are disposable, but they are kept as a record.
 - **The composer is English-only.** The admin page does not use `useLanguage()`.
 - **No automated tests yet** for the endpoint or the component.

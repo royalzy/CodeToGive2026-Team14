@@ -9,6 +9,9 @@ accepted as media type" error (code 9004 / subcode 2207052).
 
 from __future__ import annotations
 
+import asyncio
+import json
+import time
 from typing import Any
 
 import httpx
@@ -20,6 +23,10 @@ GRAPH_BASE_URL = "https://graph.facebook.com/v26.0"
 # Meta's fetcher rejects images outside these bounds, also with error 9004.
 IG_MAX_EDGE_PX = 1440
 IG_MIN_WIDTH_PX = 320
+
+# Instagram carousels take 2-10 items; Facebook's feed attachment limit is the
+# same in practice, so 10 is the shared ceiling.
+MAX_CAROUSEL_ITEMS = 10
 
 
 class MetaError(Exception):
@@ -146,6 +153,196 @@ async def publish_instagram_post(
         "GET",
         f"/{published['id']}",
         params={"fields": "caption,media_url,permalink", "access_token": access_token},
+    )
+
+
+async def _wait_for_container(
+    client: httpx.AsyncClient,
+    container_id: str,
+    access_token: str,
+    timeout_s: float = 90.0,
+) -> None:
+    """Block until an Instagram media container is ready to publish.
+
+    A single-image container is usually ready immediately, but a carousel
+    parent has to assemble its children first. Publishing too early fails with
+    "Media ID is not available" (code 9007 / subcode 2207027), which says
+    nothing about the real cause.
+    """
+    deadline = time.monotonic() + timeout_s
+    delay = 1.0
+
+    while True:
+        payload = await _request(
+            client,
+            "GET",
+            f"/{container_id}",
+            params={"fields": "status_code,status", "access_token": access_token},
+        )
+        code = payload.get("status_code")
+
+        if code == "FINISHED":
+            return
+        if code in {"ERROR", "EXPIRED"}:
+            raise MetaError(
+                endpoint=f"GET /{container_id}",
+                status_code=200,
+                payload={
+                    "error": {
+                        "message": (
+                            f"Instagram could not process the media ({code}). "
+                            f"{payload.get('status', '')}".strip()
+                        ),
+                        "type": "MediaProcessingError",
+                        "code": code,
+                    }
+                },
+            )
+        if time.monotonic() > deadline:
+            raise MetaError(
+                endpoint=f"GET /{container_id}",
+                status_code=200,
+                payload={
+                    "error": {
+                        "message": (
+                            f"Instagram was still processing the media after "
+                            f"{timeout_s:.0f}s (last status: {code})."
+                        ),
+                        "type": "MediaProcessingTimeout",
+                        "code": "N/A",
+                    }
+                },
+            )
+
+        await asyncio.sleep(delay)
+        delay = min(delay * 1.5, 5.0)
+
+
+async def publish_instagram_carousel(
+    client: httpx.AsyncClient,
+    ig_user_id: str,
+    image_urls: list[str],
+    caption: str,
+    access_token: str,
+) -> dict[str, Any]:
+    """Publish 2-10 images as a single Instagram carousel post.
+
+    Three stages: one child container per image, a parent container listing
+    those children, then publish the parent. The caption belongs on the
+    parent — children do not take one.
+    """
+    child_ids: list[str] = []
+    for image_url in image_urls:
+        child = await _request(
+            client,
+            "POST",
+            f"/{ig_user_id}/media",
+            data={
+                "image_url": image_url,
+                "is_carousel_item": "true",
+                "access_token": access_token,
+            },
+        )
+        child_ids.append(child["id"])
+
+    parent = await _request(
+        client,
+        "POST",
+        f"/{ig_user_id}/media",
+        data={
+            "media_type": "CAROUSEL",
+            "children": ",".join(child_ids),
+            "caption": caption,
+            "access_token": access_token,
+        },
+    )
+    # The parent has to finish assembling its children before it can publish.
+    await _wait_for_container(client, parent["id"], access_token)
+
+    published = await _request(
+        client,
+        "POST",
+        f"/{ig_user_id}/media_publish",
+        data={"creation_id": parent["id"], "access_token": access_token},
+    )
+    return await _request(
+        client,
+        "GET",
+        f"/{published['id']}",
+        params={"fields": "caption,media_url,permalink", "access_token": access_token},
+    )
+
+
+async def publish_facebook_multi_photo_post(
+    client: httpx.AsyncClient,
+    page_id: str,
+    image_urls: list[str],
+    caption: str,
+    page_access_token: str,
+) -> dict[str, Any]:
+    """Publish several photos as one Facebook Page post.
+
+    Each photo is uploaded unpublished first, then attached to a single feed
+    post so they appear together rather than as separate posts.
+    """
+    media_ids: list[str] = []
+    for image_url in image_urls:
+        uploaded = await _request(
+            client,
+            "POST",
+            f"/{page_id}/photos",
+            data={
+                "url": image_url,
+                "published": "false",
+                "temporary": "true",
+                "access_token": page_access_token,
+            },
+        )
+        media_ids.append(uploaded["id"])
+
+    attachments = {
+        f"attached_media[{index}]": json.dumps({"media_fbid": media_id})
+        for index, media_id in enumerate(media_ids)
+    }
+    posted = await _request(
+        client,
+        "POST",
+        f"/{page_id}/feed",
+        data={"message": caption, **attachments, "access_token": page_access_token},
+    )
+    return await _request(
+        client,
+        "GET",
+        f"/{posted['id']}",
+        params={
+            "fields": "message,full_picture,permalink_url",
+            "access_token": page_access_token,
+        },
+    )
+
+
+async def publish_facebook_text_post(
+    client: httpx.AsyncClient,
+    page_id: str,
+    message: str,
+    page_access_token: str,
+) -> dict[str, Any]:
+    """Post text with no image to a Facebook Page.
+
+    Instagram has no equivalent — every Instagram post requires media — so
+    this is Facebook-only by nature.
+    """
+    posted = await _request(
+        client,
+        "POST",
+        f"/{page_id}/feed",
+        data={"message": message, "access_token": page_access_token},
+    )
+    return await _request(
+        client,
+        "GET",
+        f"/{posted['id']}",
+        params={"fields": "message,permalink_url", "access_token": page_access_token},
     )
 
 
