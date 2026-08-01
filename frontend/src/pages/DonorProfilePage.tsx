@@ -62,7 +62,6 @@ export function DonorProfilePage() {
         <aside>
           <article className="donor-profile-note"><img src="/images/crystal-performing.jpg" alt="Crystal performing with confidence at a Love 21 programme" /><p>“More confident, cheerful, and motivated to keep learning.”</p><small>Shared with Crystal and her family’s consent.</small></article>
           <article className="donor-profile-receipts"><h2>Receipts & updates</h2><p><span>Jun 2026 · HK$600</span><button type="button">PDF</button></p><p><span>Feb 2026 · HK$600</span><button type="button">PDF</button></p><p><span>Oct 2025 · HK$300</span><button type="button">PDF</button></p></article>
-          <article className="donor-profile-pending"><p className="donor-community-eyebrow">Only you can see this</p><h2>Message awaiting review</h2><p>“愿每一个孩子，都能在自己的节奏里闪光。”</p><span>Submitted just now · not public yet</span></article>
           <Link className="donor-community-button donor-community-button-primary" to="/donate">Make another donation</Link>
         </aside>
       </main>

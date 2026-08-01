@@ -74,7 +74,8 @@ describe("donor community experience", () => {
     expect(screen.getByRole("heading", { name: "阿木", level: 1 })).toBeInTheDocument();
     expect(screen.getByText("HK$2,400")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Your impact timeline" })).toBeInTheDocument();
-    expect(screen.getByText(/Only you can see this/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Only you can see this/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Message awaiting review/i)).not.toBeInTheDocument();
   });
 });
 

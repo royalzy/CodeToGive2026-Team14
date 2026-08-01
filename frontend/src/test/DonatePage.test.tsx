@@ -323,11 +323,6 @@ describe("donor impact journey", () => {
     );
 
     expect(
-      await screen.findByRole("heading", {
-        name: /Three more chances to move, learn, and shine/i,
-      }),
-    ).toBeInTheDocument();
-    expect(
       screen.queryByRole("heading", {
         name: /Four more chances to move, learn, and shine/i,
       }),
@@ -339,6 +334,11 @@ describe("donor impact journey", () => {
     expect(window.dataLayer?.some(
       (entry) => entry.event === "donation_success_displayed",
     )).toBe(true);
+    expect(await screen.findByRole("heading", { name: /What your HK\$600 gift is expected to set in motion/i })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /Three more chances to move, learn, and shine/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/planning estimate, not a promise/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "How Love 21 will verify it" })).toBeInTheDocument();
+    expect(screen.getByText(/Quarter close/i)).toBeInTheDocument();
 
     await user.type(
       screen.getByLabelText(/Message to the community/i),

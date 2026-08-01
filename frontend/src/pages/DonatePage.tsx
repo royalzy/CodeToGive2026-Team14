@@ -152,7 +152,6 @@ export function DonatePage() {
   const selectedCauseLabel =
     causeChoices.find((choice) => choice.causeId === causeId)?.label ??
     "Love 21";
-  const displayedImpact = result?.impact ?? preview;
   const impactMessage = useMemo(
     () => getDonationImpactMessage(preview),
     [preview],
@@ -454,22 +453,17 @@ export function DonatePage() {
             )}
 
             {step === "success" && result && (
-              <>
-                <DonationSuccess
-                  result={result}
-                  donorName={donorDisplayName}
-                  donorEmail={details.donorEmail}
-                  anonymous={details.anonymous}
-                  onStayInvolved={() => trackDonationEvent("stay_involved_clicked", {
-                    cause_id: result.impact.cause_id,
-                    amount_bucket: getAmountBucket(result.impact.amount_hkd),
-                    impact_mode: result.impact.mode,
-                  })}
-                />
-                <div className="donate-a-impact-preview donate-a-impact-after">
-                  <ImpactCard amountHkd={result.impact.amount_hkd} impact={displayedImpact} status="success" />
-                </div>
-              </>
+              <DonationSuccess
+                result={result}
+                donorName={donorDisplayName}
+                donorEmail={details.donorEmail}
+                anonymous={details.anonymous}
+                onStayInvolved={() => trackDonationEvent("stay_involved_clicked", {
+                  cause_id: result.impact.cause_id,
+                  amount_bucket: getAmountBucket(result.impact.amount_hkd),
+                  impact_mode: result.impact.mode,
+                })}
+              />
             )}
           </section>
         </div>
