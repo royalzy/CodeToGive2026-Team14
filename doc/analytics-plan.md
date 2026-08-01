@@ -84,8 +84,11 @@ FastAPI ──► Umami REST API      (later: monthly report automation)
 4. **Frontend snippet + typed wrapper** — `frontend/src/analytics/umami.ts`
    (guarded by `VITE_UMAMI_HOST` / `VITE_UMAMI_WEBSITE_ID`, no-op when unset),
    one-line init in `main.tsx`, vitest tests.
-5. **(planned)** Questionnaire endpoint + anonymized `questionnaire_completed`
-   event; conversion events on volunteer/booking flows; admin dashboard embed.
+5. Questionnaire endpoint + anonymized `questionnaire_completed` event;
+   conversion events on volunteer/booking flows; admin dashboard embed.
+   **Done** — remaining planned items: frontend questionnaire form, monthly
+   report automation via the Umami API, and the Umami deployment (Docker
+   Compose or Cloud).
 
 ## 5. Configuration
 
@@ -102,13 +105,88 @@ Frontend (`VITE_` vars, Vite loads them at build time):
 ```
 VITE_UMAMI_HOST=https://analytics.example.org
 VITE_UMAMI_WEBSITE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+VITE_UMAMI_DASHBOARD_URL=https://cloud.umami.is/share/XXXX/love-21
 ```
 
 No cookies are set by the analytics script; no consent banner is required for
 the cookieless deployment. If we ever opt into cookie-based tracking, a consent
 flow must be added — out of scope for the prototype.
 
-## 6. Open questions
+## 6. Demo runbook (Umami Cloud free tier)
+
+### Setup (one time)
+
+1. Sign up at https://umami.is (Cloud free tier: 1M events/month).
+2. **Websites → Add website** — Name `Love 21`, Domain `localhost:5173`.
+3. **Edit** the website → **Tracking code**: `Website ID` = `data-website-id`,
+   `Host` = `data-host-url` origin (e.g. `https://cloud.umami.is`).
+4. Backend `backend/.env`:
+
+   ```
+   UMAMI_ENABLED=true
+   UMAMI_HOST=https://cloud.umami.is
+   UMAMI_WEBSITE_ID=<website-id>
+   ```
+
+5. Frontend `frontend/.env.local` (gitignored, never commit):
+
+   ```
+   VITE_UMAMI_HOST=https://cloud.umami.is
+   VITE_UMAMI_WEBSITE_ID=<website-id>
+   ```
+
+6. **Restart both servers** — env vars are only read at startup.
+
+### Verify the pipeline
+
+1. Open `http://localhost:5173` and click around → Umami dashboard **Live**
+   view shows pageviews immediately.
+2. Submit a donation on `/donate` → **Events** tab shows `donation_intent`
+   (fired client-side from the same browser session, plus a server-side copy
+   via the API).
+3. Server-side smoke test: `uv run python -c "from app.services.umami import
+   track_event; print(track_event('smoke_test'))"` (run from `backend/`) →
+   the event appears in **Events**.
+4. Funnel: build it in Umami (see below), then in the browser walk
+   `/` → `/donate` → submit → the funnel counts 1 conversion.
+
+### Funnel ("exit before donating")
+
+1. In Umami: website → **Funnels** → **Add funnel**.
+2. Name `Support journey`, **Window** 60 minutes.
+3. Steps: 1) **Viewed page** `/` · 2) **Triggered event** `questionnaire_completed`
+   · 3) **Triggered event** `donation_intent`. Save and run.
+4. `questionnaire_completed` stays 0 until a frontend form exists; a 2-step
+   `/` → `donation_intent` funnel is the live-demo one.
+5. Funnels need ordered steps **within one visitor session** — this is why
+   conversion events are fired client-side (`src/analytics/umami.ts::track` in
+   the form submit handlers). Pure server-side events create their own session
+   and never chain.
+
+### Admin dashboard embed
+
+1. Umami: website → **Edit** → **Share URL** → **Add**, pick views
+   (Overview, Events, Funnels), save, copy the share link.
+2. `frontend/.env.local`: `VITE_UMAMI_DASHBOARD_URL=<share-link>`.
+3. Restart the frontend → `http://localhost:5173/admin` shows the live
+   dashboard in an iframe (no login needed by viewers).
+
+### Troubleshooting
+
+- **Server-side events missing from Events tab**: `/api/send` silently drops
+  requests without a parseable browser **User-Agent**. Our client sends a
+  Chrome UA (`BROWSER_USER_AGENT` in `backend/app/services/umami.py`); a custom
+  UA string like `love21-backend/0.1` will NOT be registered.
+- **Pageviews missing**: ad blockers commonly block `cloud.umami.is` — check
+  the browser Network tab for `script.js` / `api/send` requests and disable
+  the blocker for the demo browser.
+- **Env changes not taking effect**: restart both dev servers; `uvicorn
+  --reload` does not re-read `.env`, and Vite reads env at startup.
+- **Hackathon fallback**: screenshot the dashboard + funnel views for the deck
+  in case the venue WiFi blocks `cloud.umami.is`. The site itself degrades
+  gracefully — analytics off = no errors.
+
+## 7. Open questions
 
 - Self-host vs Umami Cloud free tier (needs a decision on hosting/ops capacity).
 - Questionnaire: confirm it is optional and that answers are persisted only
