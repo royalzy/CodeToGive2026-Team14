@@ -89,6 +89,36 @@ FastAPI ──► Umami REST API      (later: monthly report automation)
    **Done** — remaining planned items: frontend questionnaire form, monthly
    report automation via the Umami API, and the Umami deployment (Docker
    Compose or Cloud).
+6. **Tracking enrichment** — `frontend/src/analytics/umami.ts` auto-merges
+   `lang` into every event; `trackFormStarted()` (fires `<form>_form_started`
+   once); delegated `data-cta` click listener (`cta_click`); `accessibility_pref`
+   event when the visitor prefers reduced motion / high contrast.
+7. **Admin report** — `GET /api/v1/analytics/report` (`backend/app/services/
+   umami_report.py`) queries the Umami Cloud API (`api.umami.is/v1`, key via
+   `UMAMI_API_KEY`) for the last 30 days: pageviews, visitors, visits, bounce
+   rate, top pages, top events. Shown in a "Core metrics" section on `/admin`.
+
+## 4b. Event inventory
+
+| Event | When | Client / Server | Data (anonymized) |
+|---|---|---|---|
+| pageview | every navigation | client (script) | auto |
+| `donation_intent` | donate form submitted | client + server | program, amount, lang |
+| `volunteer_application` | volunteer form submitted | client + server | interests, availability, lang |
+| `questionnaire_completed` | questionnaire submitted (API) | server | path |
+| `donation_form_started` / `volunteer_form_started` | first focus in form | client | lang |
+| `cta_click` | any element with `data-cta` clicked | client | cta, lang |
+| `accessibility_pref` | on load, only when set | client | reduced_motion, high_contrast |
+| `smoke_test*` | manual verification | CLI | — |
+
+Funnel "support journey": `/` → `questionnaire_completed` → `donation_intent`.
+Abandonment funnel: `donation_form_started` → `donation_intent` (drop-off = how
+many start but never submit).
+
+UTM: no code needed — the Umami script auto-parses `?utm_source/medium/
+campaign` from URL params. Tag social links with `utm_source=facebook&
+utm_campaign=august-drive` and filter the dashboard by UTM to see which post
+brought donors.
 
 ## 5. Configuration
 
@@ -98,6 +128,8 @@ Backend (`.env`):
 UMAMI_ENABLED=false
 UMAMI_HOST=https://analytics.example.org
 UMAMI_WEBSITE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+UMAMI_API_KEY=            # Umami Cloud: Settings > API keys (report only)
+UMAMI_API_BASE=https://api.umami.is/v1
 ```
 
 Frontend (`VITE_` vars, Vite loads them at build time):
