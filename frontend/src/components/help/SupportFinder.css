@@ -1,0 +1,206 @@
+/* Styles for the Help page support finder.
+ *
+ * Written as CSS rather than Tailwind classes because styles.css rules are
+ * unlayered, and unlayered CSS beats Tailwind's `@layer utilities` regardless
+ * of specificity. Everything is scoped under `.support-finder`.
+ */
+
+/* `.section-heading` caps itself at 760px and its paragraph at 660px, which
+ * wraps this section's title onto a second line. Both caps have to be lifted:
+ * the paragraph can never exceed its parent.
+ *
+ * The `> p:last-child` shape is deliberate — the styles.css rule is
+ * `.section-heading > p:last-child` (specificity 0,2,1), and a plainer
+ * selector would only tie and lose on source order. */
+.help-finder .section-heading,
+.help-finder .section-heading > p:last-child {
+  max-width: none;
+}
+
+/* The "Request support" heading sits tight against the paragraph below it.
+ * Scoped by the section id so no other page's form aside is affected. */
+#support-request .form-aside h2 {
+  margin-bottom: 0.85rem;
+}
+
+.support-finder {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.support-finder-step {
+  margin-bottom: 0.75rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Focus lands here on each step; the ring would be noise on a text label. */
+.support-finder-step:focus {
+  outline: none;
+}
+
+.support-finder-progress {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.75rem;
+}
+
+.support-finder-progress span {
+  height: 4px;
+  flex: 1;
+  border-radius: 999px;
+  background: rgb(23 22 37 / 12%);
+  transition: background-color 200ms ease;
+}
+
+.support-finder-progress span.is-done {
+  background: var(--red);
+}
+
+.support-finder-question {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.support-finder-question legend {
+  padding: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.support-finder-help {
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.support-finder-options {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.support-finder-option {
+  display: block;
+  width: 100%;
+  padding: 1rem 1.15rem;
+  border: 1px solid rgb(23 22 37 / 15%);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.support-finder-option:hover {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.support-finder-option[aria-pressed="true"] {
+  border-color: var(--ink);
+  background: rgb(23 22 37 / 4%);
+}
+
+.support-finder-option strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.support-finder-option span {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.support-finder-primary {
+  padding: 1.5rem;
+  border: 1px solid rgb(23 22 37 / 12%);
+  border-radius: 18px;
+  background: var(--surface, #fff);
+}
+
+.support-finder-primary h3 {
+  margin-bottom: 0.5rem;
+}
+
+.support-finder-primary p {
+  margin-bottom: 1.5rem;
+}
+
+.support-finder-alt-heading {
+  margin: 2rem 0 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.support-finder-alts {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.support-finder-alt {
+  display: block;
+  padding: 1rem 1.15rem;
+  border: 1px solid rgb(23 22 37 / 12%);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 150ms ease;
+}
+
+.support-finder-alt:hover {
+  border-color: var(--ink);
+}
+
+.support-finder-alt strong {
+  display: block;
+}
+
+.support-finder-alt span {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.support-finder-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.support-finder-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.support-finder-link:hover {
+  color: var(--ink);
+}
+
+@media (min-width: 640px) {
+  .support-finder-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

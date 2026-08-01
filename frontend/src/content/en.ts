@@ -8,6 +8,15 @@ export * from "./volunteering";
 export { allocation, donationPrograms, wishlistItems } from "./donations";
 export * from "./gamification-data";
 export * from "./booking-data";
+// Named rather than `export *`: only the display content belongs on `t`, so
+// zh.ts has an exact list to mirror. Types and helpers are imported directly.
+export {
+  audienceOptions,
+  needOptions,
+  startOptions,
+  supportPathways,
+  supportQuestions,
+} from "./support";
 
 export type {
   Accent,
