@@ -208,6 +208,95 @@ export function getDonationImpactOptions(
   );
 }
 
+export type PlatformId = "instagram" | "facebook";
+
+export interface SocialPostResult {
+  platform: PlatformId;
+  status: "published" | "failed";
+  permalink: string | null;
+  media_url: string | null;
+  error: string | null;
+}
+
+export interface SocialPostResponse {
+  caption: string;
+  image_url: string;
+  results: SocialPostResult[];
+}
+
+// Meta's publish calls routinely take 10-30s, well past API_TIMEOUT_MS.
+const SOCIAL_PUBLISH_TIMEOUT_MS = 90_000;
+
+/**
+ * FastAPI returns `detail` as a plain string for raised HTTPExceptions, but as
+ * an array of validation objects for 422s. Handle both so the caller never has
+ * to fall back to a generic message.
+ */
+async function extractDetail(response: Response): Promise<string | null> {
+  try {
+    const payload = (await response.json()) as { detail?: unknown };
+    const { detail } = payload;
+
+    if (typeof detail === "string") return detail;
+
+    if (Array.isArray(detail)) {
+      const messages = detail
+        .map((item) =>
+          item && typeof item === "object" && typeof (item as { msg?: unknown }).msg === "string"
+            ? (item as { msg: string }).msg
+            : null,
+        )
+        .filter((msg): msg is string => Boolean(msg));
+      return messages.length > 0 ? messages.join(" ") : null;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function publishSocialPost(input: {
+  image: File;
+  caption: string;
+  platforms: PlatformId[];
+}): Promise<SocialPostResponse> {
+  const body = new FormData();
+  body.append("image", input.image);
+  body.append("caption", input.caption);
+  for (const platform of input.platforms) {
+    body.append("platforms", platform);
+  }
+
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), SOCIAL_PUBLISH_TIMEOUT_MS);
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/v1/social-posts`, {
+      method: "POST",
+      body,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new ApiError("Publishing took too long. Check the platforms before retrying.", 408);
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+
+  if (!response.ok) {
+    throw new ApiError(
+      (await extractDetail(response)) ?? "Could not publish the post. Please try again.",
+      response.status,
+    );
+  }
+
+  return (await response.json()) as SocialPostResponse;
+}
+
 export function previewDonationImpact(
   payload: components["schemas"]["ImpactPreviewRequest"],
   signal?: AbortSignal,
