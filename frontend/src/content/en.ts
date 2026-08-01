@@ -8,6 +8,7 @@ export * from "./volunteering";
 export { allocation, donationPrograms, wishlistItems } from "./donations";
 export * from "./gamification-data";
 export * from "./booking-data";
+export * from "./landing";
 
 export type {
   Accent,
@@ -16,6 +17,7 @@ export type {
   BookableEvent,
   Booking,
   FamilyAccount,
+  LandingContent,
   Level,
   Member,
   Metric,

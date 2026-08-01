@@ -229,3 +229,7 @@ export const demoFamilies: FamilyAccount[] = [
   { id: "fam-1", name: "Sarah 的家庭", memberSlugs: ["crystal", "ka-wai"] },
   { id: "fam-2", name: "陳先生一家", memberSlugs: ["mei-ling"] },
 ];
+
+// Landing page content — Chinese mirror. Short copy is translated; long-form
+// descriptions and facts stay in English for accuracy. Extend as reviewed.
+export { landingContent } from "./landing";
