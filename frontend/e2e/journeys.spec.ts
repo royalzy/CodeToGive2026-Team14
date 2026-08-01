@@ -56,7 +56,7 @@ test("volunteer can register interest for a role without a session", async ({ pa
 
 test("visitor can complete the donation simulation", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Explore giving" }).click();
+  await page.getByRole("link", { name: "Donate Now" }).click();
 
   await expect(
     page.getByRole("heading", {

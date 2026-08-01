@@ -26,7 +26,7 @@ afterEach(() => {
 
 describe("route backbone", () => {
   it.each([
-    ["/", "See the ability."],
+    ["/", "Every Life is"],
     ["/impact", "Not what we provide."],
     ["/community", "People making this possible."],
     ["/volunteer", "Your first step can be a small one."],

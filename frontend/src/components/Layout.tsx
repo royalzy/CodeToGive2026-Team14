@@ -6,11 +6,8 @@ import { useAuth } from "../hooks/useAuth";
 
 function Wordmark() {
   return (
-    <span className="wordmark" aria-label="Love 21 Foundation">
-      <span>LO</span>
-      <span className="wordmark-heart">2</span>
-      <span>VE</span>
-      <small>Foundation</small>
+    <span className="wordmark wordmark-image" aria-label="Love 21 Foundation">
+      <img src="/images/love21_logo.png" alt="Love 21 Foundation" />
     </span>
   );
 }

@@ -17,6 +17,7 @@ export {
   supportPathways,
   supportQuestions,
 } from "./support";
+export * from "./landing";
 
 export type {
   Accent,
@@ -25,6 +26,7 @@ export type {
   BookableEvent,
   Booking,
   FamilyAccount,
+  LandingContent,
   Level,
   Member,
   Metric,

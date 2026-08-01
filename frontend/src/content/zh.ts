@@ -370,3 +370,7 @@ export const supportQuestions: SupportQuestion[] = [
     options: startOptions,
   },
 ];
+
+// Landing page content — Chinese mirror. Short copy is translated; long-form
+// descriptions and facts stay in English for accuracy. Extend as reviewed.
+export { landingContent } from "./landing";
