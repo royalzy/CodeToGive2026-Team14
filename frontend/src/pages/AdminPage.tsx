@@ -1,3 +1,9 @@
+import { useEffect, useState } from "react";
+
+import {
+  getAnalyticsReport,
+  type AnalyticsReportResponse,
+} from "../api/client";
 import { PageHero, SectionHeading } from "../components/Cards";
 import { analyticsDashboardUrl } from "../analytics/umami";
 
@@ -15,6 +21,30 @@ const scheduledPosts = [
 ];
 
 export function AdminPage() {
+  const [report, setReport] = useState<AnalyticsReportResponse | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    getAnalyticsReport()
+      .then((data) => {
+        if (active) {
+          setReport(data);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setReport({
+            configured: false,
+            report: null,
+            error: "The report service is unavailable right now.",
+          });
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <>
       <PageHero
@@ -34,6 +64,69 @@ export function AdminPage() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="section section-soft">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Core metrics"
+            title={`Analytics report · last ${report?.report?.period_days ?? 30} days`}
+            body="Key numbers pulled from the Umami Cloud API on demand."
+          />
+          {!report ? (
+            <div className="privacy-note" style={{ maxWidth: "600px", margin: "0 auto" }}>
+              <strong>Loading report…</strong>
+            </div>
+          ) : !report.configured ? (
+            <div className="privacy-note" style={{ maxWidth: "600px", margin: "0 auto" }}>
+              <strong>Analytics reporting not configured</strong>
+              <p>{report.error}</p>
+            </div>
+          ) : (
+            <div className="metric-grid">
+              <article className="metric-card accent-blue">
+                <strong>{report.report!.pageviews.toLocaleString()}</strong>
+                <h3>pageviews</h3>
+              </article>
+              <article className="metric-card accent-red">
+                <strong>{report.report!.visitors.toLocaleString()}</strong>
+                <h3>unique visitors</h3>
+              </article>
+              <article className="metric-card accent-yellow">
+                <strong>{report.report!.visits.toLocaleString()}</strong>
+                <h3>visits</h3>
+              </article>
+              <article className="metric-card accent-teal">
+                <strong>{report.report!.bounce_rate}%</strong>
+                <h3>bounce rate</h3>
+              </article>
+            </div>
+          )}
+          {report?.configured && report.report && (
+            <div className="help-grid" style={{ marginTop: "1.5rem" }}>
+              <article className="support-card">
+                <p className="eyebrow">Top pages</p>
+                <ul className="next-steps-list">
+                  {report.report.top_pages.map((page) => (
+                    <li key={page.path}>
+                      {page.path} · {page.visitors} visitors
+                    </li>
+                  ))}
+                </ul>
+              </article>
+              <article className="support-card">
+                <p className="eyebrow">Top events</p>
+                <ul className="next-steps-list">
+                  {report.report.top_events.map((event) => (
+                    <li key={event.name}>
+                      {event.name} · {event.count}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            </div>
+          )}
         </div>
       </section>
 
