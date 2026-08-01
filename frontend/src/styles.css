@@ -2690,7 +2690,15 @@ h3 {
 }
 
 .landing-section-alt {
-  background: #f7f9fc;
+  background: #eef3fc;
+}
+
+.landing-section-warm {
+  background: #fef9f6;
+}
+
+.landing-section-soft {
+  background: #f3efe8;
 }
 
 .landing-eyebrow {
@@ -2721,7 +2729,6 @@ h3 {
 }
 
 .landing-desc {
-  max-width: 640px;
   color: #5e6472;
   font-size: 1.05rem;
   line-height: 1.6;
@@ -2801,10 +2808,12 @@ h3 {
 .landing-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right,
-      rgb(255 255 255 / 96%) 0%,
-      rgb(255 255 255 / 76%) 48%,
-      rgb(255 255 255 / 28%) 100%);
+  background:
+    linear-gradient(to right,
+      rgb(255 255 255 / 92%) 0%,
+      rgb(255 255 255 / 65%) 40%,
+      rgb(255 255 255 / 18%) 70%,
+      rgb(233 0 63 / 6%) 100%);
 }
 
 .landing-hero-content {
@@ -2935,12 +2944,17 @@ h3 {
   overflow: hidden;
   background: white;
   border: 1px solid rgb(12 22 38 / 10%);
-  box-shadow: 0 24px 60px rgb(12 22 38 / 7%);
+  box-shadow: 0 24px 60px rgb(12 22 38 / 10%);
 }
 
 .landing-hero-stat {
   padding: 1.25rem 0.75rem;
   text-align: center;
+  position: relative;
+}
+
+.landing-hero-stat+.landing-hero-stat {
+  border-left: 1px solid rgb(12 22 38 / 6%);
 }
 
 .landing-hero-stat strong {
@@ -3002,7 +3016,8 @@ h3 {
   overflow: hidden;
   background: white;
   border: 1px solid rgb(12 22 38 / 10%);
-  box-shadow: 0 20px 50px rgb(12 22 38 / 6%);
+  border-top: 8px solid var(--red);
+  box-shadow: 0 20px 50px rgb(12 22 38 / 8%);
 }
 
 .landing-pillar-info {
@@ -3062,6 +3077,53 @@ h3 {
 
 /* --- Fact cards (Autism & DS) --- */
 
+/* Learn section table of contents (topic switcher) */
+
+.landing-learn-toc {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.landing-learn-toc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.1rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid rgb(12 22 38 / 10%);
+  background: white;
+  color: #5e6472;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.landing-learn-toc-btn:hover {
+  background: #f6f8fb;
+  transform: translateY(-1px);
+}
+
+.landing-learn-toc-btn.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+  box-shadow: 0 12px 30px rgb(233 0 63 / 25%);
+}
+
+.landing-learn-toc-btn.active svg {
+  color: white;
+}
+
+@media (max-width: 560px) {
+  .landing-learn-toc {
+    grid-template-columns: 1fr;
+  }
+}
+
 .landing-fact-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -3090,7 +3152,7 @@ h3 {
 }
 
 .landing-fact-card .fact-icon {
-  font-size: 2.2rem;
+  display: block;
   margin-bottom: 0.75rem;
 }
 
@@ -3113,8 +3175,9 @@ h3 {
   overflow: hidden;
   background: white;
   border: 1px solid rgb(12 22 38 / 10%);
+  border-top: 8px solid var(--teal);
   margin-bottom: 1.5rem;
-  box-shadow: 0 20px 50px rgb(12 22 38 / 6%);
+  box-shadow: 0 20px 50px rgb(12 22 38 / 8%);
 }
 
 .landing-fact-body {
@@ -3122,7 +3185,7 @@ h3 {
 }
 
 .landing-fact-body .fact-icon {
-  font-size: 2.2rem;
+  display: block;
   margin-bottom: 0.5rem;
 }
 
@@ -3202,7 +3265,6 @@ h3 {
 }
 
 .landing-myth-bust .myth-icon {
-  font-size: 1.5rem;
   flex-shrink: 0;
 }
 
@@ -3299,7 +3361,8 @@ h3 {
   border-radius: 1.5rem;
   background: white;
   border: 1px solid rgb(12 22 38 / 10%);
-  box-shadow: 0 20px 50px rgb(12 22 38 / 6%);
+  border-top: 6px solid var(--blue);
+  box-shadow: 0 20px 50px rgb(12 22 38 / 8%);
 }
 
 .landing-quiz-progress {
@@ -3522,35 +3585,60 @@ h3 {
 }
 
 .landing-impact-card {
+  position: relative;
+  overflow: hidden;
   padding: 2rem 1.5rem;
   border-radius: 1.5rem;
   text-align: center;
   background: white;
-  border: 1px solid rgb(12 22 38 / 10%);
-  box-shadow: 0 14px 36px rgb(12 22 38 / 5%);
+  border: 1px solid rgb(12 22 38 / 8%);
+  box-shadow: 0 14px 36px rgb(12 22 38 / 6%);
   transition: transform 0.25s;
+}
+
+.landing-impact-card::before {
+  position: absolute;
+  right: -1.6rem;
+  bottom: -1.6rem;
+  width: 5.5rem;
+  height: 5.5rem;
+  content: "";
+  background: var(--red);
+  border-radius: 50%;
+  opacity: 0.10;
 }
 
 .landing-impact-card:hover {
   transform: translateY(-3px);
 }
 
+.landing-impact-card:hover::before {
+  opacity: 0.16;
+}
+
 .landing-impact-card .impact-icon {
-  font-size: 2.2rem;
-  margin-bottom: 0.75rem;
+  position: relative;
+  display: block;
+  margin-bottom: 0.6rem;
+  color: var(--red);
 }
 
 .landing-impact-card strong {
+  position: relative;
   display: block;
-  font-size: 2.2rem;
+  font-size: 2.8rem;
   font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
   color: var(--red);
   margin-bottom: 0.3rem;
 }
 
 .landing-impact-card span {
-  font-size: 0.85rem;
-  color: #5e6472;
+  position: relative;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #6f7583;
 }
 
 /* --- Mission panel --- */
@@ -3595,7 +3683,7 @@ h3 {
 }
 
 .landing-mission-pillar .mp-icon {
-  font-size: 1.2rem;
+  display: block;
   margin-bottom: 0.4rem;
 }
 
@@ -3626,7 +3714,6 @@ h3 {
 /* --- CTA cards --- */
 
 .landing-cta-header {
-  text-align: center;
   margin-bottom: 4rem;
 }
 
@@ -3642,8 +3729,13 @@ h3 {
   overflow: hidden;
   background: white;
   border: 1px solid rgb(12 22 38 / 10%);
-  box-shadow: 0 14px 36px rgb(12 22 38 / 5%);
+  border-top: 8px solid var(--teal);
+  box-shadow: 0 14px 36px rgb(12 22 38 / 8%);
   transition: transform 0.25s;
+}
+
+.landing-cta-card+.landing-cta-card {
+  border-top-color: var(--red);
 }
 
 .landing-cta-card:hover {
@@ -3667,7 +3759,7 @@ h3 {
 }
 
 .landing-cta-card-body .cta-icon {
-  font-size: 2.2rem;
+  display: block;
   margin-bottom: 0.75rem;
 }
 

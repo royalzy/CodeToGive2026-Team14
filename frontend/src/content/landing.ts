@@ -70,6 +70,17 @@ export const landingContent: LandingContent = {
         ],
     },
 
+    learn: {
+        eyebrow: "Learn",
+        title: "Understanding Autism & Down Syndrome",
+        description:
+            "Two neurodevelopmental conditions, two extraordinary communities. Choose a topic below to explore the science, bust the myths, and discover how Love 21 supports every member to thrive.",
+        topics: [
+            { id: "autism", icon: "Puzzle", title: "Learn About Autism" },
+            { id: "ds", icon: "Dna", title: "Learn About Down Syndrome" },
+        ],
+    },
+
     autismSection: {
         eyebrow: "Understanding Autism",
         title: "Learn About Autism",

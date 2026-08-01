@@ -181,6 +181,12 @@ export interface MissionPillar {
   description: string;
 }
 
+export interface LearnTopic {
+  id: "autism" | "ds";
+  icon: string;
+  title: string;
+}
+
 export interface LandingContent {
   hero: {
     tagline: string;
@@ -197,6 +203,12 @@ export interface LandingContent {
     title: string;
     description: string;
     pillars: LandingPillar[];
+  };
+  learn: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    topics: LearnTopic[];
   };
   autismSection: {
     eyebrow: string;

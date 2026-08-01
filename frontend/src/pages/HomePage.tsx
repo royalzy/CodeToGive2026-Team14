@@ -23,7 +23,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useLanguage } from "../hooks/useLanguage";
-import type { Accent } from "../content/types";
+import type { Accent, AutismFact, DSFact } from "../content/types";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Apple,
@@ -66,10 +66,9 @@ export function HomePage() {
     <>
       <Hero c={c} />
       <WhatWeDo c={c} />
-      <LearnAutism c={c} />
-      <LearnDownSyndrome c={c} />
-      <Quiz c={c} />
       <Impact c={c} />
+      <LearnSection c={c} />
+      <Quiz c={c} />
       <CallToAction c={c} />
     </>
   );
@@ -165,22 +164,49 @@ function WhatWeDo({ c }: { c: typeof import("../content/en").landingContent }) {
   );
 }
 
-// ── Learn About Autism ───────────────────────────────────────────────────
+// ── Learn (Autism + Down Syndrome, TOC) ─────────────────────────────────
 
-function LearnAutism({ c }: { c: typeof import("../content/en").landingContent }) {
+function LearnSection({ c }: { c: typeof import("../content/en").landingContent }) {
+  const [topic, setTopic] = useState<"autism" | "ds">("autism");
   const [active, setActive] = useState(0);
-  const facts = c.autismSection.facts;
+  const isAutism = topic === "autism";
+  const facts = (isAutism ? c.autismSection.facts : c.dsSection.facts) as (AutismFact | DSFact)[];
   const f = facts[active];
   const accentBg = (a: Accent): string =>
     `rgb(${a === "red" ? "233 0 63" : a === "blue" ? "20 85 192" : a === "teal" ? "73 169 157" : "244 119 33"})`;
 
+  const selectTopic = (t: "autism" | "ds") => {
+    if (t !== topic) {
+      setTopic(t);
+      setActive(0);
+    }
+  };
+
+  const topicName = isAutism ? "Autism" : "Down syndrome";
+
   return (
-    <section id="autism" className="landing-section landing-section-alt">
+    <section id="learn" className="landing-section landing-section-alt">
       <div className="shell">
-        <p className="landing-eyebrow">{c.autismSection.eyebrow}</p>
-        <h2 className="landing-title">{c.autismSection.title}</h2>
-        <p className="landing-desc">{c.autismSection.description}</p>
-        <div className="landing-fact-cards" role="tablist" aria-label="Autism facts">
+        <p className="landing-eyebrow">{c.learn.eyebrow}</p>
+        <h2 className="landing-title">{c.learn.title}</h2>
+        <p className="landing-desc">{c.learn.description}</p>
+
+        <div className="landing-learn-toc" role="tablist" aria-label="Choose a topic">
+          {c.learn.topics.map((t) => (
+            <button key={t.id} role="tab" aria-selected={topic === t.id}
+              className={`landing-learn-toc-btn ${topic === t.id ? "active" : ""}`}
+              onClick={() => selectTopic(t.id)}>
+              <Icon name={t.icon} size={20} />
+              <span>{t.title}</span>
+            </button>
+          ))}
+        </div>
+
+        <p className="landing-desc" style={{ marginTop: "2rem" }}>
+          {isAutism ? c.autismSection.description : c.dsSection.description}
+        </p>
+
+        <div className="landing-fact-cards" role="tablist" aria-label={`${topicName} facts`}>
           {facts.map((fact, i) => (
             <button key={fact.title} role="tab" aria-selected={active === i}
               className={`landing-fact-card ${active === i ? "active" : ""}`}
@@ -193,91 +219,61 @@ function LearnAutism({ c }: { c: typeof import("../content/en").landingContent }
             </button>
           ))}
         </div>
+
         <div className="landing-fact-detail">
           <div className="landing-fact-body">
             <div className="fact-icon" aria-hidden="true"><Icon name={f.icon} size={32} /></div>
             <h3>{f.title}</h3>
             <p className="fact-accent" style={{ color: `var(--${f.accent})` }}>{f.short}</p>
             <p className="fact-desc">{f.detail}</p>
-            {f.note && (
+            {isAutism && (f as AutismFact).note && (
               <p className="fact-note" style={{ background: `${accentBg(f.accent)} / 8%)`, border: `1px solid ${accentBg(f.accent)} / 12%)` }}>
-                {f.note}
+                {(f as AutismFact).note}
               </p>
             )}
           </div>
           <div className="landing-fact-stats" style={{ background: `${accentBg(f.accent)} / 4%)`, borderLeftColor: `${accentBg(f.accent)} / 12%)` }}>
-            <p className="landing-fact-stats-label">Key Facts</p>
-            {f.stats.map((stat) => (
-              <div key={stat.label} className="landing-fact-stat">
-                <div className="stat-label">{stat.label}</div>
-                <div className="stat-value">{stat.value}</div>
-              </div>
-            ))}
+            {isAutism ? (
+              <>
+                <p className="landing-fact-stats-label">Key Facts</p>
+                {(f as AutismFact).stats.map((stat) => (
+                  <div key={stat.label} className="landing-fact-stat">
+                    <div className="stat-label">{stat.label}</div>
+                    <div className="stat-value">{stat.value}</div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <>
+                <p className="landing-fact-stats-label">Key Points</p>
+                <ol className="landing-ds-stats">
+                  {(f as DSFact).stats.map((stat, j) => (
+                    <li key={stat} className="landing-ds-stat">
+                      <span className="ds-stat-num" style={{ background: `var(--${f.accent})`, color: f.accent === "yellow" ? "var(--ink)" : "white" }}>
+                        {j + 1}
+                      </span>
+                      <span>{stat}</span>
+                    </li>
+                  ))}
+                </ol>
+              </>
+            )}
           </div>
         </div>
-        <div className="landing-myth-bust">
-          <span className="myth-icon" aria-hidden="true"><Icon name="Ban" size={22} /></span>
-          <div><strong>{c.autismSection.mythBust.title}</strong>
-            <p>{c.autismSection.mythBust.body}</p></div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
-// ── Learn About Down Syndrome ────────────────────────────────────────────
-
-function LearnDownSyndrome({ c }: { c: typeof import("../content/en").landingContent }) {
-  const [active, setActive] = useState(0);
-  const facts = c.dsSection.facts;
-  const f = facts[active];
-  const accentBg = (a: Accent): string =>
-    `rgb(${a === "red" ? "233 0 63" : a === "blue" ? "20 85 192" : a === "teal" ? "73 169 157" : "244 119 33"})`;
-
-  return (
-    <section id="down-syndrome" className="landing-section">
-      <div className="shell">
-        <p className="landing-eyebrow">{c.dsSection.eyebrow}</p>
-        <h2 className="landing-title">{c.dsSection.title}</h2>
-        <p className="landing-desc">{c.dsSection.description}</p>
-        <div className="landing-fact-cards" role="tablist" aria-label="Down syndrome facts">
-          {facts.map((fact, i) => (
-            <button key={fact.title} role="tab" aria-selected={active === i}
-              className={`landing-fact-card ${active === i ? "active" : ""}`}
-              style={active === i ? { borderColor: `var(--${fact.accent})`, background: `${accentBg(fact.accent)} / 12%)` } : undefined}
-              onClick={() => setActive(i)}>
-              <div className="fact-icon" aria-hidden="true"><Icon name={fact.icon} size={32} /></div>
-              <div className="fact-title">{fact.title}</div>
-              <div className="fact-short">{fact.short}</div>
-            </button>
-          ))}
-        </div>
-        <div className="landing-fact-detail">
-          <div className="landing-fact-body">
-            <div className="fact-icon" aria-hidden="true"><Icon name={f.icon} size={32} /></div>
-            <h3>{f.title}</h3>
-            <p className="fact-accent" style={{ color: `var(--${f.accent})` }}>{f.short}</p>
-            <p className="fact-desc">{f.detail}</p>
+        {isAutism ? (
+          <div className="landing-myth-bust">
+            <span className="myth-icon" aria-hidden="true"><Icon name="Ban" size={22} /></span>
+            <div><strong>{c.autismSection.mythBust.title}</strong>
+              <p>{c.autismSection.mythBust.body}</p></div>
           </div>
-          <div className="landing-fact-stats" style={{ background: `${accentBg(f.accent)} / 4%)`, borderLeftColor: `${accentBg(f.accent)} / 12%)` }}>
-            <p className="landing-fact-stats-label">Key Points</p>
-            <ol className="landing-ds-stats">
-              {f.stats.map((stat, j) => (
-                <li key={stat} className="landing-ds-stat">
-                  <span className="ds-stat-num" style={{ background: `var(--${f.accent})`, color: f.accent === "yellow" ? "var(--ink)" : "white" }}>
-                    {j + 1}
-                  </span>
-                  <span>{stat}</span>
-                </li>
-              ))}
-            </ol>
+        ) : (
+          <div className="landing-why21">
+            <div className="why21-number" aria-hidden="true">21</div>
+            <h3>{c.dsSection.why21.title}</h3>
+            <p>{c.dsSection.why21.body}</p>
           </div>
-        </div>
-        <div className="landing-why21">
-          <div className="why21-number" aria-hidden="true">21</div>
-          <h3>{c.dsSection.why21.title}</h3>
-          <p>{c.dsSection.why21.body}</p>
-        </div>
+        )}
       </div>
     </section>
   );
@@ -312,11 +308,11 @@ function Quiz({ c }: { c: typeof import("../content/en").landingContent }) {
   const result = c.quiz.results.find((r) => score >= r.threshold) ?? c.quiz.results[c.quiz.results.length - 1];
 
   return (
-    <section id="quiz" className="landing-section landing-section-alt">
+    <section id="quiz" className="landing-section landing-section-soft">
       <div className="shell">
         <p className="landing-eyebrow">{c.quiz.eyebrow}</p>
-        <h2 className="landing-title" style={{ textAlign: "center" }}>{c.quiz.title}</h2>
-        <p className="landing-desc" style={{ textAlign: "center", marginInline: "auto" }}>{c.quiz.description}</p>
+        <h2 className="landing-title">{c.quiz.title}</h2>
+        <p className="landing-desc">{c.quiz.description}</p>
         <div className="landing-quiz">
           <div className="landing-quiz-card">
             {done ? (
@@ -388,14 +384,14 @@ function Quiz({ c }: { c: typeof import("../content/en").landingContent }) {
 
 function Impact({ c }: { c: typeof import("../content/en").landingContent }) {
   return (
-    <section className="landing-section">
+    <section className="landing-section landing-section-warm">
       <div className="shell">
         <p className="landing-eyebrow">{c.impact.eyebrow}</p>
         <h2 className="landing-title">{c.impact.title}</h2>
         <div className="landing-impact-grid">
           {c.impact.stats.map((s) => (
             <article key={s.label} className="landing-impact-card">
-              <span className="impact-icon" aria-hidden="true"><Icon name={s.icon} size={32} /></span>
+              <span className="impact-icon" aria-hidden="true"><Icon name={s.icon} size={36} /></span>
               <strong>{s.value}</strong><span>{s.label}</span>
             </article>
           ))}
@@ -430,9 +426,9 @@ function CallToAction({ c }: { c: typeof import("../content/en").landingContent 
     <section className="landing-section landing-section-alt">
       <div className="shell">
         <div className="landing-cta-header">
-          <p className="landing-eyebrow" style={{ justifyContent: "center" }}>{c.cta.eyebrow}</p>
-          <h2 className="landing-title" style={{ textAlign: "center" }}>{c.cta.title}</h2>
-          <p className="landing-desc" style={{ textAlign: "center", marginInline: "auto" }}>{c.cta.description}</p>
+          <p className="landing-eyebrow">{c.cta.eyebrow}</p>
+          <h2 className="landing-title">{c.cta.title}</h2>
+          <p className="landing-desc">{c.cta.description}</p>
         </div>
         <div className="landing-cta-grid">
           <article className="landing-cta-card">
