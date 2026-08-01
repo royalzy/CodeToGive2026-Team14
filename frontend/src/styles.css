@@ -3382,17 +3382,134 @@ h3 {
 .volunteer-other-ways-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  gap: 1.75rem;
 }
 
 .volunteer-other-way-card {
+  cursor: pointer;
+  outline: none;
+  perspective: 1800px;
+  transition: transform 0.25s ease;
+}
+
+.volunteer-other-way-card:hover,
+.volunteer-other-way-card:focus-visible {
+  transform: translateY(-8px);
+}
+
+.volunteer-other-way-card-inner {
+  position: relative;
+  min-height: 22rem;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.25, 0.85, 0.35, 1);
+}
+
+.volunteer-other-way-card:hover .volunteer-other-way-card-inner,
+.volunteer-other-way-card:focus-within .volunteer-other-way-card-inner,
+.volunteer-other-way-card.is-flipped .volunteer-other-way-card-inner {
+  transform: rotateY(180deg);
+}
+
+.volunteer-other-way-card-face {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  padding: 1.75rem;
+  padding: 1.85rem;
   background: white;
   border: 1px solid var(--line);
   border-radius: 1.25rem;
+  backface-visibility: hidden;
   box-shadow: var(--shadow);
+}
+
+.volunteer-other-way-card-front {
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  text-align: center;
+}
+
+.volunteer-other-way-icon {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  color: var(--blue);
+  background: var(--paper);
+  border-radius: 50%;
+}
+
+.volunteer-accent-red .volunteer-other-way-icon {
+  color: var(--red);
+}
+
+.volunteer-accent-yellow .volunteer-other-way-icon {
+  color: #b8860b;
+}
+
+.volunteer-accent-teal .volunteer-other-way-icon {
+  color: var(--teal);
+}
+
+.volunteer-other-way-card-front .volunteer-other-way-eyebrow {
+  margin-bottom: 0.15rem;
+  color: var(--ink);
+  font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+.volunteer-accent-red .volunteer-other-way-card-front .volunteer-other-way-eyebrow {
+  color: var(--red);
+}
+
+.volunteer-accent-blue .volunteer-other-way-card-front .volunteer-other-way-eyebrow {
+  color: var(--blue);
+}
+
+.volunteer-accent-yellow .volunteer-other-way-card-front .volunteer-other-way-eyebrow {
+  color: #b8860b;
+}
+
+.volunteer-accent-teal .volunteer-other-way-card-front .volunteer-other-way-eyebrow {
+  color: var(--teal);
+}
+
+.volunteer-other-way-card-front h4 {
+  color: var(--muted);
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.volunteer-other-way-card-back {
+  justify-content: flex-start;
+  gap: 0.75rem;
+  overflow-y: auto;
+  color: white;
+  background: var(--blue);
+  border-color: transparent;
+  transform: rotateY(180deg);
+}
+
+.volunteer-accent-red .volunteer-other-way-card-back {
+  background: var(--red);
+}
+
+.volunteer-accent-yellow .volunteer-other-way-card-back {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+.volunteer-accent-teal .volunteer-other-way-card-back {
+  background: var(--teal);
+}
+
+.volunteer-other-way-card-back .volunteer-other-way-eyebrow {
+  color: inherit;
+  opacity: 0.75;
 }
 
 .volunteer-other-way-eyebrow {
@@ -3404,31 +3521,30 @@ h3 {
   text-transform: uppercase;
 }
 
-.volunteer-other-way-card h4 {
-  margin-bottom: 0.6rem;
-  font-size: 1.2rem;
-  line-height: 1.35;
-}
-
-.volunteer-other-way-card p {
-  color: var(--muted);
-  line-height: 1.6;
+.volunteer-other-way-card-back p {
+  font-size: 0.95rem;
+  line-height: 1.55;
 }
 
 .volunteer-other-way-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1.1rem;
   margin-top: auto;
-  padding-top: 1.25rem;
+  padding-top: 0.5rem;
 }
 
-.volunteer-other-way-share {
-  cursor: pointer;
-  background: none;
-  border: 0;
-  font: inherit;
+.volunteer-other-way-card-back .text-link {
+  color: inherit;
+  text-decoration-color: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .volunteer-other-way-card,
+  .volunteer-other-way-card-inner {
+    transition: none;
+  }
 }
 
 .volunteer-alternatives-panel {

@@ -145,6 +145,12 @@ export function VolunteerRolesPage() {
           )}
         </div>
       </section>
+      <section className="section section-soft">
+        <div className="shell">
+          <VolunteerOtherWaysToHelp />
+        </div>
+      </section>
+
       <section className="section">
         <div className="shell">
           <VolunteerNewsletterSignup
@@ -152,12 +158,6 @@ export function VolunteerRolesPage() {
             title="None of these feel right for now?"
             body="Subscribe and we'll let you know when new roles or programmes open up."
           />
-        </div>
-      </section>
-
-      <section className="section section-soft">
-        <div className="shell">
-          <VolunteerOtherWaysToHelp />
         </div>
       </section>
     </>

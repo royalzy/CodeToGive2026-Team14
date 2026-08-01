@@ -67,24 +67,15 @@ export function VolunteerPage() {
         <div className="shell">
           <SectionHeading
             eyebrow="From our volunteers"
-            title="What corporate and individual volunteers say."
+            title="Why they keep coming back"
           />
           <VolunteerTestimonialMarquee testimonials={volunteerTestimonials} />
         </div>
       </section>
 
-      <section className="section volunteer-reassurance-section">
-        <div className="shell volunteer-reassurance-grid">
-          <div>
-            <p className="eyebrow">What this is</p>
-            <h2>A friendly way to prepare before you share personal details.</h2>
-          </div>
-          <ul>
-            <li>No expertise is required for these first-step roles.</li>
-            <li>A volunteer story shows what people do and gain from taking part.</li>
-            <li>Demo requests are not saved, sent or automatically approved.</li>
-            <li>You can observe or express interest without booking a session.</li>
-          </ul>
+      <section className="section section-soft">
+        <div className="shell">
+          <VolunteerOtherWaysToHelp />
         </div>
       </section>
 
@@ -106,12 +97,6 @@ export function VolunteerPage() {
             source="volunteer_landing"
             title="Prefer to hear from us by email?"
           />
-        </div>
-      </section>
-
-      <section className="section section-soft">
-        <div className="shell">
-          <VolunteerOtherWaysToHelp />
         </div>
       </section>
     </>

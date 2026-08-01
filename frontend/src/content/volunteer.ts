@@ -539,7 +539,7 @@ export const volunteerTestimonials: VolunteerTestimonial[] = [
   },
   {
     quote:
-      "As a student with no experience in this space, I was nervous going in. Love 21's coaches made it easy — clear guidance, a warm welcome, and members who were happy to have us there.",
+      "As a student with no experience in this space, I was nervous going in. Love 21's coaches made it easy: clear guidance, a warm welcome, and members who were happy to have us there.",
     name: "Priya",
     role: "Student volunteer",
     org: "Creative arts programme",

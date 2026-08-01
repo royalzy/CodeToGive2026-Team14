@@ -184,6 +184,12 @@ export function VolunteerRolePage() {
         </div>
       </section>
 
+      <section className="section section-soft">
+        <div className="shell">
+          <VolunteerOtherWaysToHelp />
+        </div>
+      </section>
+
       <section className="section">
         <div className="shell volunteer-alternatives-panel">
           <div>
@@ -212,12 +218,6 @@ export function VolunteerRolePage() {
             source="volunteer_role_detail"
             title="Prefer to hear from us by email?"
           />
-        </div>
-      </section>
-
-      <section className="section section-soft">
-        <div className="shell">
-          <VolunteerOtherWaysToHelp />
         </div>
       </section>
     </>
