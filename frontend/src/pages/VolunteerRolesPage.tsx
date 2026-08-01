@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { PageHero } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
@@ -14,7 +15,13 @@ import {
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
 
 export function VolunteerRolesPage() {
-  const [activePrograms, setActivePrograms] = useState<VolunteerInterest[]>([]);
+  const [searchParams] = useSearchParams();
+  const [activePrograms, setActivePrograms] = useState<VolunteerInterest[]>(() => {
+    const requested = searchParams.get("program")?.split(",") ?? [];
+    return programs
+      .map((program) => program.slug)
+      .filter((slug) => requested.includes(slug));
+  });
   const [activeRoleTypes, setActiveRoleTypes] = useState<VolunteerRoleType[]>([]);
 
   useEffect(() => {

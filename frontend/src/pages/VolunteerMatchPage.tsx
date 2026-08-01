@@ -1,315 +1,263 @@
-import { type FormEvent, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { PageHero } from "../components/Cards";
+import { QuizShareModal } from "../components/volunteer/QuizShareModal";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerRoleCard } from "../components/volunteer/VolunteerRoleCard";
-import { programs } from "../content/programs";
+import { getVolunteerRole } from "../content/volunteer";
 import {
-  confidenceOptions,
-  heardFromOptions,
-  matchAvailabilityOptions,
-  matchInterestOptions,
-  matchRoleTypeOptions,
-  matchStyleOptions,
-  type VolunteerMatchAnswers,
-} from "../content/volunteer";
+  type QuizLetter,
+  type QuizQuestion,
+  quizQuestions,
+  quizResults,
+  tallyQuizAnswers,
+} from "../content/volunteerQuiz";
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
-import {
-  recommendVolunteerRoles,
-  type VolunteerRecommendation,
-} from "../lib/volunteerMatching";
 
-type MatchFormState = Partial<VolunteerMatchAnswers> & {
-  programs: VolunteerMatchAnswers["programs"];
-};
+const QUIZ_LETTERS: QuizLetter[] = ["A", "B", "C", "D"];
+
+function isQuizLetter(value: string | null): value is QuizLetter {
+  return !!value && (QUIZ_LETTERS as string[]).includes(value);
+}
 
 export function VolunteerMatchPage() {
-  const [answers, setAnswers] = useState<MatchFormState>({ programs: [] });
-  const [recommendations, setRecommendations] = useState<VolunteerRecommendation[] | null>(
-    null,
-  );
-  const [error, setError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [arrivedViaSharedLink] = useState(() => isQuizLetter(searchParams.get("result")));
+  const [started, setStarted] = useState(() => isQuizLetter(searchParams.get("result")));
+  const [answers, setAnswers] = useState<QuizLetter[]>([]);
+  const [resultLetter, setResultLetter] = useState<QuizLetter | null>(() => {
+    const shared = searchParams.get("result");
+    return isQuizLetter(shared) ? shared : null;
+  });
 
   useEffect(() => {
-    trackVolunteerEvent("role_match_started", { journey_path: "guided" });
+    if (!arrivedViaSharedLink) {
+      trackVolunteerEvent("role_match_started", { journey_path: "guided" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function toggleProgram(value: VolunteerMatchAnswers["programs"][number]) {
-    setAnswers((current) => ({
-      ...current,
-      programs: current.programs.includes(value)
-        ? current.programs.filter((program) => program !== value)
-        : [...current.programs, value],
-    }));
+  const currentQuestionIndex = answers.length;
+  const currentQuestion = quizQuestions[currentQuestionIndex];
+  const progress = resultLetter
+    ? 100
+    : Math.round((currentQuestionIndex / quizQuestions.length) * 100);
+
+  function beginQuiz() {
+    setStarted(true);
   }
 
-  function submitMatch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!answers.programs.length || !answers.availability || !answers.participationStyle) {
-      setError(
-        "Choose at least one area of interest, then answer the availability and participation questions.",
-      );
-      return;
+  function selectAnswer(letter: QuizLetter) {
+    const nextAnswers = [...answers, letter];
+    setAnswers(nextAnswers);
+    if (nextAnswers.length === quizQuestions.length) {
+      const finalLetter = tallyQuizAnswers(nextAnswers);
+      setResultLetter(finalLetter);
+      trackVolunteerEvent("role_match_completed", { journey_path: "guided" });
+      trackVolunteerEvent("recommended_role_viewed", {
+        journey_path: "guided",
+        role_id: quizResults[finalLetter].matches[0].roleId,
+      });
     }
-    const nextRecommendations = recommendVolunteerRoles(answers as VolunteerMatchAnswers);
-    setError(null);
-    setRecommendations(nextRecommendations);
-    trackVolunteerEvent("role_match_completed", {
-      journey_path: "guided",
-      heard_from: answers.heardFrom,
-    });
-    trackVolunteerEvent("recommended_role_viewed", {
-      journey_path: "guided",
-      role_id: nextRecommendations[0].role.id,
-    });
   }
 
-  const unselectedPrograms = programs.filter(
-    (program) => !answers.programs.includes(program.slug),
-  );
+  function goBack() {
+    setAnswers((current) => current.slice(0, -1));
+  }
+
+  function retakeQuiz() {
+    setAnswers([]);
+    setResultLetter(null);
+    setStarted(true);
+    setSearchParams({}, { replace: true });
+    trackVolunteerEvent("role_match_started", { journey_path: "guided" });
+  }
 
   return (
     <>
       <PageHero
-        eyebrow="60-second role match"
-        title="Begin with what feels realistic."
-        body="A few answers help reduce the choice. They do not decide whether you can volunteer."
+        eyebrow="60-second quiz"
+        title="What type of volunteer are you?"
+        body="Answer five quick, situational questions and we'll match you with the volunteer role that fits your personality best."
         tone="red"
       />
-      <section className="section volunteer-match-section">
-        <div className="shell volunteer-match-layout">
-          <form className="volunteer-match-form" onSubmit={submitMatch}>
-            <fieldset className="volunteer-match-question">
-              <legend>1. Which area(s) interest you? (choose one or more)</legend>
-              <div className="match-option-grid">
-                {matchInterestOptions.map((option) => (
-                  <label key={option.value}>
-                    <input
-                      type="checkbox"
-                      checked={answers.programs.includes(option.value)}
-                      onChange={() => toggleProgram(option.value)}
-                    />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            <fieldset className="volunteer-match-question">
-              <legend>2. How would you like to contribute?</legend>
-              <div className="match-option-grid">
-                {matchRoleTypeOptions.map((option) => (
-                  <label key={option.value}>
-                    <input
-                      type="radio"
-                      name="roleType"
-                      checked={answers.roleType === option.value}
-                      onChange={() =>
-                        setAnswers((current) => ({ ...current, roleType: option.value }))
-                      }
-                    />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            <MatchQuestion
-              legend="3. What can you realistically offer right now?"
-              name="availability"
-              options={matchAvailabilityOptions}
-              selected={answers.availability}
-              onSelect={(value) => setAnswers((current) => ({ ...current, availability: value }))}
+      <section className="section volunteer-quiz-section">
+        <div className="shell volunteer-quiz-shell">
+          {resultLetter ? (
+            <QuizResultView
+              letter={resultLetter}
+              arrivedViaSharedLink={arrivedViaSharedLink}
+              onRetake={retakeQuiz}
             />
-            <MatchQuestion
-              legend="4. How would you prefer to take part?"
-              name="participationStyle"
-              options={matchStyleOptions}
-              selected={answers.participationStyle}
-              onSelect={(value) =>
-                setAnswers((current) => ({ ...current, participationStyle: value }))
-              }
+          ) : started ? (
+            <QuizQuestionView
+              question={currentQuestion}
+              index={currentQuestionIndex}
+              total={quizQuestions.length}
+              progress={progress}
+              canGoBack={answers.length > 0}
+              onSelect={selectAnswer}
+              onBack={goBack}
             />
-            <fieldset className="volunteer-match-question volunteer-match-optional">
-              <legend>Optional: how does a first visit feel right now?</legend>
-              <p>This changes the guidance we show, not the role ranking.</p>
-              <div className="match-option-grid">
-                {confidenceOptions.map((option) => (
-                  <label key={option.value}>
-                    <input
-                      type="radio"
-                      name="confidence"
-                      checked={answers.confidence === option.value}
-                      onChange={() =>
-                        setAnswers((current) => ({
-                          ...current,
-                          confidence: option.value,
-                        }))
-                      }
-                    />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            <fieldset className="volunteer-match-question volunteer-match-optional">
-              <legend>Optional: tell us a little about yourself</legend>
-              <p>
-                Skills, interests or experience you'd like us to know about. This stays in
-                your browser and only shapes the guidance you see below.
-              </p>
-              <textarea
-                className="volunteer-about-textarea"
-                rows={3}
-                value={answers.aboutYou ?? ""}
-                onChange={(event) =>
-                  setAnswers((current) => ({ ...current, aboutYou: event.target.value }))
-                }
-                placeholder="E.g. I love cooking and have helped run kids' classes before."
-              />
-            </fieldset>
-
-            <fieldset className="volunteer-match-question volunteer-match-optional">
-              <legend>Optional: how did you hear about Love 21's volunteer programme?</legend>
-              <div className="match-option-grid">
-                {heardFromOptions.map((option) => (
-                  <label key={option.value}>
-                    <input
-                      type="radio"
-                      name="heardFrom"
-                      checked={answers.heardFrom === option.value}
-                      onChange={() =>
-                        setAnswers((current) => ({ ...current, heardFrom: option.value }))
-                      }
-                    />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            {error && (
-              <p className="form-alert" role="alert">
-                {error}
-              </p>
-            )}
-            <button className="button button-dark" type="submit">
-              Show my starting point
-            </button>
-            <Link className="text-link" to="/volunteer/roles">
-              Skip and browse every role <span aria-hidden="true">→</span>
-            </Link>
-          </form>
-
-          <div className="volunteer-match-results" aria-live="polite">
-            {recommendations ? (
-              <>
-                <p className="eyebrow">Your suggested starting point</p>
-                {answers.aboutYou && (
-                  <p className="volunteer-match-acknowledgement">
-                    Thanks for sharing a bit about yourself — we've kept it in mind below.
-                  </p>
-                )}
-                <VolunteerRoleCard
-                  role={recommendations[0].role}
-                  level={recommendations[0].level}
-                  reasons={recommendations[0].reasons}
-                  journeyPath="guided"
-                  featured
-                />
-                <h2>Two other roles worth exploring</h2>
-                <div className="volunteer-alternative-grid">
-                  {recommendations.slice(1, 3).map((recommendation) => (
-                    <VolunteerRoleCard
-                      key={recommendation.role.id}
-                      role={recommendation.role}
-                      level={recommendation.level}
-                      reasons={recommendation.reasons}
-                      journeyPath="guided"
-                    />
-                  ))}
-                </div>
-
-                <div className="volunteer-alternatives-panel">
-                  <div>
-                    <p className="eyebrow">Not quite the right fit?</p>
-                    <h3>You could also explore…</h3>
-                    {unselectedPrograms.length ? (
-                      <div className="volunteer-alternative-links">
-                        {unselectedPrograms.map((program) => (
-                          <Link
-                            key={program.slug}
-                            className="text-link"
-                            to="/volunteer/roles"
-                          >
-                            {program.title} roles <span aria-hidden="true">→</span>
-                          </Link>
-                        ))}
-                      </div>
-                    ) : (
-                      <p>
-                        You've already looked across every programme area — browse the full
-                        list to compare roles side by side.
-                      </p>
-                    )}
-                    <Link className="text-link" to="/volunteer/roles">
-                      Compare every role <span aria-hidden="true">→</span>
-                    </Link>
-                  </div>
-                  <VolunteerNewsletterSignup
-                    source="volunteer_match_results"
-                    title="Prefer to hear from us by email?"
-                  />
-                </div>
-
-                <VolunteerOtherWaysToHelp />
-              </>
-            ) : (
-              <div className="match-placeholder">
-                <span aria-hidden="true">?</span>
-                <h2>Your recommendation will appear here.</h2>
-                <p>It will include plain-language reasons and two alternatives.</p>
-              </div>
-            )}
-          </div>
+          ) : (
+            <QuizIntroView onStart={beginQuiz} />
+          )}
         </div>
       </section>
     </>
   );
 }
 
-function MatchQuestion<TValue extends string>({
-  legend,
-  name,
-  options,
-  selected,
+function QuizIntroView({ onStart }: { onStart: () => void }) {
+  return (
+    <div className="volunteer-quiz-card volunteer-quiz-intro">
+      <p className="eyebrow">Before you start</p>
+      <h2 className="volunteer-quiz-prompt">Five quick questions, one fun result.</h2>
+      <p className="volunteer-quiz-disclaimer">
+        This quiz is just for fun — it might not be fully accurate and can&apos;t capture
+        every part of your personality in five questions. Treat your result as a friendly
+        starting point for exploring volunteer roles, not a fixed label. You are always
+        welcome to browse every role yourself, whatever your result says.
+      </p>
+      <button type="button" className="button button-dark" onClick={onStart}>
+        Start the quiz
+      </button>
+    </div>
+  );
+}
+
+function QuizQuestionView({
+  question,
+  index,
+  total,
+  progress,
+  canGoBack,
   onSelect,
+  onBack,
 }: {
-  legend: string;
-  name: string;
-  options: readonly { value: TValue; label: string }[];
-  selected?: TValue;
-  onSelect: (value: TValue) => void;
+  question: QuizQuestion;
+  index: number;
+  total: number;
+  progress: number;
+  canGoBack: boolean;
+  onSelect: (letter: QuizLetter) => void;
+  onBack: () => void;
 }) {
   return (
-    <fieldset className="volunteer-match-question">
-      <legend>{legend}</legend>
-      <div className="match-option-grid">
-        {options.map((option) => (
-          <label key={option.value}>
-            <input
-              type="radio"
-              name={name}
-              checked={selected === option.value}
-              onChange={() => onSelect(option.value)}
-            />
-            <span>{option.label}</span>
-          </label>
+    <div className="volunteer-quiz-card">
+      <div
+        className="volunteer-quiz-progress"
+        role="progressbar"
+        aria-valuenow={progress}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`Question ${index + 1} of ${total}`}
+      >
+        <div className="volunteer-quiz-progress-fill" style={{ width: `${progress}%` }} />
+      </div>
+      <p className="volunteer-quiz-step">
+        Question {index + 1} of {total}
+      </p>
+      <h2 className="volunteer-quiz-prompt">{question.prompt}</h2>
+      <div className="volunteer-quiz-options">
+        {question.options.map((option) => (
+          <button
+            key={option.letter}
+            type="button"
+            className="volunteer-quiz-option"
+            onClick={() => onSelect(option.letter)}
+          >
+            <span className="volunteer-quiz-option-letter" aria-hidden="true">
+              {option.letter}
+            </span>
+            <span>{option.text}</span>
+          </button>
         ))}
       </div>
-    </fieldset>
+      {canGoBack && (
+        <button type="button" className="text-link volunteer-quiz-back" onClick={onBack}>
+          <span aria-hidden="true">←</span> Back to previous question
+        </button>
+      )}
+    </div>
+  );
+}
+
+function QuizResultView({
+  letter,
+  arrivedViaSharedLink,
+  onRetake,
+}: {
+  letter: QuizLetter;
+  arrivedViaSharedLink: boolean;
+  onRetake: () => void;
+}) {
+  const result = quizResults[letter];
+  const [isShareOpen, setIsShareOpen] = useState(false);
+
+  const matchedRoles = result.matches
+    .map((match) => getVolunteerRole(match.roleId))
+    .filter((role): role is NonNullable<typeof role> => Boolean(role));
+  const relatedPrograms = Array.from(new Set(matchedRoles.map((role) => role.programSlug)));
+
+  return (
+    <div className="volunteer-quiz-result">
+      {arrivedViaSharedLink && (
+        <p className="volunteer-quiz-shared-banner">
+          A friend shared their result with you — take the quiz to find yours!
+        </p>
+      )}
+      <div className="volunteer-quiz-progress">
+        <div className="volunteer-quiz-progress-fill" style={{ width: "100%" }} />
+      </div>
+      <p className="eyebrow">Your result</p>
+      <h2 className="volunteer-quiz-archetype">{result.archetype}</h2>
+      <p className="volunteer-quiz-title-tag">You are a &ldquo;{result.title}&rdquo;</p>
+      <p className="volunteer-quiz-personality">{result.personality}</p>
+
+      <h3>Your perfect volunteer match</h3>
+      <div className="volunteer-quiz-match-grid">
+        {result.matches.map((match) => {
+          const role = getVolunteerRole(match.roleId);
+          if (!role) return null;
+          return (
+            <div key={match.roleId} className="volunteer-quiz-match-item">
+              <p className="volunteer-quiz-match-note">{match.note}</p>
+              <VolunteerRoleCard role={role} journeyPath="guided" />
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="volunteer-quiz-special">
+        <p className="eyebrow">What makes you special</p>
+        <p>{result.whatMakesYouSpecial}</p>
+      </div>
+
+      <div className="volunteer-quiz-cta-row">
+        <Link
+          className="button button-dark"
+          to={`/volunteer/roles${relatedPrograms.length ? `?program=${relatedPrograms.join(",")}` : ""}`}
+        >
+          Explore more related roles
+        </Link>
+        <button type="button" className="button button-outline" onClick={() => setIsShareOpen(true)}>
+          Share my result
+        </button>
+        <button type="button" className="text-link" onClick={onRetake}>
+          Retake the quiz
+        </button>
+      </div>
+
+      <VolunteerOtherWaysToHelp />
+      <VolunteerNewsletterSignup
+        source="volunteer_quiz_results"
+        title="Prefer to hear from us by email?"
+      />
+
+      {isShareOpen && <QuizShareModal result={result} onClose={() => setIsShareOpen(false)} />}
+    </div>
   );
 }
