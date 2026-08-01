@@ -2,8 +2,9 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import { PageHero, SectionHeading } from "../components/Cards";
-import { VolunteerRoleCard } from "../components/volunteer/VolunteerRoleCard";
-import { volunteerRoles } from "../content/volunteer";
+import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
+import { VolunteerProgramAccordion } from "../components/volunteer/VolunteerProgramAccordion";
+import { volunteerTestimonials } from "../content/volunteer";
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
 
 export function VolunteerPage() {
@@ -32,11 +33,11 @@ export function VolunteerPage() {
               <span>01 · Guided path</span>
               <h2>Help me find a role</h2>
               <p>
-                Answer three short questions. The recommendation is a starting
-                point, never a test or restriction.
+                Tell us about the areas you care about and how you'd like to help. The
+                recommendation is a starting point, never a test or restriction.
               </p>
               <Link className="button button-light" to="/volunteer/match">
-                Start the 60-second match
+                Start the guided match
               </Link>
             </article>
             <article className="volunteer-path-card volunteer-path-quick">
@@ -62,13 +63,28 @@ export function VolunteerPage() {
       <section className="section volunteer-role-preview-section">
         <div className="shell">
           <SectionHeading
-            eyebrow="Three ways to contribute"
+            eyebrow="Three ways to contribute, across every programme"
             title="Clear roles. Clear boundaries."
-            body="Every role explains what you may do, what you are not expected to do and who will support you."
+            body="Assist an existing class, host a new one, or help at a large event. Open a programme below to see the roles and boundaries that come with it."
           />
-          <div className="volunteer-role-grid">
-            {volunteerRoles.map((role) => (
-              <VolunteerRoleCard key={role.id} role={role} />
+          <VolunteerProgramAccordion />
+        </div>
+      </section>
+
+      <section className="section volunteer-testimonial-section">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="From our volunteers"
+            title="What corporate and individual volunteers say."
+          />
+          <div className="volunteer-testimonial-grid">
+            {volunteerTestimonials.map((testimonial) => (
+              <figure key={testimonial.name} className="volunteer-testimonial-card">
+                <blockquote>"{testimonial.quote}"</blockquote>
+                <figcaption>
+                  {testimonial.name} — {testimonial.org}
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>
@@ -86,6 +102,24 @@ export function VolunteerPage() {
             <li>Demo requests are not saved, sent or automatically approved.</li>
             <li>You can observe or express interest without booking a session.</li>
           </ul>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="shell volunteer-alternatives-panel">
+          <div>
+            <p className="eyebrow">Not seeing the right fit yet?</p>
+            <h3>Try the guided match, or explore every role.</h3>
+            <div className="volunteer-alternative-links">
+              <Link className="text-link" to="/volunteer/match">
+                Answer a few questions for a suggestion <span aria-hidden="true">→</span>
+              </Link>
+              <Link className="text-link" to="/volunteer/roles">
+                Compare every role side by side <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </div>
+          <VolunteerNewsletterSignup source="volunteer_landing" />
         </div>
       </section>
     </>

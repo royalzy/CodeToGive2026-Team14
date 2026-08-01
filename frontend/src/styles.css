@@ -875,6 +875,16 @@ h3 {
   background: var(--yellow);
 }
 
+.page-hero-teal {
+  color: white;
+  background: var(--teal);
+}
+
+.page-hero-orange {
+  color: white;
+  background: var(--orange);
+}
+
 .page-hero-inner {
   position: relative;
   z-index: 1;
@@ -2336,8 +2346,308 @@ h3 {
   background: var(--paper);
 }
 
+.volunteer-program-group {
+  margin-top: 3rem;
+}
+
+.volunteer-program-group:first-of-type {
+  margin-top: 2rem;
+}
+
+.volunteer-program-group-heading {
+  margin-bottom: 1.25rem;
+  color: var(--card-accent, var(--ink));
+  font-size: 1.5rem;
+}
+
+.volunteer-program-accordion {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.volunteer-accordion-item {
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--line);
+  border-left: 8px solid var(--card-accent, var(--blue));
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.25s ease;
+}
+
+.volunteer-accordion-item.is-open {
+  box-shadow: 0 18px 40px rgb(0 0 0 / 12%);
+}
+
+.volunteer-accordion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1.5rem 1.75rem;
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  gap: 1.5rem;
+}
+
+.volunteer-accordion-trigger:hover .volunteer-accordion-title {
+  color: var(--card-accent, var(--ink));
+}
+
+.volunteer-accordion-trigger:focus-visible {
+  outline: 4px solid var(--yellow);
+  outline-offset: -4px;
+}
+
+.volunteer-accordion-trigger-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.volunteer-accordion-eyebrow {
+  color: var(--card-accent, var(--muted));
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.volunteer-accordion-title {
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", ui-rounded, system-ui, sans-serif;
+  font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+  font-weight: 800;
+  line-height: 1.3;
+  transition: color 0.2s ease;
+}
+
+.volunteer-accordion-meta {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 1rem;
+}
+
+.volunteer-accordion-count {
+  padding: 0.35rem 0.85rem;
+  color: var(--muted);
+  white-space: nowrap;
+  background: var(--paper);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.volunteer-accordion-chevron {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  color: var(--card-accent, var(--ink));
+  background: var(--paper);
+  border-radius: 50%;
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.volunteer-accordion-item.is-open .volunteer-accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.volunteer-accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+}
+
+.volunteer-accordion-item.is-open .volunteer-accordion-panel {
+  grid-template-rows: 1fr;
+}
+
+.volunteer-accordion-panel-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.volunteer-accordion-description {
+  max-width: 60ch;
+  padding: 0 1.75rem;
+  margin: 0 0 1.5rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.volunteer-accordion-panel .volunteer-role-grid {
+  padding: 0 1.75rem 1.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .volunteer-accordion-panel,
+  .volunteer-accordion-chevron,
+  .volunteer-accordion-title {
+    transition: none;
+  }
+}
+
+.volunteer-testimonial-section {
+  background: #f3efe8;
+}
+
+.volunteer-testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.volunteer-testimonial-card {
+  padding: 2rem;
+  margin: 0;
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.volunteer-testimonial-card blockquote {
+  margin: 0 0 1rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.volunteer-testimonial-card figcaption {
+  color: var(--muted);
+  font-weight: 700;
+}
+
 .volunteer-role-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+@keyframes volunteerCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.volunteer-filtered-results .volunteer-role-card,
+.volunteer-accordion-panel-inner .volunteer-role-card {
+  animation: volunteerCardIn 0.4s ease both;
+}
+
+.volunteer-role-grid .volunteer-role-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.volunteer-role-grid .volunteer-role-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.volunteer-role-grid .volunteer-role-card:nth-child(n + 4) {
+  animation-delay: 0.15s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .volunteer-role-card {
+    animation: none !important;
+  }
+}
+
+.volunteer-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 1.75rem;
+  margin: 2.5rem 0 3rem;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.volunteer-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.volunteer-filter-group-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.volunteer-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.volunteer-filter-chip {
+  padding: 0.55rem 1.1rem;
+  color: var(--ink);
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  font-weight: 700;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.volunteer-filter-chip:hover {
+  border-color: var(--blue);
+  transform: translateY(-1px);
+}
+
+.volunteer-filter-chip.is-active {
+  color: white;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.volunteer-filter-chip:focus-visible {
+  outline: 4px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.volunteer-filter-clear {
+  align-self: flex-start;
+  margin-left: auto;
+  padding: 0.55rem 0;
+}
+
+.volunteer-filter-empty {
+  padding: 3.5rem 2rem;
+  text-align: center;
+  border: 3px dashed var(--line);
+  border-radius: 1.5rem;
+}
+
+.volunteer-filter-empty h3 {
+  margin-bottom: 0.75rem;
+}
+
+.volunteer-filtered-results {
+  margin-top: 1rem;
 }
 
 .volunteer-role-card {
@@ -2362,6 +2672,34 @@ h3 {
   border-top-color: var(--yellow);
 }
 
+.volunteer-role-card.volunteer-accent-teal {
+  border-top-color: var(--teal);
+}
+
+.volunteer-role-card.volunteer-accent-orange {
+  border-top-color: var(--orange);
+}
+
+.volunteer-role-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.volunteer-role-badge {
+  padding: 0.3rem 0.7rem;
+  background: #e7efff;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.volunteer-role-badge-muted {
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+
 .volunteer-role-card h2 {
   margin-bottom: 1rem;
   font-size: clamp(2rem, 3vw, 3rem);
@@ -2371,11 +2709,121 @@ h3 {
   color: var(--muted);
 }
 
+.card-options-menu {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  z-index: 3;
+}
+
+.card-options-trigger {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  color: var(--muted);
+  cursor: pointer;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 1.15rem;
+  line-height: 1;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.card-options-trigger:hover {
+  color: var(--ink);
+  border-color: var(--blue);
+  transform: translateY(-1px);
+}
+
+.card-options-trigger:focus-visible,
+.card-options-panel button:focus-visible {
+  outline: 4px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.card-options-trigger[aria-expanded="true"] {
+  color: white;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.card-options-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 4;
+  width: max-content;
+  min-width: 11rem;
+  padding: 0.5rem;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 18%);
+  animation: cardOptionsPanelIn 0.16s ease both;
+}
+
+@keyframes cardOptionsPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card-options-panel ul {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.card-options-panel button {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 0.6rem;
+  font: inherit;
+  font-weight: 700;
+}
+
+.card-options-panel button:hover {
+  background: var(--paper);
+}
+
+.card-options-toast {
+  padding: 0.6rem 0.75rem;
+  margin: 0;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-options-panel {
+    animation: none;
+  }
+}
+
 .volunteer-role-card-topline {
   display: flex;
   min-height: 2.5rem;
   justify-content: space-between;
   gap: 1rem;
+  padding-right: 2.75rem;
   margin-bottom: 2.5rem;
   color: var(--muted);
 }
@@ -2556,6 +3004,66 @@ h3 {
   min-width: 0;
 }
 
+.volunteer-newsletter-card {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  background: white;
+  border: 2px dashed var(--line);
+  border-radius: 1.5rem;
+}
+
+.volunteer-newsletter-card h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.volunteer-newsletter-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.volunteer-newsletter-form .field {
+  flex: 1 1 220px;
+}
+
+.volunteer-newsletter-success {
+  margin-top: 1.25rem;
+  font-weight: 700;
+}
+
+.volunteer-alternatives-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.volunteer-alternative-links {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.volunteer-about-textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  font: inherit;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 0.9rem;
+  resize: vertical;
+}
+
+.volunteer-match-acknowledgement {
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1rem;
+  background: #e7efff;
+  border-radius: 0.9rem;
+  font-weight: 700;
+}
+
 .volunteer-alternative-grid {
   display: grid;
   gap: 1rem;
@@ -2730,6 +3238,11 @@ h3 {
 
 .volunteer-role-next-heading {
   margin-bottom: 3rem;
+}
+
+.volunteer-session-card {
+  position: relative;
+  padding-right: clamp(3rem, 6vw, 4.5rem);
 }
 
 .volunteer-session-card,

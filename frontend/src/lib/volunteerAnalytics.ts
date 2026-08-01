@@ -13,13 +13,18 @@ export type VolunteerAnalyticsEvent =
   | "trial_session_selected"
   | "volunteer_application_started"
   | "volunteer_application_submitted"
-  | "first_session_plan_viewed";
+  | "first_session_plan_viewed"
+  | "newsletter_subscribed"
+  | "role_shared"
+  | "session_shared";
 
 interface VolunteerAnalyticsProperties {
   journey_path?: "quick" | "guided";
   role_id?: VolunteerRoleId;
   session_id?: VolunteerSessionId;
   application_status?: "interest_submitted" | "pending_confirmation";
+  heard_from?: string;
+  source?: string;
 }
 
 declare global {

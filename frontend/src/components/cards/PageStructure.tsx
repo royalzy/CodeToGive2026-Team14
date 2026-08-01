@@ -27,7 +27,7 @@ export function PageHero({
   eyebrow: string;
   title: string;
   body: string;
-  tone: "red" | "blue" | "yellow";
+  tone: "red" | "blue" | "yellow" | "teal" | "orange";
 }) {
   return (
     <section className={`page-hero page-hero-${tone}`}>
