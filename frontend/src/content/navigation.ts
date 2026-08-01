@@ -6,6 +6,7 @@ export const navigation = [
   { label: "Partners", href: "/partners" },
   { label: "Help", href: "/help" },
   { label: "Resources", href: "/resources" },
+  { label: "Learn More", href: "/neuro-strengths" },
 ];
 
 export const personas = [

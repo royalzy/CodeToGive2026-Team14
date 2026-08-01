@@ -26,6 +26,7 @@ export const navigation = [
   { label: "企業夥伴", href: "/partners" },
   { label: "支援", href: "/help" },
   { label: "學習資源", href: "/resources" },
+  { label: "了解更多", href: "/neuro-strengths" },
 ];
 
 export const personas = [

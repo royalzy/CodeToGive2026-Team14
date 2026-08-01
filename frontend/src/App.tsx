@@ -10,6 +10,7 @@ import { ImpactPage } from "./pages/ImpactPage";
 import { LoginPage } from "./pages/LoginPage";
 import { MemberProfilePage } from "./pages/MemberProfilePage";
 import { MembersPage } from "./pages/MembersPage";
+import { NeuroStrengthsConstellationPage } from "./pages/NeuroStrengthsConstellationPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PartnersPage } from "./pages/PartnersPage";
 import { ResourcesPage } from "./pages/ResourcesPage";
@@ -43,6 +44,7 @@ export function App() {
         <Route path="login" element={<LoginPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="admin" element={<AdminPage />} />
+        <Route path="neuro-strengths" element={<NeuroStrengthsConstellationPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
