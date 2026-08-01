@@ -30,7 +30,7 @@ describe("route backbone", () => {
     ["/impact", "Not what we provide."],
     ["/community", "People making this possible."],
     ["/volunteer", "Your first step can be a small one."],
-    ["/donate", "See where it goes. Then choose what matters."],
+    ["/donate", "Know where your care goes."],
     ["/donor-profile", "Your impact, kept honest."],
     ["/help", "Support for families and carers"],
     ["/resources", "Learning for belonging"],
@@ -237,12 +237,9 @@ describe("closed-loop forms", () => {
         name: /Four more chances to move, learn, and shine/i,
       }),
     ).toBeInTheDocument();
-    await user.click(
-      screen.getByRole("button", { name: "Continue to your details" }),
-    );
     await user.click(screen.getByLabelText(/Give completely anonymously/i));
     await user.click(
-      screen.getByRole("button", { name: "Review your intention" }),
+      screen.getByRole("button", { name: "Review & continue to secure payment" }),
     );
     await user.click(
       screen.getByRole("button", {

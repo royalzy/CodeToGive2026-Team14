@@ -195,7 +195,7 @@ describe("donor impact journey", () => {
       await screen.findByText(/Live estimate unavailable/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Continue to your details" }),
+      screen.getByRole("button", { name: "Review & continue to secure payment" }),
     ).toBeEnabled();
   });
 
@@ -252,10 +252,7 @@ describe("donor impact journey", () => {
     renderDonatePage();
 
     await user.click(
-      screen.getByRole("button", { name: "Continue to your details" }),
-    );
-    await user.click(
-      screen.getByRole("button", { name: "Review your intention" }),
+      screen.getByRole("button", { name: "Review & continue to secure payment" }),
     );
 
     expect(
@@ -263,7 +260,7 @@ describe("donor impact journey", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/Use at least 6 characters/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Tell us how to thank you" }),
+      screen.getByRole("heading", { name: "How would you like to give?" }),
     ).toBeInTheDocument();
   });
 
@@ -272,9 +269,6 @@ describe("donor impact journey", () => {
     const user = userEvent.setup();
     renderDonatePage();
 
-    await user.click(
-      screen.getByRole("button", { name: "Continue to your details" }),
-    );
     await user.click(screen.getByLabelText(/Create a donor profile/i));
     await user.type(screen.getByLabelText("Email"), "alex@example.com");
     await user.type(screen.getByLabelText("Password"), "secret1");
@@ -288,15 +282,13 @@ describe("donor impact journey", () => {
     expect(screen.queryByLabelText("Unique nickname")).not.toBeInTheDocument();
     expect(screen.getByText(/Identity fields have been cleared/i)).toBeInTheDocument();
 
-    await user.click(screen.getByLabelText(/Give completely anonymously/i));
+    await user.click(screen.getByLabelText(/Give with my profile/i));
     expect(screen.getByLabelText("Email")).toHaveValue("");
     expect(screen.getByLabelText("Unique nickname")).toHaveValue("");
     expect(screen.getByLabelText("Name (optional)")).toHaveValue("");
 
     await user.click(screen.getByLabelText(/Give completely anonymously/i));
-    await user.click(
-      screen.getByRole("button", { name: "Review your intention" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Review & continue to secure payment" }));
 
     expect(screen.getByText("Completely anonymous")).toBeInTheDocument();
     expect(screen.queryByText("Alex Chan")).not.toBeInTheDocument();
@@ -315,9 +307,6 @@ describe("donor impact journey", () => {
         name: /Four more chances to move, learn, and shine/i,
       }),
     ).toBeInTheDocument();
-    await user.click(
-      screen.getByRole("button", { name: "Continue to your details" }),
-    );
     await user.click(screen.getByLabelText(/Create a donor profile/i));
     await user.type(screen.getByLabelText("Unique nickname"), "Alex Private");
     await user.type(screen.getByLabelText("Name (optional)"), "Alex Private");
@@ -326,9 +315,7 @@ describe("donor impact journey", () => {
       "private@example.com",
     );
     await user.type(screen.getByLabelText("Password"), "secret1");
-    await user.click(
-      screen.getByRole("button", { name: "Review your intention" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Review & continue to secure payment" }));
     await user.click(
       screen.getByRole("button", {
         name: "Confirm prototype donation of HK$600",

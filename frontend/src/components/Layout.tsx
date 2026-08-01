@@ -145,7 +145,7 @@ function SupporterQuickActions({ pathname }: { pathname: string }) {
   if (pathname !== "/community" && pathname !== "/donate") return null;
 
   return (
-    <aside className="supporter-quick-actions" aria-label="Supporter quick actions">
+    <aside className={`supporter-quick-actions supporter-quick-actions-${pathname.slice(1)}`} aria-label="Supporter quick actions">
       {pathname === "/community" ? (
         <Link className="supporter-quick-action supporter-quick-action-primary" to="/donate">
           {lang === "zh" ? "立即捐款" : "Make a donation"}

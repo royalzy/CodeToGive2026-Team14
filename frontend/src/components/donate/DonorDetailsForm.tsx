@@ -21,34 +21,38 @@ export function DonorDetailsForm({
   errors: DonorDetailsErrors;
   onChange: (details: DonorDetails) => void;
 }) {
+  function chooseAnonymous(anonymous: boolean) {
+    onChange({
+      ...value,
+      anonymous,
+      donorName: anonymous ? "" : value.donorName,
+      donorEmail: anonymous ? "" : value.donorEmail,
+      donorNickname: anonymous ? "" : value.donorNickname,
+      donorPassword: anonymous ? "" : value.donorPassword,
+      consentToUpdates: anonymous ? false : value.consentToUpdates,
+    });
+  }
+
   return (
     <>
-      <label className="consent-row donor-anonymous-choice">
-        <input
-          type="checkbox"
-          checked={value.anonymous}
-          onChange={(event) => {
-            const anonymous = event.target.checked;
-            onChange({
-              ...value,
-              anonymous,
-              donorName: anonymous ? "" : value.donorName,
-              donorEmail: anonymous ? "" : value.donorEmail,
-              donorNickname: anonymous ? "" : value.donorNickname,
-              donorPassword: anonymous ? "" : value.donorPassword,
-              consentToUpdates: anonymous ? false : value.consentToUpdates,
-            });
-          }}
-        />
-        <span><strong>Give completely anonymously</strong><small>No profile, email, nickname or public supporter tile.</small></span>
-      </label>
+      <fieldset className="donor-give-mode">
+        <legend className="sr-only">Choose whether to use a donor profile</legend>
+        <label>
+          <input type="radio" name="give-mode" checked={!value.anonymous} onChange={() => chooseAnonymous(false)} />
+          <span><strong>Give with my profile</strong><small>See receipts and long-term impact in one place.</small></span>
+        </label>
+        <label>
+          <input type="radio" name="give-mode" checked={value.anonymous} onChange={() => chooseAnonymous(true)} />
+          <span><strong>Give completely anonymously</strong><small>Continue with no profile, email or public name.</small></span>
+        </label>
+      </fieldset>
 
       {value.anonymous ? (
         <div className="anonymous-confirmation" role="status">Identity fields have been cleared. You can continue without creating or signing into a donor profile.</div>
       ) : (
         <>
           <fieldset className="donor-profile-mode">
-            <legend>How would you like to continue?</legend>
+            <legend>Profile details</legend>
             <label><input type="radio" name="profile-mode" checked={value.profileMode === "existing"} onChange={() => onChange({ ...value, profileMode: "existing", donorName: "", donorNickname: "" })} /><span><strong>I have a donor profile</strong><small>Sign in to keep receipts and impact records together.</small></span></label>
             <label><input type="radio" name="profile-mode" checked={value.profileMode === "new"} onChange={() => onChange({ ...value, profileMode: "new" })} /><span><strong>Create a donor profile</strong><small>Choose a public nickname before payment.</small></span></label>
           </fieldset>
