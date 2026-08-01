@@ -86,7 +86,12 @@ export interface VolunteerMatchAnswers {
 export interface VolunteerTestimonial {
   quote: string;
   name: string;
+  role: string;
   org: string;
+  accent: "red" | "blue" | "yellow" | "teal" | "orange";
+  // When set, this testimonial is prioritised on roles within that programme.
+  // Leave unset for a general testimonial shown as a fallback on every role.
+  programSlug?: Program["slug"];
 }
 
 export const volunteerRoles: VolunteerRole[] = [
@@ -511,15 +516,55 @@ export const volunteerTestimonials: VolunteerTestimonial[] = [
     quote:
       "Our experience with Love 21 has been amazing. We first met with Jeff and Carmel, who explained the challenges that this community face, before assisting in a circuit training lesson where each of us took a fitness station to help the community stay active through different simple exercises. It was an incredible experience and one that will stay with us for a long time, really happy to have helped an organisation with such a great cause!",
     name: "Chaim",
+    role: "Corporate CSR volunteer",
     org: "Argyll Scott",
+    accent: "blue",
   },
   {
     quote:
       "Volunteering at Love 21 was an eye-opening experience for us, with some delightful members and a cool space! We loved the different activities and a chance to be involved with such an amazing community.",
     name: "Laura",
+    role: "Corporate CSR volunteer",
     org: "Nakama Global",
+    accent: "teal",
+  },
+  {
+    quote:
+      "I came in expecting to just help out for an afternoon, but ended up learning so much from the members themselves. The team briefed us well and I never felt unsure about what to do.",
+    name: "Marcus",
+    role: "Individual volunteer",
+    org: "Sports programme",
+    accent: "red",
+    programSlug: "sports",
+  },
+  {
+    quote:
+      "As a student with no experience in this space, I was nervous going in. Love 21's coaches made it easy — clear guidance, a warm welcome, and members who were happy to have us there.",
+    name: "Priya",
+    role: "Student volunteer",
+    org: "Creative arts programme",
+    accent: "yellow",
+    programSlug: "enrichment",
+  },
+  {
+    quote:
+      "What stood out most was how well-organised the day was. Every station had a clear task, and the staff were always close by if we had questions. Our whole team wants to come back.",
+    name: "Wei Ling",
+    role: "Corporate CSR volunteer",
+    org: "Dragon boat training day",
+    accent: "orange",
+    programSlug: "sports",
   },
 ];
+
+export function getTestimonialsForRole(role: VolunteerRole): VolunteerTestimonial[] {
+  const specific = volunteerTestimonials.filter(
+    (testimonial) => testimonial.programSlug === role.programSlug,
+  );
+  const general = volunteerTestimonials.filter((testimonial) => !testimonial.programSlug);
+  const combined = [...specific, ...general];
+  return combined.length ? combined : volunteerTestimonials;
+}
 
 export const commonVolunteerPrinciples = [
   "Communicate directly with the person.",

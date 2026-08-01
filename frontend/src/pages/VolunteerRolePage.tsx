@@ -6,9 +6,11 @@ import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNews
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerStoryVideo } from "../components/volunteer/VolunteerStoryVideo";
 import { VolunteerSessionCard } from "../components/volunteer/VolunteerSessionCard";
+import { VolunteerTestimonialMarquee } from "../components/volunteer/VolunteerTestimonialMarquee";
 import { programs } from "../content/programs";
 import {
   commonVolunteerPrinciples,
+  getTestimonialsForRole,
   getVolunteerRole,
   getVolunteerRolesForProgram,
   volunteerSessions,
@@ -27,6 +29,7 @@ export function VolunteerRolePage() {
   const programTitle = role
     ? programs.find((program) => program.slug === role.programSlug)?.title
     : undefined;
+  const roleTestimonials = role ? getTestimonialsForRole(role) : [];
 
   useEffect(() => {
     if (role) {
@@ -111,6 +114,16 @@ export function VolunteerRolePage() {
           </aside>
         </div>
       </section>
+
+      {roleTestimonials.length > 0 && (
+        <section className="section volunteer-role-testimonial-section">
+          <div className="shell">
+            <p className="eyebrow">In their own words</p>
+            <h2>What past volunteers in this role said.</h2>
+            <VolunteerTestimonialMarquee testimonials={roleTestimonials} />
+          </div>
+        </section>
+      )}
 
       <section className="section volunteer-principles-section">
         <div className="shell">

@@ -5,6 +5,7 @@ import { PageHero, SectionHeading } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerProgramAccordion } from "../components/volunteer/VolunteerProgramAccordion";
+import { VolunteerTestimonialMarquee } from "../components/volunteer/VolunteerTestimonialMarquee";
 import { volunteerTestimonials } from "../content/volunteer";
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
 
@@ -26,34 +27,24 @@ export function VolunteerPage() {
         <div className="shell">
           <SectionHeading
             eyebrow="Choose your way in"
-            title="Start with what you already know."
-            body="If you are unsure, we can suggest a role. If you already have an idea, go straight to roles or demo sessions."
+            title="Not sure where to start?"
+            body="Take the quiz for a fun, personalised starting point, or skip straight to browsing every role yourself."
           />
-          <div className="volunteer-path-grid">
-            <article className="volunteer-path-card volunteer-path-guided">
-              <span>01 · Guided path</span>
-              <h2>Help me find a role</h2>
+          <div className="volunteer-path-grid volunteer-path-grid-single">
+            <article className="volunteer-path-card volunteer-path-quiz">
+              <span>60-second quiz</span>
+              <h2>Find out which type of volunteer you are</h2>
               <p>
-                Tell us about the areas you care about and how you'd like to help. The
-                recommendation is a starting point, never a test or restriction.
-              </p>
-              <Link className="button button-light" to="/volunteer/match">
-                Start the guided match
-              </Link>
-            </article>
-            <article className="volunteer-path-card volunteer-path-quick">
-              <span>02 · Quick path</span>
-              <h2>I know how I want to explore</h2>
-              <p>
-                Browse every role or look at the available demo sessions without
-                completing a questionnaire.
+                Answer five quick, fun questions and we'll match you with a role that
+                fits your personality. It's a starting point, never a test or restriction.
               </p>
               <div className="volunteer-inline-actions">
+                <Link className="button button-light" to="/volunteer/match">
+                  Find out which type of volunteer you are{" "}
+                  <span aria-hidden="true">→</span>
+                </Link>
                 <Link className="button button-dark" to="/volunteer/roles">
                   Browse all roles
-                </Link>
-                <Link className="text-link" to="/volunteer/sessions?journey=quick">
-                  View demo sessions <span aria-hidden="true">→</span>
                 </Link>
               </div>
             </article>
@@ -78,16 +69,7 @@ export function VolunteerPage() {
             eyebrow="From our volunteers"
             title="What corporate and individual volunteers say."
           />
-          <div className="volunteer-testimonial-grid">
-            {volunteerTestimonials.map((testimonial) => (
-              <figure key={testimonial.name} className="volunteer-testimonial-card">
-                <blockquote>"{testimonial.quote}"</blockquote>
-                <figcaption>
-                  {testimonial.name} — {testimonial.org}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+          <VolunteerTestimonialMarquee testimonials={volunteerTestimonials} />
         </div>
       </section>
 

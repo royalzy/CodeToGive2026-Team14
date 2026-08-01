@@ -2334,6 +2334,33 @@ h3 {
   background: var(--yellow);
 }
 
+.volunteer-path-grid-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.volunteer-path-quiz {
+  min-height: 0;
+  color: white;
+  background: var(--blue);
+}
+
+.volunteer-path-quiz > span {
+  color: var(--yellow);
+}
+
+.volunteer-path-quiz h2 {
+  margin-top: 0.5rem;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+}
+
+.volunteer-path-quiz p {
+  margin-bottom: 1.75rem;
+}
+
+.volunteer-path-quiz .volunteer-inline-actions {
+  margin-top: auto;
+}
+
 .volunteer-inline-actions,
 .confirmation-actions {
   display: flex;
@@ -2499,31 +2526,132 @@ h3 {
   background: #f3efe8;
 }
 
-.volunteer-testimonial-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
+.volunteer-testimonial-marquee {
+  mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 4%,
+    black 96%,
+    transparent
+  );
+}
+
+.volunteer-testimonial-marquee.is-dragging {
+  cursor: grabbing;
+}
+
+.volunteer-testimonial-track {
+  display: flex;
+  gap: 1.75rem;
+  padding: 1.5rem 0 2rem;
+  overflow-x: auto;
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.volunteer-testimonial-track:active {
+  cursor: grabbing;
+}
+
+.volunteer-testimonial-track::-webkit-scrollbar {
+  display: none;
 }
 
 .volunteer-testimonial-card {
+  flex: 0 0 min(360px, 82vw);
   padding: 2rem;
   margin: 0;
   background: white;
+  border-top: 6px solid var(--blue);
   border-radius: 1.5rem;
   box-shadow: var(--shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.volunteer-testimonial-card:hover {
+  z-index: 2;
+  box-shadow: 0 30px 60px rgb(23 22 37 / 22%);
+  transform: translateY(-14px) scale(1.04);
+}
+
+.volunteer-testimonial-card.volunteer-accent-red {
+  border-top-color: var(--red);
+}
+
+.volunteer-testimonial-card.volunteer-accent-yellow {
+  border-top-color: var(--yellow);
+}
+
+.volunteer-testimonial-card.volunteer-accent-teal {
+  border-top-color: var(--teal);
+}
+
+.volunteer-testimonial-card.volunteer-accent-orange {
+  border-top-color: var(--orange);
 }
 
 .volunteer-testimonial-card blockquote {
-  margin: 0 0 1rem;
+  margin: 0 0 1.5rem;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-style: italic;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
-.volunteer-testimonial-card figcaption {
+.volunteer-testimonial-person {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.volunteer-testimonial-avatar {
+  display: grid;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  background: var(--blue);
+  border-radius: 50%;
+  color: white;
+  font-weight: 900;
+  font-size: 0.85rem;
+}
+
+.volunteer-accent-red .volunteer-testimonial-avatar {
+  background: var(--red);
+}
+
+.volunteer-accent-yellow .volunteer-testimonial-avatar {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.volunteer-accent-teal .volunteer-testimonial-avatar {
+  background: var(--teal);
+}
+
+.volunteer-accent-orange .volunteer-testimonial-avatar {
+  background: var(--orange);
+}
+
+.volunteer-testimonial-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
   color: var(--muted);
   font-weight: 700;
+  line-height: 1.35;
+}
+
+.volunteer-testimonial-identity strong {
+  color: var(--ink);
+}
+
+.volunteer-testimonial-role {
+  font-weight: 500;
+  font-size: 0.85rem;
 }
 
 .volunteer-role-grid {
@@ -3377,6 +3505,10 @@ h3 {
 
 .volunteer-role-sidebar dl div {
   border-color: rgb(255 255 255 / 30%);
+}
+
+.volunteer-role-testimonial-section {
+  background: #f3efe8;
 }
 
 .volunteer-principles-section {
