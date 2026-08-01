@@ -4,6 +4,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { StrictMode } from "react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -136,6 +137,27 @@ afterEach(() => {
 });
 
 describe("donor impact journey", () => {
+  it("does not focus the donation flow on its StrictMode mount", async () => {
+    installApiMock();
+    const user = userEvent.setup();
+    render(
+      <StrictMode>
+        <MemoryRouter>
+          <DonatePage />
+        </MemoryRouter>
+      </StrictMode>,
+    );
+
+    const donationFlow = screen.getByRole("region", { name: "Donation flow" });
+    expect(donationFlow).not.toHaveFocus();
+
+    await user.click(screen.getByLabelText(/Give completely anonymously/i));
+    await user.click(
+      screen.getByRole("button", { name: "Review & continue to secure payment" }),
+    );
+    expect(donationFlow).toHaveFocus();
+  });
+
   it("clears an old impact when the custom amount becomes invalid", async () => {
     installApiMock();
     const user = userEvent.setup();

@@ -146,7 +146,7 @@ export function DonatePage() {
   const detailsStartedTracked = useRef(false);
   const causeTouched = useRef(false);
   const flowPanelRef = useRef<HTMLDivElement>(null);
-  const hasRenderedStep = useRef(false);
+  const previousStep = useRef<FormStep>(step);
 
   const amountHkd = Number(amountInput);
   const selectedCauseLabel =
@@ -167,10 +167,9 @@ export function DonatePage() {
   }, []);
 
   useEffect(() => {
-    if (hasRenderedStep.current) {
+    if (previousStep.current !== step) {
       flowPanelRef.current?.focus();
-    } else {
-      hasRenderedStep.current = true;
+      previousStep.current = step;
     }
   }, [step]);
 
