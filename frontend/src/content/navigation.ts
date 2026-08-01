@@ -1,5 +1,6 @@
 export const navigation = [
   { label: "Impact", href: "/impact" },
+  { label: "Community", href: "/community" },
   { label: "Volunteer", href: "/volunteer" },
   { label: "Donate", href: "/donate" },
   { label: "Members", href: "/members" },

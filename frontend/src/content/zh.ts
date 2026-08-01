@@ -20,6 +20,7 @@ import type {
 
 export const navigation = [
   { label: "影響力", href: "/impact" },
+  { label: "支持者社群", href: "/community" },
   { label: "義工服務", href: "/volunteer" },
   { label: "捐款", href: "/donate" },
   { label: "會員", href: "/members" },

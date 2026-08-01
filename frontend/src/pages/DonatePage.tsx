@@ -31,6 +31,7 @@ import {
   type PreviewStatus,
 } from "../components/donate/ImpactCard";
 import {
+  allocation,
   donationPrograms,
   getDonationImpactMessage,
 } from "../content/donations";
@@ -46,6 +47,9 @@ const fallbackChoices: CauseChoice[] = donationPrograms.map((program) => ({
 const initialDetails: DonorDetails = {
   donorName: "",
   donorEmail: "",
+  donorNickname: "",
+  donorPassword: "",
+  profileMode: "existing",
   anonymous: false,
   consentToUpdates: false,
 };
@@ -66,14 +70,26 @@ function validateDetails(details: DonorDetails): DonorDetailsErrors {
   const name = details.donorName.trim();
   const email = details.donorEmail.trim();
 
+  if (details.anonymous) return errors;
+
   if (name.length > 100) {
     errors.donorName = "Keep the name to 100 characters or fewer.";
   }
-  if (email && !z.string().email().safeParse(email).success) {
+  if (!email) {
+    errors.donorEmail = "Enter the email for your donor profile.";
+  } else if (!z.string().email().safeParse(email).success) {
     errors.donorEmail = "Enter a valid email address.";
-  } else if (details.consentToUpdates && !email) {
-    errors.donorEmail =
-      "Enter an email to express an updates preference in this prototype.";
+  }
+  if (details.donorPassword.length < 6) {
+    errors.donorPassword = "Use at least 6 characters for this prototype.";
+  }
+  if (details.profileMode === "new") {
+    const nickname = details.donorNickname.trim();
+    if (!nickname) {
+      errors.donorNickname = "Choose a nickname for your donor profile.";
+    } else if (nickname.length > 40) {
+      errors.donorNickname = "Keep the nickname to 40 characters or fewer.";
+    }
   }
   return errors;
 }
@@ -120,6 +136,8 @@ export function DonatePage() {
     () => getDonationImpactMessage(preview),
     [preview],
   );
+  const donorDisplayName =
+    details.donorNickname.trim() || details.donorName.trim();
 
   useEffect(() => {
     if (!pageViewTracked.current) {
@@ -278,9 +296,9 @@ export function DonatePage() {
         cause_id: causeId,
         amount_hkd: amountHkd,
         anonymous: details.anonymous,
-        donor_name: details.donorName.trim() || null,
-        donor_email: details.donorEmail.trim() || null,
-        consent_to_updates: details.consentToUpdates,
+        donor_name: details.anonymous ? null : donorDisplayName || null,
+        donor_email: details.anonymous ? null : details.donorEmail.trim() || null,
+        consent_to_updates: details.anonymous ? false : details.consentToUpdates,
       });
       setResult(nextResult);
       setStep("success");
@@ -303,11 +321,30 @@ export function DonatePage() {
   return (
     <>
       <PageHero
-        eyebrow="Meaningful giving"
-        title="What kind of opportunity would you like to create?"
-        body="Choose a direction and see how your gift could become another chance to move, grow, connect and shine."
-        tone="yellow"
+        eyebrow="Transparent giving"
+        title="See where it goes. Then choose what matters."
+        body="Every estimate is labelled, every confirmed result links back to programme delivery, and every donor can follow the record over time."
+        tone="red"
       />
+
+      <section className="donation-transparency-section" aria-labelledby="donation-transparency-title">
+        <div className="shell donation-transparency-grid">
+          <div>
+            <p className="eyebrow">The record before the form</p>
+            <h2 id="donation-transparency-title">Serious transparency, in plain language.</h2>
+            <p>These shares describe the current programme allocation model. Your confirmation shows whether an impact is estimated, in progress or verified.</p>
+          </div>
+          <div className="donation-allocation-list">
+            {allocation.map((item) => (
+              <div key={item.program}>
+                <span>{item.funds}</span><strong>{item.percentage}%</strong>
+                <i aria-hidden="true"><b style={{ width: `${item.percentage}%` }} /></i>
+              </div>
+            ))}
+            <small>Prototype allocation model · audited figures would link to the latest annual report in production.</small>
+          </div>
+        </div>
+      </section>
 
       <section className="section donation-experience-section">
         <div className="shell">
@@ -431,7 +468,7 @@ export function DonatePage() {
                   <DonationReview
                     amountHkd={amountHkd}
                     causeLabel={selectedCauseLabel}
-                    donorName={details.donorName}
+                    donorName={donorDisplayName}
                     anonymous={details.anonymous}
                     impactMessage={impactMessage}
                   />
@@ -465,7 +502,8 @@ export function DonatePage() {
               {step === "success" && result && (
                 <DonationSuccess
                   result={result}
-                  donorName={details.donorName}
+                  donorName={donorDisplayName}
+                  donorEmail={details.donorEmail}
                   anonymous={details.anonymous}
                   onStayInvolved={() =>
                     trackDonationEvent("stay_involved_clicked", {
