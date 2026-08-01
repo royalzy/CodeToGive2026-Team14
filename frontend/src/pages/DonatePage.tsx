@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 
 import {
@@ -14,7 +15,6 @@ import {
   getAmountBucket,
   trackDonationEvent,
 } from "../analytics";
-import { PageHero } from "../components/Cards";
 import { AmountSelector } from "../components/donate/AmountSelector";
 import {
   CauseSelector,
@@ -36,7 +36,7 @@ import {
   getDonationImpactMessage,
 } from "../content/donations";
 
-type FormStep = "donation" | "details" | "review" | "success";
+type FormStep = "donation" | "review" | "success";
 
 const fallbackPresets = [200, 400, 600, 1000];
 const fallbackChoices: CauseChoice[] = donationPrograms.map((program) => ({
@@ -47,16 +47,41 @@ const fallbackChoices: CauseChoice[] = donationPrograms.map((program) => ({
 const initialDetails: DonorDetails = {
   donorName: "",
   donorEmail: "",
+  donorNickname: "",
+  donorPassword: "",
+  profileMode: "existing",
   anonymous: false,
   consentToUpdates: false,
 };
 
 const stepLabels: Array<{ id: FormStep; label: string }> = [
-  { id: "donation", label: "Donation" },
-  { id: "details", label: "Details" },
+  { id: "donation", label: "Your gift" },
   { id: "review", label: "Review" },
-  { id: "success", label: "Success" },
+  { id: "success", label: "Complete" },
 ];
+
+const transparencyRows = [
+  {
+    label: "Direct programmes & coaching",
+    percentage: 62,
+    detail: "1,860 coaching hours for 126 young people, plus 48 family support sessions.",
+  },
+  {
+    label: "Employment & life-skills",
+    percentage: 21,
+    detail: "32 paid work placements; 24 participants moved into sustained employment.",
+  },
+  {
+    label: "Programme staff & safeguarding",
+    percentage: 12,
+    detail: "Two case workers, background checks, training and participant transport support.",
+  },
+  {
+    label: "Operations & payment fees",
+    percentage: 5,
+    detail: "Rent, accounting, audit and card fees. Nothing hidden inside programme costs.",
+  },
+] as const;
 
 function isValidAmount(amount: number): boolean {
   return Number.isInteger(amount) && amount >= 10 && amount <= 1_000_000;
@@ -67,14 +92,26 @@ function validateDetails(details: DonorDetails): DonorDetailsErrors {
   const name = details.donorName.trim();
   const email = details.donorEmail.trim();
 
+  if (details.anonymous) return errors;
+
   if (name.length > 100) {
     errors.donorName = "Keep the name to 100 characters or fewer.";
   }
-  if (email && !z.string().email().safeParse(email).success) {
+  if (!email) {
+    errors.donorEmail = "Enter the email for your donor profile.";
+  } else if (!z.string().email().safeParse(email).success) {
     errors.donorEmail = "Enter a valid email address.";
-  } else if (details.consentToUpdates && !email) {
-    errors.donorEmail =
-      "Enter an email to express an updates preference in this prototype.";
+  }
+  if (details.donorPassword.length < 6) {
+    errors.donorPassword = "Use at least 6 characters for this prototype.";
+  }
+  if (details.profileMode === "new") {
+    const nickname = details.donorNickname.trim();
+    if (!nickname) {
+      errors.donorNickname = "Choose a nickname for your donor profile.";
+    } else if (nickname.length > 40) {
+      errors.donorNickname = "Keep the nickname to 40 characters or fewer.";
+    }
   }
   return errors;
 }
@@ -110,17 +147,18 @@ export function DonatePage() {
   const detailsStartedTracked = useRef(false);
   const causeTouched = useRef(false);
   const flowPanelRef = useRef<HTMLDivElement>(null);
-  const hasRenderedStep = useRef(false);
+  const previousStep = useRef<FormStep>(step);
 
   const amountHkd = Number(amountInput);
   const selectedCauseLabel =
     causeChoices.find((choice) => choice.causeId === causeId)?.label ??
     "Love 21";
-  const displayedImpact = result?.impact ?? preview;
   const impactMessage = useMemo(
     () => getDonationImpactMessage(preview),
     [preview],
   );
+  const donorDisplayName =
+    details.donorNickname.trim() || details.donorName.trim();
 
   useEffect(() => {
     if (!pageViewTracked.current) {
@@ -130,10 +168,9 @@ export function DonatePage() {
   }, []);
 
   useEffect(() => {
-    if (hasRenderedStep.current) {
+    if (previousStep.current !== step) {
       flowPanelRef.current?.focus();
-    } else {
-      hasRenderedStep.current = true;
+      previousStep.current = step;
     }
   }, [step]);
 
@@ -239,7 +276,7 @@ export function DonatePage() {
     });
   }
 
-  function continueToDetails() {
+  function continueToReview() {
     if (!isValidAmount(amountHkd)) {
       setAmountError(
         "Enter a whole HKD amount between HK$10 and HK$1,000,000.",
@@ -247,6 +284,9 @@ export function DonatePage() {
       return;
     }
     setAmountError(undefined);
+    const errors = validateDetails(details);
+    setDetailsErrors(errors);
+    if (Object.keys(errors).length > 0) return;
     if (!detailsStartedTracked.current) {
       detailsStartedTracked.current = true;
       trackDonationEvent("donation_details_started", {
@@ -255,13 +295,6 @@ export function DonatePage() {
         impact_mode: preview?.mode,
       });
     }
-    setStep("details");
-  }
-
-  function continueToReview() {
-    const errors = validateDetails(details);
-    setDetailsErrors(errors);
-    if (Object.keys(errors).length > 0) return;
     setStep("review");
   }
 
@@ -279,11 +312,12 @@ export function DonatePage() {
         cause_id: causeId,
         amount_hkd: amountHkd,
         anonymous: details.anonymous,
-        donor_name: details.donorName.trim() || null,
-        donor_email: details.donorEmail.trim() || null,
-        consent_to_updates: details.consentToUpdates,
+        donor_name: details.anonymous ? null : donorDisplayName || null,
+        donor_email: details.anonymous ? null : details.donorEmail.trim() || null,
+        consent_to_updates: details.anonymous ? false : details.consentToUpdates,
       });
       setResult(nextResult);
+      setDetails((current) => ({ ...current, donorPassword: "" }));
       setStep("success");
       trackDonationEvent("donation_success_displayed", {
         cause_id: nextResult.impact.cause_id,
@@ -306,196 +340,151 @@ export function DonatePage() {
   }
 
   return (
-    <>
-      <PageHero
-        eyebrow="Meaningful giving"
-        title="What kind of opportunity would you like to create?"
-        body="Choose a direction and see how your gift could become another chance to move, grow, connect and shine."
-        tone="yellow"
-      />
-
-      <section className="section donation-experience-section">
-        <div className="shell">
-          <ol className="donation-steps" aria-label="Donation progress">
-            {stepLabels.map((item, index) => {
-              const currentIndex = stepLabels.findIndex(
-                (candidate) => candidate.id === step,
-              );
-              return (
-                <li
-                  key={item.id}
-                  className={
-                    index === currentIndex
-                      ? "current"
-                      : index < currentIndex
-                        ? "complete"
-                        : ""
-                  }
-                  aria-current={index === currentIndex ? "step" : undefined}
-                >
-                  <span>{index + 1}</span>
-                  {item.label}
-                </li>
-              );
-            })}
-          </ol>
-
-          <div className="donation-workspace">
-            <div
-              className="donation-flow-card"
-              ref={flowPanelRef}
-              tabIndex={-1}
-              onFocusCapture={() => trackFormStarted("donation")}
-            >
-              <div className="simulation-banner" role="note">
-                Hackathon simulation — no payment is taken and no personal
-                information is stored.
-              </div>
-
-              {optionsNotice && (
-                <div className="form-alert form-notice" role="status">
-                  {optionsNotice}
+    <div className="donate-a-page">
+      <div className="donate-a-content">
+        <div className="donate-a-main">
+          <article className="donate-a-transparency" aria-labelledby="donation-transparency-title">
+            <p className="donor-community-eyebrow">Jan–Jun 2026 · independently reviewed</p>
+            <h1 id="donation-transparency-title">HK$3.28m received.<br />HK$2.91m put to work.</h1>
+            <p>The remaining HK$370k is committed to programmes already scheduled for August–October.</p>
+            <div className="donate-a-allocation">
+              {transparencyRows.map((item) => (
+                <div className="donate-a-allocation-row" key={item.label}>
+                  <div><strong>{item.label}</strong><strong>{item.percentage}%</strong></div>
+                  <i aria-hidden="true"><b style={{ width: `${item.percentage}%` }} /></i>
+                  <p>{item.detail}</p>
                 </div>
-              )}
+              ))}
+            </div>
+            <div className="donate-a-evidence"><strong>Evidence, not estimates:</strong> attendance logs, coach records and 90-day employment follow-ups support these figures. <a href="/resources">Read the impact note</a>.</div>
+          </article>
 
-              {step === "donation" && (
-                <>
-                  <div className="form-heading">
-                    <p>Step 1 of 3</p>
-                    <h2>Choose the possibility</h2>
-                  </div>
-                  <CauseSelector
-                    choices={causeChoices}
-                    value={causeId}
-                    onChange={selectCause}
-                  />
-                  <AmountSelector
-                    presets={presets}
-                    amount={amountInput}
-                    error={amountError}
-                    onPreset={selectPreset}
-                    onChange={(value) => {
-                      setAmountInput(value);
-                      setAmountError(undefined);
-                    }}
-                    onCustomAmountConfirmed={confirmCustomAmount}
-                  />
-                  <button
-                    className="button button-dark button-full"
-                    type="button"
-                    onClick={continueToDetails}
-                  >
-                    Continue to your details
-                  </button>
-                </>
-              )}
-
-              {step === "details" && (
-                <>
-                  <div className="form-heading">
-                    <p>Step 2 of 3</p>
-                    <h2>Tell us how to thank you</h2>
-                  </div>
-                  <DonorDetailsForm
-                    value={details}
-                    errors={detailsErrors}
-                    onChange={(nextDetails) => {
-                      setDetails(nextDetails);
-                      setDetailsErrors({});
-                    }}
-                  />
-                  <div className="button-row">
-                    <button
-                      className="button button-outline"
-                      type="button"
-                      onClick={() => setStep("donation")}
+          <section
+            className="donation-flow-card donate-a-flow-card"
+            ref={flowPanelRef}
+            tabIndex={-1}
+            onFocusCapture={() => trackFormStarted("donation")}
+            aria-label="Donation flow"
+          >
+            <div className="donate-a-flow-topline">
+              <p className="donor-community-eyebrow">Your donation</p>
+              <ol className="donation-steps" aria-label="Donation progress">
+                {stepLabels.map((item, index) => {
+                  const currentIndex = stepLabels.findIndex(
+                    (candidate) => candidate.id === step,
+                  );
+                  return (
+                    <li
+                      key={item.id}
+                      className={index === currentIndex ? "current" : index < currentIndex ? "complete" : ""}
+                      aria-current={index === currentIndex ? "step" : undefined}
                     >
-                      Back
-                    </button>
-                    <button
-                      className="button button-dark"
-                      type="button"
-                      onClick={continueToReview}
-                    >
-                      Review your intention
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {step === "review" && (
-                <>
-                  <div className="form-heading">
-                    <p>Step 3 of 3</p>
-                    <h2>Review your prototype donation</h2>
-                  </div>
-                  {submitError && (
-                    <div className="form-alert" role="alert">
-                      {submitError}
-                    </div>
-                  )}
-                  <DonationReview
-                    amountHkd={amountHkd}
-                    causeLabel={selectedCauseLabel}
-                    donorName={details.donorName}
-                    anonymous={details.anonymous}
-                    impactMessage={impactMessage}
-                  />
-                  <p className="form-footnote review-footnote">
-                    This confirms a prototype intention only. No money will be
-                    charged.
-                  </p>
-                  <div className="button-row">
-                    <button
-                      className="button button-outline"
-                      type="button"
-                      onClick={() => setStep("details")}
-                      disabled={isSubmitting}
-                    >
-                      Back
-                    </button>
-                    <button
-                      className="button button-dark"
-                      type="button"
-                      onClick={submitDonationIntent}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting
-                        ? "Confirming…"
-                        : `Confirm prototype donation of HK$${amountHkd.toLocaleString("en-HK")}`}
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {step === "success" && result && (
-                <DonationSuccess
-                  result={result}
-                  donorName={details.donorName}
-                  anonymous={details.anonymous}
-                  onStayInvolved={() =>
-                    trackDonationEvent("stay_involved_clicked", {
-                      cause_id: result.impact.cause_id,
-                      amount_bucket: getAmountBucket(
-                        result.impact.amount_hkd,
-                      ),
-                      impact_mode: result.impact.mode,
-                    })
-                  }
-                />
-              )}
+                      <span>{index + 1}</span>{item.label}
+                    </li>
+                  );
+                })}
+              </ol>
             </div>
 
-            <aside className="donation-impact-column">
-              <ImpactCard
-                amountHkd={result?.impact.amount_hkd ?? amountHkd}
-                impact={displayedImpact}
-                status={result ? "success" : previewStatus}
+            <div className="simulation-banner" role="note">
+              Hackathon simulation — no payment is taken and no personal information is stored.
+            </div>
+
+            {optionsNotice && <div className="form-alert form-notice" role="status">{optionsNotice}</div>}
+
+            {step === "donation" && (
+              <>
+                <div className="form-heading">
+                  <p>Step 1 of 3</p>
+                  <h2 id="donation-flow-title">How would you like to give?</h2>
+                </div>
+                <DonorDetailsForm
+                  value={details}
+                  errors={detailsErrors}
+                  onChange={(nextDetails) => {
+                    setDetails(nextDetails);
+                    setDetailsErrors({});
+                  }}
+                />
+
+                <hr className="donate-a-divider" />
+                <CauseSelector choices={causeChoices} value={causeId} onChange={selectCause} />
+                <AmountSelector
+                  presets={presets}
+                  amount={amountInput}
+                  error={amountError}
+                  onPreset={selectPreset}
+                  onChange={(value) => {
+                    setAmountInput(value);
+                    setAmountError(undefined);
+                  }}
+                  onCustomAmountConfirmed={confirmCustomAmount}
+                />
+                <div className="donate-a-impact-preview">
+                  <ImpactCard amountHkd={amountHkd} impact={preview} status={previewStatus} />
+                </div>
+                <button className="button button-dark button-full" type="button" onClick={continueToReview}>
+                  Review & continue to secure payment
+                </button>
+                <p className="form-footnote">Secure payment · Receipt by email · You can change your mind before confirming</p>
+              </>
+            )}
+
+            {step === "review" && (
+              <>
+                <div className="form-heading">
+                  <p>Step 2 of 3</p>
+                  <h2 id="donation-flow-title">Review your prototype donation</h2>
+                </div>
+                {submitError && <div className="form-alert" role="alert">{submitError}</div>}
+                <DonationReview
+                  amountHkd={amountHkd}
+                  causeLabel={selectedCauseLabel}
+                  donorName={donorDisplayName}
+                  anonymous={details.anonymous}
+                  impactMessage={impactMessage}
+                />
+                <div className="donate-a-impact-preview donate-a-impact-after">
+                  <ImpactCard amountHkd={amountHkd} impact={preview} status={previewStatus} />
+                </div>
+                <p className="form-footnote review-footnote">This confirms a prototype intention only. No money will be charged.</p>
+                <div className="button-row">
+                  <button className="button button-outline" type="button" onClick={() => setStep("donation")} disabled={isSubmitting}>Back</button>
+                  <button className="button button-dark" type="button" onClick={submitDonationIntent} disabled={isSubmitting}>
+                    {isSubmitting ? "Confirming…" : `Confirm prototype donation of HK$${amountHkd.toLocaleString("en-HK")}`}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {step === "success" && result && (
+              <DonationSuccess
+                result={result}
+                donorName={donorDisplayName}
+                donorEmail={details.donorEmail}
+                anonymous={details.anonymous}
+                onStayInvolved={() => trackDonationEvent("stay_involved_clicked", {
+                  cause_id: result.impact.cause_id,
+                  amount_bucket: getAmountBucket(result.impact.amount_hkd),
+                  impact_mode: result.impact.mode,
+                })}
               />
-            </aside>
-          </div>
+            )}
+          </section>
         </div>
-      </section>
-    </>
+
+        <aside className="donate-a-promise">
+          <p className="donor-community-eyebrow">Our promise</p>
+          <h2>Traceable from gift to outcome.</h2>
+          <div><strong>Quarterly</strong><span>Updates on where your selected fund was used.</span></div>
+          <div><strong>Specific</strong><span>Photos, programme records and real changes, with consent.</span></div>
+          <div><strong>Human</strong><span>A person reviews every donor-wall message.</span></div>
+          <div className="donate-a-promise-actions">
+            <Link className="donor-community-button" to="/community">← Our community</Link>
+            <Link className="donor-community-button donor-community-button-primary" to="/donor-profile">My donor profile</Link>
+          </div>
+        </aside>
+      </div>
+    </div>
   );
 }

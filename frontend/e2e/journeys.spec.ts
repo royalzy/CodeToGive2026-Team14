@@ -60,7 +60,7 @@ test("visitor can complete the donation simulation", async ({ page }) => {
 
   await expect(
     page.getByRole("heading", {
-      name: /What kind of opportunity would you like to create/i,
+      name: /HK\$3.28m received/i,
     }),
   ).toBeVisible();
   await expect(page.getByText(/Hackathon simulation/i)).toBeVisible();
@@ -72,13 +72,13 @@ test("visitor can complete the donation simulation", async ({ page }) => {
       name: /Four more chances to move, learn, and shine/i,
     }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Continue to your details" })
-    .click();
+  await page.getByLabel(/Create a donor profile/i).check();
+  await page.getByLabel("Unique nickname").fill("Alex Chan");
   await page.getByLabel("Name (optional)").fill("Alex Chan");
-  await page.getByLabel("Email (optional)").fill("alex@example.com");
-  await page.getByRole("button", { name: "Review your intention" }).click();
-  await expect(page.getByText("Discover a Talent")).toBeVisible();
+  await page.getByLabel("Email", { exact: true }).fill("alex@example.com");
+  await page.getByLabel("Password").fill("private-demo");
+  await page.getByRole("button", { name: "Review & continue to secure payment" }).click();
+  await expect(page.getByRole("heading", { name: "Review your prototype donation" })).toBeVisible();
   await page
     .getByRole("button", {
       name: "Confirm prototype donation of HK$600",
@@ -89,8 +89,8 @@ test("visitor can complete the donation simulation", async ({ page }) => {
     page.getByRole("heading", { name: "Thank you, Alex Chan." }),
   ).toBeVisible();
   await expect(page.getByText(/no money was charged/i)).toBeVisible();
-  await page.getByRole("link", { name: "Stay part of the journey" }).click();
-  await expect(page).toHaveURL(/\/impact$/);
+  await page.getByRole("link", { name: "Visit our community" }).click();
+  await expect(page).toHaveURL(/\/community$/);
 });
 
 test("donation impact journey remains usable on mobile", async ({ page }) => {
@@ -105,11 +105,12 @@ test("donation impact journey remains usable on mobile", async ({ page }) => {
     }),
   ).toBeVisible();
   await expect(page.getByText(/Demonstration estimates/i)).toBeVisible();
+  await page.getByLabel(/Give completely anonymously/i).check();
   await page
-    .getByRole("button", { name: "Continue to your details" })
+    .getByRole("button", { name: "Review & continue to secure payment" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Tell us how to thank you" }),
+    page.getByRole("heading", { name: "Review your prototype donation" }),
   ).toBeVisible();
 });
 

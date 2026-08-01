@@ -109,10 +109,12 @@ describe("client-side analytics events", () => {
     await user.click(screen.getByLabelText("Discover a Talent"));
     await user.click(screen.getByRole("button", { name: "HK$600" }));
     await user.click(
-      screen.getByRole("button", { name: "Continue to your details" }),
+      screen.getByLabelText(/Give completely anonymously/i),
     );
     await user.click(
-      screen.getByRole("button", { name: "Review your intention" }),
+      screen.getByRole("button", {
+        name: "Review & continue to secure payment",
+      }),
     );
     await user.click(
       screen.getByRole("button", {

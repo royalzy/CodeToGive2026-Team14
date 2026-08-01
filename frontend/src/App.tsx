@@ -2,8 +2,10 @@ import { Route, Routes } from "react-router-dom";
 
 import { Layout } from "./components/Layout";
 import { AdminPage } from "./pages/AdminPage";
+import { CommunityPage } from "./pages/CommunityPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DonatePage } from "./pages/DonatePage";
+import { DonorProfilePage } from "./pages/DonorProfilePage";
 import { HelpPage } from "./pages/HelpPage";
 import { HomePage } from "./pages/HomePage";
 import { ImpactPage } from "./pages/ImpactPage";
@@ -27,6 +29,7 @@ export function App() {
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
         <Route path="impact" element={<ImpactPage />} />
+        <Route path="community" element={<CommunityPage />} />
         <Route path="volunteer" element={<VolunteerPage />} />
         <Route path="volunteer/match" element={<VolunteerMatchPage />} />
         <Route path="volunteer/roles" element={<VolunteerRolesPage />} />
@@ -35,6 +38,7 @@ export function App() {
         <Route path="volunteer/apply" element={<VolunteerApplicationPage />} />
         <Route path="volunteer/confirmed" element={<VolunteerConfirmedPage />} />
         <Route path="donate" element={<DonatePage />} />
+        <Route path="donor-profile" element={<DonorProfilePage />} />
         <Route path="help" element={<HelpPage />} />
         <Route path="resources" element={<ResourcesPage />} />
         <Route path="partners" element={<PartnersPage />} />
