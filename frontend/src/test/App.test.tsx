@@ -30,7 +30,7 @@ describe("route backbone", () => {
     ["/impact", "Not what we provide."],
     ["/community", "People making this possible."],
     ["/volunteer", "Your first step can be a small one."],
-    ["/donate", "Know where your care goes."],
+    ["/donate", "received"],
     ["/donor-profile", "Your impact, kept honest."],
     ["/help", "Support for families and carers"],
     ["/resources", "Learning for belonging"],

@@ -34,7 +34,6 @@ import {
   donationPrograms,
   getDonationImpactMessage,
 } from "../content/donations";
-import { usePretextLayout } from "../lib/usePretextLayout";
 
 type FormStep = "donation" | "review" | "success";
 
@@ -148,9 +147,6 @@ export function DonatePage() {
   const causeTouched = useRef(false);
   const flowPanelRef = useRef<HTMLDivElement>(null);
   const hasRenderedStep = useRef(false);
-  const pageTitleRef = usePretextLayout<HTMLHeadingElement>(
-    "Know where your care goes.",
-  );
 
   const amountHkd = Number(amountInput);
   const selectedCauseLabel =
@@ -342,17 +338,11 @@ export function DonatePage() {
 
   return (
     <div className="donate-a-page">
-      <header className="donate-a-pagehead">
-        <p className="donor-community-eyebrow">Transparent by design</p>
-        <h1 ref={pageTitleRef}>Know where your care goes.</h1>
-        <p>We show what has come in, where it has gone, and what changed for the people we serve. Then you choose what your gift supports.</p>
-      </header>
-
       <div className="donate-a-content">
         <div className="donate-a-main">
           <article className="donate-a-transparency" aria-labelledby="donation-transparency-title">
             <p className="donor-community-eyebrow">Jan–Jun 2026 · independently reviewed</p>
-            <h2 id="donation-transparency-title">HK$3.28m received.<br />HK$2.91m put to work.</h2>
+            <h1 id="donation-transparency-title">HK$3.28m received.<br />HK$2.91m put to work.</h1>
             <p>The remaining HK$370k is committed to programmes already scheduled for August–October.</p>
             <div className="donate-a-allocation">
               {transparencyRows.map((item) => (

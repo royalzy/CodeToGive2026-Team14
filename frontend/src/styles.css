@@ -3471,18 +3471,16 @@ h3 {
   background: var(--donor-cream);
 }
 
-.donate-a-pagehead,
 .donate-a-content {
   width: min(1160px, calc(100% - 3rem));
   margin-inline: auto;
 }
 
-.donate-a-pagehead {
-  padding: clamp(4rem, 8vw, 6.5rem) 0 clamp(2.8rem, 6vw, 4.5rem);
+.donate-a-content {
+  padding-top: clamp(3rem, 6vw, 5rem);
 }
 
-.donate-a-pagehead h1,
-.donate-a-transparency h2,
+.donate-a-transparency h1,
 .donate-a-promise h2,
 .donate-a-flow-card h2,
 .donate-a-flow-card .fieldset legend,
@@ -3490,22 +3488,6 @@ h3 {
 .donate-a-flow-card .donation-wall-invitation h3 {
   font-family: var(--donor-serif);
   font-weight: 500;
-}
-
-.donate-a-pagehead h1 {
-  min-height: var(--pretext-height, auto);
-  max-width: 760px;
-  margin: 0;
-  font-size: clamp(3.2rem, 5.3vw, 4.85rem);
-  line-height: 0.98;
-  letter-spacing: -0.05em;
-}
-
-.donate-a-pagehead > p:last-child {
-  max-width: 700px;
-  margin: 1.3rem 0 0;
-  color: var(--donor-muted);
-  font-size: 1.08rem;
 }
 
 .donate-a-content {
@@ -3536,7 +3518,7 @@ h3 {
   color: var(--donor-apricot);
 }
 
-.donate-a-transparency h2 {
+.donate-a-transparency h1 {
   max-width: 620px;
   margin: 0;
   font-size: clamp(2.35rem, 4vw, 3.25rem);
@@ -3946,17 +3928,8 @@ h3 {
 }
 
 @media (max-width: 620px) {
-  .donate-a-pagehead,
   .donate-a-content {
     width: calc(100% - 2rem);
-  }
-
-  .donate-a-pagehead {
-    padding-top: 3rem;
-  }
-
-  .donate-a-pagehead h1 {
-    font-size: clamp(2.8rem, 12vw, 3.4rem);
   }
 
   .donate-a-transparency,
@@ -3966,7 +3939,7 @@ h3 {
     border-radius: 1.3rem;
   }
 
-  .donate-a-transparency h2 {
+  .donate-a-transparency h1 {
     font-size: 2.25rem;
   }
 
