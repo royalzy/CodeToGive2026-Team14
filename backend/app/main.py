@@ -5,6 +5,7 @@ from app.api.routes.bookings import router as bookings_router
 from app.api.routes.donations import router as donations_router
 from app.api.routes.health import router as health_router
 from app.api.routes.questionnaire import router as questionnaire_router
+from app.api.routes.social import router as social_router
 from app.api.routes.volunteers import router as volunteers_router
 from app.core.config import settings
 
@@ -31,4 +32,4 @@ app.include_router(volunteers_router, prefix="/api/v1")
 app.include_router(donations_router, prefix="/api/v1")
 app.include_router(bookings_router, prefix="/api/v1")
 app.include_router(questionnaire_router, prefix="/api/v1")
-
+app.include_router(social_router, prefix="/api/v1")

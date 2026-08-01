@@ -1,17 +1,12 @@
 import { PageHero, SectionHeading } from "../components/Cards";
 import { analyticsDashboardUrl } from "../analytics/umami";
+import { SocialComposer } from "../components/admin/SocialComposer";
 
 const adminMetrics = [
   { value: "1,234", label: "visitors this month", accent: "blue" as const },
   { value: "45", label: "volunteer sign-ups", accent: "red" as const },
   { value: "23", label: "donation intents", accent: "yellow" as const },
   { value: "8", label: "social posts scheduled", accent: "teal" as const },
-];
-
-const scheduledPosts = [
-  { date: "10 Aug 2025", platform: "Facebook", content: "Crystal completed her 50th dance session! 🎉 #SoMuchAbility" },
-  { date: "12 Aug 2025", platform: "LinkedIn", content: "Join our community performance showcase. 60+ members on stage." },
-  { date: "15 Aug 2025", platform: "Instagram", content: "Behind the scenes: nutrition workshop with Chef Ka Wai 👨‍🍳" },
 ];
 
 export function AdminPage() {
@@ -38,20 +33,16 @@ export function AdminPage() {
       </section>
 
       <section className="section section-soft">
-        <div className="shell">
+        <div className="shell admin-social">
           <SectionHeading
-            eyebrow="Automation preview"
-            title="Scheduled social posts"
-            body="In a live service, achievements and events would be automatically drafted for review and posting."
+            eyebrow="Social media"
+            title="Create a post"
+            body={
+              // \u00A0 keeps "at once." together if this ever wraps on a narrow screen
+              "Upload an image, write a caption and publish to Instagram and Facebook Page at once."
+            }
           />
-          <div className="help-grid">
-            {scheduledPosts.map((post) => (
-              <article key={post.content} className="support-card">
-                <p className="eyebrow">{post.date} · {post.platform}</p>
-                <p>{post.content}</p>
-              </article>
-            ))}
-          </div>
+          <SocialComposer />
         </div>
       </section>
 
