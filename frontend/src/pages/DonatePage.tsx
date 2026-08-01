@@ -8,6 +8,7 @@ import {
   createDonationIntent,
   type DonationIntentResult,
 } from "../api/client";
+import { track } from "../analytics/umami";
 import {
   AllocationBar,
   PageHero,
@@ -80,6 +81,7 @@ export function DonatePage() {
           email: data.email || null,
         }),
       );
+      track("donation_intent", { program: data.program, amount: data.amount });
     } catch (error) {
       setSubmitError(
         error instanceof Error

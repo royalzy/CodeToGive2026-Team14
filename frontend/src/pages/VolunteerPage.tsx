@@ -8,6 +8,7 @@ import {
   submitVolunteerApplication,
   type VolunteerApplicationResult,
 } from "../api/client";
+import { track } from "../analytics/umami";
 import { OpportunityCard, PageHero, SectionHeading, StatusPanel } from "../components/Cards";
 import { ChoiceCard, Field } from "../components/FormControls";
 import { useLanguage } from "../hooks/useLanguage";
@@ -52,6 +53,10 @@ export function VolunteerPage() {
     setSubmitError(null);
     try {
       setResult(await submitVolunteerApplication(data));
+      track("volunteer_application", {
+        interests: data.interests,
+        availability: data.availability,
+      });
     } catch (error) {
       setSubmitError(
         error instanceof Error
