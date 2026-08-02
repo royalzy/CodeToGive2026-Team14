@@ -1,3 +1,6 @@
+import asyncio
+from contextlib import asynccontextmanager, suppress
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,8 +15,29 @@ from app.api.routes.schedule import router as schedule_router
 from app.api.routes.social import router as social_router
 from app.api.routes.volunteers import router as volunteers_router
 from app.core.config import settings
+from app.services.autopost import run_scheduler
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """Run the scheduled-post publisher alongside the API.
+
+    Website-only posts that have reached their time are published here. The
+    task is cancelled cleanly on shutdown so reloads do not leave it running.
+    """
+    stop = asyncio.Event()
+    task = asyncio.create_task(run_scheduler(stop))
+    try:
+        yield
+    finally:
+        stop.set()
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task
+
 
 app = FastAPI(
+    lifespan=lifespan,
     title=settings.app_name,
     version="0.1.0",
     description=(

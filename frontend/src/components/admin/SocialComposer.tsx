@@ -191,7 +191,9 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
     instagram: "",
     facebook: "",
   });
-  const [selected, setSelected] = useState<PlatformId[]>(["website", "instagram", "facebook"]);
+  // Nothing pre-selected: choosing where a post goes should be a deliberate
+  // act, not something the form assumes from whether an image was attached.
+  const [selected, setSelected] = useState<PlatformId[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<SocialPostResult[] | null>(null);
@@ -243,17 +245,9 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
           `Skipped ${rejected.length} file(s): use JPEG, PNG or WebP under 10MB.`,
         );
       }
-      const next = [...current, ...accepted.slice(0, room)];
-      if (next.length > 0) {
-        // Re-enable the image-only platforms that were dropped when the
-        // selection was cleared, keeping the listed order.
-        setSelected((sel) =>
-          PLATFORMS.map((p) => p.id).filter(
-            (id) => sel.includes(id) || NEEDS_IMAGE.includes(id),
-          ),
-        );
-      }
-      return next;
+      // Attaching an image only enables the image-only platforms; it does not
+      // tick them. The choice stays with the admin.
+      return [...current, ...accepted.slice(0, room)];
     });
 
     // Allow re-picking the same file after removing it.
@@ -285,7 +279,7 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
     setSplitCaptions(false);
     setResults(null);
     setError(null);
-    setSelected(["website", "instagram", "facebook"]);
+    setSelected([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 

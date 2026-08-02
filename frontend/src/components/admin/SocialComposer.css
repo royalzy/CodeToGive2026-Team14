@@ -299,3 +299,23 @@
   font-weight: 600;
 }
 
+
+.pending-auto,
+.pending-manual {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.pending-auto {
+  background: rgb(31 122 90 / 12%);
+  color: #1f7a5a;
+}
+
+.pending-manual {
+  background: rgb(23 49 59 / 8%);
+  color: var(--muted);
+}
