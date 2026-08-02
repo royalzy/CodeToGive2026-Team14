@@ -9,7 +9,7 @@ import {
   type VolunteerApplication,
 } from "../api/client";
 import { track, trackFormStarted } from "../analytics/umami";
-import { PageHero, StatusPanel } from "../components/Cards";
+import { StatusPanel } from "../components/Cards";
 import { ChoiceCard, Field } from "../components/FormControls";
 import {
   getVolunteerRole,
