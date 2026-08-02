@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Link, useSearchParams, useParams } from "react-router-dom";
+import { Check, X } from "lucide-react";
 
 import { PageHero, StatusPanel } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
@@ -70,20 +71,36 @@ export function VolunteerRolePage() {
             <p className="eyebrow">The contribution</p>
             <h2>What your presence makes possible</h2>
             <p className="large-copy">{role.contribution}</p>
+            <div className="role-detail-cta">
+              <a className="button button-dark" href="#demo-session">
+                Try a demo session <span aria-hidden="true">↓</span>
+              </a>
+              <span className="role-detail-cta-hint">
+                {sessions.length
+                  ? "Two hours, fully supported — see what to expect below."
+                  : "Tell us you're interested and we'll set one up."}
+              </span>
+            </div>
             <div className="role-expectation-grid">
-              <div>
+              <div className="role-expectation-do">
                 <h3>You may do</h3>
-                <ul>
+                <ul className="role-expectation-list">
                   {role.tasks.map((task) => (
-                    <li key={task}>{task}</li>
+                    <li key={task}>
+                      <Check aria-hidden="true" size={18} />
+                      {task}
+                    </li>
                   ))}
                 </ul>
               </div>
-              <div>
-                <h3>You are not expected to</h3>
-                <ul>
+              <div className="role-expectation-dont">
+                <h3>Not expected of you</h3>
+                <ul className="role-expectation-list">
                   {role.boundaries.map((boundary) => (
-                    <li key={boundary}>{boundary}</li>
+                    <li key={boundary}>
+                      <X aria-hidden="true" size={18} />
+                      {boundary}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -105,12 +122,15 @@ export function VolunteerRolePage() {
                 <dd>{role.interactionLevel}</dd>
               </div>
             </dl>
-            <h3>Love 21 would provide</h3>
+            <h3>Love 21 provides</h3>
             <ul>
               {role.support.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
+            <a className="button button-light role-sidebar-cta" href="#demo-session">
+              Try a demo session
+            </a>
           </aside>
         </div>
       </section>
@@ -146,7 +166,7 @@ export function VolunteerRolePage() {
         </div>
       </section>
 
-      <section className="section volunteer-role-next-section">
+      <section id="demo-session" className="section volunteer-role-next-section">
         <div className="shell">
           <div className="volunteer-role-next-heading">
             <div>

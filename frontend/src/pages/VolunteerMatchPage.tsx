@@ -86,12 +86,14 @@ export function VolunteerMatchPage() {
         <div className="shell volunteer-quiz-shell">
           {resultLetter ? (
             <QuizResultView
+              key="result"
               letter={resultLetter}
               arrivedViaSharedLink={arrivedViaSharedLink}
               onRetake={retakeQuiz}
             />
           ) : started ? (
             <QuizQuestionView
+              key={currentQuestionIndex}
               question={currentQuestion}
               index={currentQuestionIndex}
               total={quizQuestions.length}
@@ -101,7 +103,7 @@ export function VolunteerMatchPage() {
               onBack={goBack}
             />
           ) : (
-            <QuizIntroView onStart={beginQuiz} />
+            <QuizIntroView key="intro" onStart={beginQuiz} />
           )}
         </div>
       </section>
@@ -129,7 +131,7 @@ export function VolunteerMatchPage() {
 
 function QuizIntroView({ onStart }: { onStart: () => void }) {
   return (
-    <div className="volunteer-quiz-card volunteer-quiz-intro">
+    <div className="volunteer-quiz-card volunteer-quiz-intro volunteer-quiz-card-enter">
       <img
         className="volunteer-quiz-banner"
         src="/images/quiz-question-banner.jpg"
@@ -174,6 +176,14 @@ function QuizQuestionView({
   onSelect: (letter: QuizLetter) => void;
   onBack: () => void;
 }) {
+  const [selected, setSelected] = useState<QuizLetter | null>(null);
+
+  function handleSelect(letter: QuizLetter) {
+    if (selected) return;
+    setSelected(letter);
+    window.setTimeout(() => onSelect(letter), 380);
+  }
+
   return (
     <div className="volunteer-quiz-card">
       <img
@@ -197,30 +207,48 @@ function QuizQuestionView({
         >
           <div className="volunteer-quiz-progress-fill" style={{ width: `${progress}%` }} />
         </div>
-        <p className="volunteer-quiz-step">
-          Question {index + 1} of {total}
-        </p>
-        <h2 className="volunteer-quiz-prompt">{question.prompt}</h2>
-        <div className="volunteer-quiz-options">
-          {question.options.map((option) => (
+        <div className="volunteer-quiz-question-enter">
+          <p className="volunteer-quiz-step">
+            Question {index + 1} of {total}
+          </p>
+          <h2 className="volunteer-quiz-prompt">{question.prompt}</h2>
+          <div
+            className={`volunteer-quiz-options${selected ? " volunteer-quiz-options-locked" : ""}`}
+          >
+            {question.options.map((option, optionIndex) => {
+              const isSelected = selected === option.letter;
+              const isDimmed = Boolean(selected) && !isSelected;
+              return (
+                <button
+                  key={option.letter}
+                  type="button"
+                  className={`volunteer-quiz-option${isSelected ? " volunteer-quiz-option-selected" : ""}${isDimmed ? " volunteer-quiz-option-dimmed" : ""}`}
+                  style={{ animationDelay: `${optionIndex * 60}ms` }}
+                  disabled={Boolean(selected)}
+                  onClick={() => handleSelect(option.letter)}
+                >
+                  <span className="volunteer-quiz-option-letter" aria-hidden="true">
+                    {option.letter}
+                  </span>
+                  <span>{option.text}</span>
+                  <span className="volunteer-quiz-option-check" aria-hidden="true">
+                    ✓
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          {canGoBack && (
             <button
-              key={option.letter}
               type="button"
-              className="volunteer-quiz-option"
-              onClick={() => onSelect(option.letter)}
+              className="text-link volunteer-quiz-back"
+              onClick={onBack}
+              disabled={Boolean(selected)}
             >
-              <span className="volunteer-quiz-option-letter" aria-hidden="true">
-                {option.letter}
-              </span>
-              <span>{option.text}</span>
+              <span aria-hidden="true">←</span> Back to previous question
             </button>
-          ))}
+          )}
         </div>
-        {canGoBack && (
-          <button type="button" className="text-link volunteer-quiz-back" onClick={onBack}>
-            <span aria-hidden="true">←</span> Back to previous question
-          </button>
-        )}
       </div>
     </div>
   );
@@ -244,8 +272,16 @@ function QuizResultView({
   const relatedPrograms = Array.from(new Set(matchedRoles.map((role) => role.programSlug)));
 
   return (
-    <div className="volunteer-quiz-result">
+    <div className="volunteer-quiz-result volunteer-quiz-card-enter">
       <div className="volunteer-quiz-result-hero">
+        <span className="volunteer-quiz-confetti" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+          <span />
+          <span />
+          <span />
+        </span>
         {arrivedViaSharedLink && (
           <p className="volunteer-quiz-shared-banner">
             A friend shared their result with you — take the quiz to find yours!
@@ -265,26 +301,37 @@ function QuizResultView({
         <h2 className="volunteer-quiz-archetype">{result.archetype}</h2>
         <p className="volunteer-quiz-title-tag">You are a &ldquo;{result.title}&rdquo;</p>
         <p className="volunteer-quiz-personality">{result.personality}</p>
+        <button
+          type="button"
+          className="button button-outline volunteer-quiz-share-button"
+          onClick={() => setIsShareOpen(true)}
+        >
+          <span aria-hidden="true">↗</span> Share my result
+        </button>
       </div>
 
       <div className="volunteer-quiz-result-body">
+        <div className="volunteer-quiz-special">
+          <p className="eyebrow">What makes you special</p>
+          <p>{result.whatMakesYouSpecial}</p>
+        </div>
+
         <h3>Your perfect volunteer match</h3>
         <div className="volunteer-quiz-match-grid">
-          {result.matches.map((match) => {
+          {result.matches.map((match, matchIndex) => {
             const role = getVolunteerRole(match.roleId);
             if (!role) return null;
             return (
-              <div key={match.roleId} className="volunteer-quiz-match-item">
+              <div
+                key={match.roleId}
+                className="volunteer-quiz-match-item"
+                style={{ animationDelay: `${matchIndex * 90}ms` }}
+              >
                 <p className="volunteer-quiz-match-note">{match.note}</p>
                 <VolunteerRoleCard role={role} journeyPath="guided" />
               </div>
             );
           })}
-        </div>
-
-        <div className="volunteer-quiz-special">
-          <p className="eyebrow">What makes you special</p>
-          <p>{result.whatMakesYouSpecial}</p>
         </div>
 
         <div className="volunteer-quiz-cta-row">
@@ -294,13 +341,6 @@ function QuizResultView({
           >
             Explore more related roles
           </Link>
-          <button
-            type="button"
-            className="button button-outline"
-            onClick={() => setIsShareOpen(true)}
-          >
-            Share my result
-          </button>
           <button type="button" className="text-link" onClick={onRetake}>
             Retake the quiz
           </button>
