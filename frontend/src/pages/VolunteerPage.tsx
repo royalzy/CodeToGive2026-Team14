@@ -78,7 +78,7 @@ export function VolunteerPage() {
         </div>
       </section>
 
-      <section className="section volunteer-role-preview-section">
+      <section className="section volunteer-programme-fit-section">
         <div className="shell">
           <SectionHeading
             eyebrow="Five programmes, endless ways to help"

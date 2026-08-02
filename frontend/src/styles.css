@@ -1751,6 +1751,20 @@ h3 {
   background: #f3efe8;
 }
 
+.volunteer-application-section {
+  background: var(--ink);
+  color: white;
+}
+
+.volunteer-application-section .eyebrow {
+  color: var(--yellow);
+}
+
+.volunteer-application-section .form-card,
+.volunteer-application-section .application-selection-card {
+  color: var(--ink);
+}
+
 .form-layout {
   display: grid;
   grid-template-columns: 0.7fr 1.3fr;
@@ -2915,9 +2929,40 @@ h3 {
   border-top: 1px solid var(--ink);
 }
 
+.volunteer-programme-fit-section {
+  background: var(--ink);
+  color: white;
+  border-top: 1px solid var(--ink);
+}
+
+.volunteer-programme-fit-section .eyebrow {
+  color: var(--yellow);
+}
+
+.volunteer-programme-fit-section .section-heading > p:last-child {
+  color: #cbc8d0;
+}
+
 .volunteer-ways-section,
 .volunteer-closing-section {
   border-top: 1px solid var(--ink);
+}
+
+section.volunteer-ways-section {
+  background: var(--ink);
+  color: white;
+}
+
+.volunteer-ways-section .eyebrow {
+  color: var(--yellow);
+}
+
+.volunteer-ways-section .volunteer-other-ways h3 {
+  color: white;
+}
+
+.volunteer-ways-section .volunteer-other-ways-intro {
+  color: #cbc8d0;
 }
 
 .volunteer-program-group {
@@ -2965,7 +3010,7 @@ h3 {
   flex-direction: column;
   gap: 1rem;
   padding: 1.75rem;
-  color: inherit;
+  color: var(--ink);
   text-decoration: none;
   background: white;
   border: 0;
@@ -3368,7 +3413,7 @@ h3 {
 }
 
 .volunteer-testimonial-section {
-  background: #f3efe8;
+  background: var(--yellow);
   border-top: 1px solid var(--ink);
 }
 
@@ -3832,21 +3877,18 @@ h3 {
 }
 
 .volunteer-role-facts,
-.volunteer-session-details,
-.volunteer-role-sidebar dl {
+.volunteer-session-details {
   margin: 1rem 0 2rem;
 }
 
 .volunteer-role-facts div,
-.volunteer-session-details div,
-.volunteer-role-sidebar dl div {
+.volunteer-session-details div {
   padding: 0.8rem 0;
   border-top: 1px solid var(--line);
 }
 
 .volunteer-role-facts dt,
-.volunteer-session-details dt,
-.volunteer-role-sidebar dt {
+.volunteer-session-details dt {
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 900;
@@ -3855,8 +3897,7 @@ h3 {
 }
 
 .volunteer-role-facts dd,
-.volunteer-session-details dd,
-.volunteer-role-sidebar dd {
+.volunteer-session-details dd {
   margin: 0.3rem 0 0;
   line-height: 1.5;
 }
@@ -3904,10 +3945,20 @@ h3 {
 
 .volunteer-quiz-card,
 .volunteer-quiz-result {
+  position: relative;
   overflow: hidden;
   background: white;
   border-radius: 1.5rem;
   box-shadow: var(--shadow);
+}
+
+.volunteer-quiz-skip {
+  position: absolute;
+  right: clamp(1.5rem, 4vw, 3rem);
+  bottom: clamp(1.5rem, 4vw, 3rem);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .volunteer-quiz-card-body {
@@ -3940,6 +3991,7 @@ h3 {
 .volunteer-quiz-step {
   margin-bottom: 0.5rem;
   color: var(--muted);
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
   font-size: 0.85rem;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -3948,7 +4000,6 @@ h3 {
 
 .volunteer-quiz-prompt {
   margin-bottom: 1.75rem;
-  font-family: "Arial Rounded MT Bold", "Trebuchet MS", ui-rounded, system-ui, sans-serif;
   font-size: clamp(1.4rem, 3vw, 1.8rem);
   line-height: 1.3;
 }
@@ -3969,6 +4020,7 @@ h3 {
   border: 2px solid var(--line);
   border-radius: 1rem;
   font: inherit;
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
   line-height: 1.45;
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
@@ -4038,7 +4090,6 @@ h3 {
 .volunteer-quiz-archetype {
   margin: 0.35rem 0 0.15rem;
   color: white;
-  font-family: "Arial Rounded MT Bold", "Trebuchet MS", ui-rounded, system-ui, sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
 }
 
@@ -4666,6 +4717,7 @@ h3 {
 .volunteer-other-way-card-front .volunteer-other-way-eyebrow {
   margin-bottom: 0.15rem;
   color: var(--ink);
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
   font-size: clamp(1.5rem, 2.4vw, 1.9rem);
   font-weight: 900;
   letter-spacing: -0.01em;
@@ -4759,17 +4811,11 @@ h3 {
   }
 }
 
-.volunteer-alternatives-panel {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  margin-top: 3rem;
-}
-
 .volunteer-alternative-links {
-  display: grid;
-  gap: 0.75rem;
-  margin: 1rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  margin: 1rem 0 0;
 }
 
 .volunteer-about-textarea {
@@ -4790,13 +4836,21 @@ h3 {
 
 .volunteer-role-next-section {
   scroll-margin-top: 6.5rem;
+  background: var(--ink);
+  color: white;
 }
 
-.volunteer-role-detail-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
-  gap: clamp(2rem, 7vw, 7rem);
-  align-items: start;
+.volunteer-role-next-section .eyebrow {
+  color: var(--yellow);
+}
+
+.volunteer-role-next-section > .shell > .volunteer-role-next-heading > .text-link {
+  color: white;
+}
+
+.volunteer-role-next-section .volunteer-session-card,
+.volunteer-role-next-section .volunteer-empty-session {
+  color: var(--ink);
 }
 
 .large-copy {
@@ -4816,35 +4870,82 @@ h3 {
   font-size: 0.95rem;
 }
 
-.role-sidebar-cta {
-  display: block;
-  margin-top: 1.5rem;
-  text-align: center;
-}
-
-.role-expectation-grid {
+.role-fact-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-top: 3rem;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  gap: 1px;
+  margin-top: clamp(2rem, 5vw, 3rem);
 }
 
-.role-expectation-grid>div {
-  padding: 2rem;
-  background: #f3efe8;
-  border-radius: 1.25rem;
+.role-fact-tile {
+  padding: clamp(1rem, 2vw, 1.4rem) clamp(1.1rem, 2.5vw, 1.5rem);
+  background: var(--cream);
+}
+
+.role-fact-tile--yellow {
+  background: var(--yellow);
+}
+
+.role-fact-tile--pink {
+  background: var(--pink);
+}
+
+.role-fact-label {
+  margin: 0 0 0.3rem;
+  color: var(--red);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.role-fact-value {
+  margin: 0;
+  font-weight: 700;
+}
+
+.role-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  gap: 1px;
+  margin-top: 1px;
+}
+
+.role-bento-tile {
+  padding: clamp(1.5rem, 3vw, 2rem);
+  background: var(--cream);
+}
+
+.role-bento-tile--dont {
+  background: var(--pink);
+}
+
+.role-bento-tile--support {
+  background: var(--yellow);
+}
+
+.role-bento-tile h3 {
+  margin-bottom: 1rem;
+  font-size: 1.15rem;
 }
 
 .role-expectation-list {
-  list-style: none;
+  display: grid;
+  gap: 0.75rem;
   padding: 0;
   margin: 0;
+  list-style: none;
 }
 
 .role-expectation-list li {
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
+  line-height: 1.5;
 }
 
 .role-expectation-list svg {
@@ -4852,69 +4953,16 @@ h3 {
   margin-top: 0.2rem;
 }
 
-.role-expectation-do svg {
-  color: var(--blue, #2c5cf6);
+.role-bento-tile--do svg {
+  color: var(--blue);
 }
 
-.role-expectation-dont svg {
-  color: var(--muted, #928f86);
-}
-
-.role-expectation-grid li,
-.volunteer-role-sidebar li {
-  margin-bottom: 0.75rem;
-  line-height: 1.5;
-}
-
-.volunteer-role-sidebar {
-  position: sticky;
-  top: 8rem;
-  padding: 2rem;
-  color: white;
-  background: var(--blue);
-  border-radius: 1.5rem;
-}
-
-.volunteer-role-sidebar dt {
-  color: var(--yellow);
-}
-
-.volunteer-role-sidebar dl div {
-  border-color: rgb(255 255 255 / 30%);
+.role-bento-tile--dont svg {
+  color: var(--red);
 }
 
 .volunteer-role-testimonial-section {
   background: #f3efe8;
-}
-
-.volunteer-principles-section {
-  background: #e7efff;
-}
-
-.volunteer-principles-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  padding: 0;
-  margin: 3rem 0 0;
-  list-style: none;
-}
-
-.volunteer-principles-grid li {
-  min-height: 180px;
-  padding: 1.5rem;
-  background: white;
-  border-radius: 1rem;
-}
-
-.volunteer-principles-grid span {
-  color: var(--blue);
-  font-weight: 900;
-}
-
-.volunteer-principles-grid p {
-  margin-top: 2rem;
-  font-weight: 800;
 }
 
 /* ── Landing page ────────────────────────────────────────────────────────── */
@@ -6459,7 +6507,6 @@ h3 {
   .form-layout,
   .profile-layout,
   .help-layout,
-  .volunteer-role-detail-grid,
   .volunteer-confirmation-layout,
   .donation-workspace {
     grid-template-columns: 1fr;
@@ -6467,14 +6514,17 @@ h3 {
 
   .crystal-photo-stack,
   .form-aside,
-  .volunteer-role-sidebar,
   .donation-impact-column {
     position: static;
   }
 
-  .volunteer-role-grid,
-  .volunteer-principles-grid {
+  .volunteer-role-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .role-fact-grid,
+  .role-bento-grid {
+    grid-template-columns: 1fr;
   }
 
   .crystal-photo-stack {
@@ -6547,8 +6597,8 @@ h3 {
   .volunteer-role-grid,
   .volunteer-session-grid,
   .volunteer-reassurance-grid,
-  .role-expectation-grid,
-  .volunteer-principles-grid,
+  .role-fact-grid,
+  .role-bento-grid,
   .plan-grid {
     grid-template-columns: 1fr;
   }
@@ -8445,11 +8495,7 @@ textarea {
 .landing-section-alt,
 .donor-community-partners-section,
 .donor-community-wall-section,
-.volunteer-principles-section,
 .volunteer-reassurance-section,
-.volunteer-testimonial-section,
-.volunteer-role-preview-section,
-.volunteer-role-next-section,
 .volunteer-sessions-section,
 .volunteer-confirmation-section,
 .donor-profile-login-section {
@@ -8828,8 +8874,6 @@ textarea:focus,
     .volunteer-other-way-card,
     .volunteer-testimonial-card,
     .volunteer-session-card,
-    .volunteer-role-main,
-    .volunteer-role-sidebar,
     .volunteer-newsletter-card,
     .donation-flow-card,
     .donation-review,
@@ -8844,10 +8888,6 @@ textarea:focus,
   border-color: var(--line);
   border-radius: 8px;
   box-shadow: 0 10px 30px rgb(23 49 59 / 8%);
-}
-
-.volunteer-role-sidebar dt {
-  color: var(--blue);
 }
 
 :is(
@@ -8964,7 +9004,6 @@ textarea:focus,
 .volunteer-video-frame,
 .first-session-plan,
 .plan-timeline,
-.role-expectation-grid > *,
 .volunteer-role-facts > *,
 .donor-profile-receipts,
 .donor-profile-record {

@@ -2,15 +2,11 @@ import { useEffect } from "react";
 import { Link, useSearchParams, useParams } from "react-router-dom";
 import { Check, X } from "lucide-react";
 
-import { PageHero, StatusPanel } from "../components/Cards";
-import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
-import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
-import { VolunteerStoryVideo } from "../components/volunteer/VolunteerStoryVideo";
+import { StatusPanel } from "../components/Cards";
 import { VolunteerSessionCard } from "../components/volunteer/VolunteerSessionCard";
 import { VolunteerTestimonialMarquee } from "../components/volunteer/VolunteerTestimonialMarquee";
 import { programs } from "../content/programs";
 import {
-  commonVolunteerPrinciples,
   getTestimonialsForRole,
   getVolunteerRole,
   getVolunteerRolesForProgram,
@@ -59,79 +55,70 @@ export function VolunteerRolePage() {
 
   return (
     <>
-      <PageHero
-        eyebrow="Volunteer role"
-        title={role.title}
-        body={role.summary}
-        tone={role.accent}
-      />
       <section className="section volunteer-role-detail-section">
-        <div className="shell volunteer-role-detail-grid">
-          <div className="volunteer-role-main">
-            <p className="eyebrow">The contribution</p>
-            <h2>What your presence makes possible</h2>
-            <p className="large-copy">{role.contribution}</p>
-            <div className="role-detail-cta">
-              <a className="button button-dark" href="#demo-session">
-                Try a demo session <span aria-hidden="true">↓</span>
-              </a>
-              <span className="role-detail-cta-hint">
-                {sessions.length
-                  ? "Two hours, fully supported — see what to expect below."
-                  : "Tell us you're interested and we'll set one up."}
-              </span>
+        <div className="shell">
+          <p className="eyebrow">What your presence makes possible</p>
+          <h1>{role.title}</h1>
+          <p className="large-copy">{role.summary}</p>
+          <p>{role.contribution}</p>
+          <div className="role-detail-cta">
+            <a className="button button-dark" href="#demo-session">
+              Try a demo session <span aria-hidden="true">↓</span>
+            </a>
+            <span className="role-detail-cta-hint">
+              {sessions.length
+                ? "Two hours, fully supported — see what to expect below."
+                : "Tell us you're interested and we'll set one up."}
+            </span>
+          </div>
+
+          <div className="role-fact-grid">
+            <div className="role-fact-tile">
+              <p className="role-fact-label">Time</p>
+              <p className="role-fact-value">{role.timeCommitment}</p>
             </div>
-            <div className="role-expectation-grid">
-              <div className="role-expectation-do">
-                <h3>You may do</h3>
-                <ul className="role-expectation-list">
-                  {role.tasks.map((task) => (
-                    <li key={task}>
-                      <Check aria-hidden="true" size={18} />
-                      {task}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="role-expectation-dont">
-                <h3>Not expected of you</h3>
-                <ul className="role-expectation-list">
-                  {role.boundaries.map((boundary) => (
-                    <li key={boundary}>
-                      <X aria-hidden="true" size={18} />
-                      {boundary}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div className="role-fact-tile role-fact-tile--yellow">
+              <p className="role-fact-label">Experience</p>
+              <p className="role-fact-value">{role.experience}</p>
+            </div>
+            <div className="role-fact-tile role-fact-tile--pink">
+              <p className="role-fact-label">Interaction</p>
+              <p className="role-fact-value">{role.interactionLevel}</p>
             </div>
           </div>
-          <aside className="volunteer-role-sidebar">
-            <h2>At a glance</h2>
-            <dl>
-              <div>
-                <dt>Time</dt>
-                <dd>{role.timeCommitment}</dd>
-              </div>
-              <div>
-                <dt>Experience</dt>
-                <dd>{role.experience}</dd>
-              </div>
-              <div>
-                <dt>Interaction</dt>
-                <dd>{role.interactionLevel}</dd>
-              </div>
-            </dl>
-            <h3>Love 21 provides</h3>
-            <ul>
-              {role.support.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <a className="button button-light role-sidebar-cta" href="#demo-session">
-              Try a demo session
-            </a>
-          </aside>
+
+          <div className="role-bento-grid">
+            <div className="role-bento-tile role-bento-tile--do">
+              <h3>You may do</h3>
+              <ul className="role-expectation-list">
+                {role.tasks.map((task) => (
+                  <li key={task}>
+                    <Check aria-hidden="true" size={18} />
+                    {task}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="role-bento-tile role-bento-tile--dont">
+              <h3>Not expected of you</h3>
+              <ul className="role-expectation-list">
+                {role.boundaries.map((boundary) => (
+                  <li key={boundary}>
+                    <X aria-hidden="true" size={18} />
+                    {boundary}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="role-bento-tile role-bento-tile--support">
+              <h3>Love 21 provides</h3>
+              <ul className="role-expectation-list">
+                {role.support.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -144,21 +131,6 @@ export function VolunteerRolePage() {
           </div>
         </section>
       )}
-
-      <section className="section volunteer-principles-section">
-        <div className="shell">
-          <p className="eyebrow">Shared principles</p>
-          <h2>Support starts with respect.</h2>
-          <ol className="volunteer-principles-grid">
-            {commonVolunteerPrinciples.map((principle, index) => (
-              <li key={principle}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <p>{principle}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
 
       <section id="demo-session" className="section volunteer-role-next-section">
         <div className="shell">
@@ -199,39 +171,27 @@ export function VolunteerRolePage() {
       </section>
 
       <section className="section section-soft">
-        <div className="shell">
-          <VolunteerOtherWaysToHelp />
-        </div>
-      </section>
-
-      <section className="section">
         <div className="shell volunteer-alternatives-panel">
-          <div>
-            <p className="eyebrow">Not quite the right fit?</p>
-            <h3>
-              {otherProgramRoles.length
-                ? `Other ways to help with ${programTitle}`
-                : "Explore a different programme"}
-            </h3>
-            <div className="volunteer-alternative-links">
-              {otherProgramRoles.map((otherRole) => (
-                <Link
-                  key={otherRole.id}
-                  className="text-link"
-                  to={`/volunteer/roles/${otherRole.id}?journey=${journeyPath}`}
-                >
-                  {otherRole.title} <span aria-hidden="true">→</span>
-                </Link>
-              ))}
-              <Link className="text-link" to="/volunteer/roles">
-                Browse every programme and role <span aria-hidden="true">→</span>
+          <p className="eyebrow">Not quite the right fit?</p>
+          <h3>
+            {otherProgramRoles.length
+              ? `Other ways to help with ${programTitle}`
+              : "Explore a different programme"}
+          </h3>
+          <div className="volunteer-alternative-links">
+            {otherProgramRoles.map((otherRole) => (
+              <Link
+                key={otherRole.id}
+                className="text-link"
+                to={`/volunteer/roles/${otherRole.id}?journey=${journeyPath}`}
+              >
+                {otherRole.title} <span aria-hidden="true">→</span>
               </Link>
-            </div>
+            ))}
+            <Link className="text-link" to="/volunteer/roles">
+              Browse every programme and role <span aria-hidden="true">→</span>
+            </Link>
           </div>
-          <VolunteerNewsletterSignup
-            source="volunteer_role_detail"
-            title="Prefer to hear from us by email?"
-          />
         </div>
       </section>
     </>
