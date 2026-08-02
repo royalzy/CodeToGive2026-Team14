@@ -9,6 +9,14 @@
  * of specificity — utilities silently lose against them.
  */
 
+/* Entry point to the Media page's delete controls. */
+.admin-manage-link {
+  max-width: 48rem;
+  margin: 1.25rem auto 0;
+  font-size: 0.9rem;
+  text-align: right;
+}
+
 /* --- Section heading ---------------------------------------------------- */
 
 /* `.section-heading` caps itself at 760px and `.section-heading > p:last-child`

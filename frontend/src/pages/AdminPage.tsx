@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import { PageHero, SectionHeading } from "../components/Cards";
 import { analyticsDashboardUrl } from "../analytics/umami";
 import { SocialComposer } from "../components/admin/SocialComposer";
@@ -43,6 +45,12 @@ export function AdminPage() {
             }
           />
           <SocialComposer />
+
+          {/* Website posts are editable after publishing; the delete controls
+              live on the Media page and only appear via this link. */}
+          <p className="admin-manage-link">
+            <Link to="/media?manage=1">Manage website posts</Link>
+          </p>
         </div>
       </section>
 

@@ -2,12 +2,14 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Platform = Literal["instagram", "facebook"]
+Platform = Literal["website", "instagram", "facebook"]
 
 # Instagram's caption cap. Facebook's is far higher, so each platform is
 # validated against its own limit rather than forcing the stricter one on both.
 IG_MAX_CAPTION = 2200
 FB_MAX_CAPTION = 63_206
+# The website is ours, so the only limit is keeping the feed readable.
+WEB_MAX_CAPTION = 5_000
 
 
 class PlatformResult(BaseModel):

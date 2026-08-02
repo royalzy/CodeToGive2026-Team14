@@ -3,12 +3,22 @@ import { useEffect, useRef, useState } from "react";
 import {
   FB_MAX_CAPTION,
   IG_MAX_CAPTION,
+  WEB_MAX_CAPTION,
   MAX_IMAGES,
   publishSocialPost,
   type PlatformId,
   type SocialPostResult,
 } from "../../api/client";
 import "./SocialComposer.css";
+
+const CAPTION_LIMITS: Record<PlatformId, number> = {
+  website: WEB_MAX_CAPTION,
+  instagram: IG_MAX_CAPTION,
+  facebook: FB_MAX_CAPTION,
+};
+
+/** Platforms that cannot publish without an image. */
+const NEEDS_IMAGE: PlatformId[] = ["website", "instagram"];
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -43,17 +53,27 @@ function InfoIcon({ className = "" }: { className?: string }) {
   );
 }
 
+function WebsiteIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+      <path d="M12 0a12 12 0 100 24 12 12 0 000-24zm8.4 7.2h-3.5a18.7 18.7 0 00-1.6-4.1 9.6 9.6 0 015.1 4.1zM12 2.4c.8 1.2 1.5 2.8 2 4.8h-4c.5-2 1.2-3.6 2-4.8zM2.7 14.4a9.5 9.5 0 010-4.8h4a20.6 20.6 0 000 4.8zm1 2.4h3.4c.4 1.5.9 2.9 1.6 4.1a9.6 9.6 0 01-5.1-4.1zm3.4-9.6H3.7a9.6 9.6 0 015.1-4.1c-.7 1.2-1.2 2.6-1.6 4.1zM12 21.6c-.8-1.2-1.5-2.8-2-4.8h4c-.5 2-1.2 3.6-2 4.8zm2.5-7.2h-5a18.4 18.4 0 010-4.8h5a18.4 18.4 0 010 4.8zm.3 6.6c.7-1.2 1.2-2.6 1.6-4.1h3.5a9.6 9.6 0 01-5.1 4.1zm2-6.6a20.6 20.6 0 000-4.8h4a9.5 9.5 0 010 4.8z" />
+    </svg>
+  );
+}
+
 const PLATFORMS: {
   id: PlatformId;
   label: string;
   Icon: (props: { className?: string }) => React.ReactElement;
   brand: string;
 }[] = [
+  { id: "website", label: "Website", Icon: WebsiteIcon, brand: "text-[#1687a7]" },
   { id: "instagram", label: "Instagram", Icon: InstagramIcon, brand: "text-[#E4405F]" },
   { id: "facebook", label: "Facebook", Icon: FacebookIcon, brand: "text-[#1877F2]" },
 ];
 
 const PLATFORM_LABEL: Record<PlatformId, string> = {
+  website: "Website",
   instagram: "Instagram",
   facebook: "Facebook",
 };
@@ -159,9 +179,13 @@ export function SocialComposer() {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [caption, setCaption] = useState("");
   const [splitCaptions, setSplitCaptions] = useState(false);
-  const [captionIg, setCaptionIg] = useState("");
-  const [captionFb, setCaptionFb] = useState("");
-  const [selected, setSelected] = useState<PlatformId[]>(["instagram", "facebook"]);
+  // One entry per platform, so adding a platform needs no new state.
+  const [perCaption, setPerCaption] = useState<Record<PlatformId, string>>({
+    website: "",
+    instagram: "",
+    facebook: "",
+  });
+  const [selected, setSelected] = useState<PlatformId[]>(["website", "instagram", "facebook"]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<SocialPostResult[] | null>(null);
@@ -180,7 +204,7 @@ export function SocialComposer() {
   // than letting the request fail server-side.
   useEffect(() => {
     if (files.length === 0) {
-      setSelected((current) => current.filter((p) => p !== "instagram"));
+      setSelected((current) => current.filter((p) => !NEEDS_IMAGE.includes(p)));
     }
   }, [files]);
 
@@ -210,7 +234,13 @@ export function SocialComposer() {
       }
       const next = [...current, ...accepted.slice(0, room)];
       if (next.length > 0) {
-        setSelected((sel) => (sel.includes("instagram") ? sel : ["instagram", ...sel]));
+        // Re-enable the image-only platforms that were dropped when the
+        // selection was cleared, keeping the listed order.
+        setSelected((sel) =>
+          PLATFORMS.map((p) => p.id).filter(
+            (id) => sel.includes(id) || NEEDS_IMAGE.includes(id),
+          ),
+        );
       }
       return next;
     });
@@ -239,12 +269,11 @@ export function SocialComposer() {
   function reset() {
     setFiles([]);
     setCaption("");
-    setCaptionIg("");
-    setCaptionFb("");
+    setPerCaption({ website: "", instagram: "", facebook: "" });
     setSplitCaptions(false);
     setResults(null);
     setError(null);
-    setSelected(["instagram", "facebook"]);
+    setSelected(["website", "instagram", "facebook"]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -256,15 +285,18 @@ export function SocialComposer() {
       setError("Choose at least one platform.");
       return;
     }
-    if (files.length === 0 && selected.includes("instagram")) {
-      setError("Instagram needs an image. Add one, or post to Facebook only.");
+    const imageless = selected.filter((p) => NEEDS_IMAGE.includes(p));
+    if (files.length === 0 && imageless.length > 0) {
+      setError(
+        `${imageless.map((p) => PLATFORM_LABEL[p]).join(" and ")} ` +
+          "needs an image. Add one, or post to Facebook only.",
+      );
       return;
     }
 
     // Each platform uses its override when splitting, otherwise the shared one.
-    const igText = (splitCaptions ? captionIg : caption).trim();
-    const fbText = (splitCaptions ? captionFb : caption).trim();
-    const missing = selected.filter((p) => (p === "instagram" ? !igText : !fbText));
+    const textFor = (p: PlatformId) => (splitCaptions ? perCaption[p] : caption).trim();
+    const missing = selected.filter((p) => !textFor(p));
     if (missing.length > 0) {
       setError(
         splitCaptions
@@ -279,8 +311,9 @@ export function SocialComposer() {
       const response = await publishSocialPost({
         images: files,
         caption: splitCaptions ? "" : caption.trim(),
-        captionInstagram: splitCaptions ? igText : undefined,
-        captionFacebook: splitCaptions ? fbText : undefined,
+        captionWebsite: splitCaptions ? textFor("website") : undefined,
+        captionInstagram: splitCaptions ? textFor("instagram") : undefined,
+        captionFacebook: splitCaptions ? textFor("facebook") : undefined,
         platforms: selected,
       });
       setResults(response.results);
@@ -291,10 +324,13 @@ export function SocialComposer() {
     }
   }
 
-  // Without an image only Facebook is possible, so the shared caption can use
-  // Facebook's much larger limit.
-  const sharedLimit = selected.includes("instagram") ? IG_MAX_CAPTION : FB_MAX_CAPTION;
-  const bothSelected = selected.length === 2;
+  // A shared caption has to satisfy every selected platform, so use the
+  // strictest limit among them.
+  const sharedLimit = selected.length
+    ? Math.min(...selected.map((p) => CAPTION_LIMITS[p]))
+    : FB_MAX_CAPTION;
+  // Splitting only means anything when posting to more than one place.
+  const multipleSelected = selected.length > 1;
 
   const publishedCount = results?.filter((r) => r.status === "published").length ?? 0;
 
@@ -423,8 +459,8 @@ export function SocialComposer() {
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-2">
             <span className="text-sm font-semibold">Caption</span>
-            {/* Only meaningful when posting to both places at once. */}
-            {bothSelected ? (
+            {/* Only meaningful when posting to more than one place at once. */}
+            {multipleSelected ? (
               <label className="flex cursor-pointer items-center gap-2 text-xs text-love-ink/70">
                 <input
                   type="checkbox"
@@ -432,12 +468,15 @@ export function SocialComposer() {
                   onChange={(e) => {
                     const on = e.target.checked;
                     setSplitCaptions(on);
-                    // Carry the shared text across so nothing is retyped.
+                    // Carry the text across either way so nothing is retyped.
                     if (on) {
-                      setCaptionIg((v) => v || caption);
-                      setCaptionFb((v) => v || caption);
+                      setPerCaption((current) => {
+                        const next = { ...current };
+                        for (const id of selected) next[id] = next[id] || caption;
+                        return next;
+                      });
                     } else {
-                      setCaption((v) => v || captionIg || captionFb);
+                      setCaption((v) => v || selected.map((id) => perCaption[id]).find(Boolean) || "");
                     }
                   }}
                 />
@@ -446,30 +485,29 @@ export function SocialComposer() {
             ) : null}
           </div>
 
-          {splitCaptions && bothSelected ? (
+          {splitCaptions && multipleSelected ? (
             <div className="mt-2 grid gap-4 sm:grid-cols-2">
-              {(
-                [
-                  ["instagram", captionIg, setCaptionIg, IG_MAX_CAPTION],
-                  ["facebook", captionFb, setCaptionFb, FB_MAX_CAPTION],
-                ] as const
-              ).map(([id, value, setValue, limit]) => {
-                const platform = PLATFORMS.find((p) => p.id === id)!;
+              {/* One box per selected platform, in the order they are listed. */}
+              {PLATFORMS.filter((platform) => selected.includes(platform.id)).map((platform) => {
+                const limit = CAPTION_LIMITS[platform.id];
+                const value = perCaption[platform.id];
                 return (
-                  <div key={id}>
+                  <div key={platform.id}>
                     <label
                       className="flex items-center gap-1.5 text-xs font-semibold"
-                      htmlFor={`social-caption-${id}`}
+                      htmlFor={`social-caption-${platform.id}`}
                     >
                       <platform.Icon className={`h-3.5 w-3.5 ${platform.brand}`} />
                       {platform.label}
                     </label>
                     <textarea
-                      id={`social-caption-${id}`}
+                      id={`social-caption-${platform.id}`}
                       rows={4}
                       value={value}
                       maxLength={limit}
-                      onChange={(e) => setValue(e.target.value)}
+                      onChange={(e) =>
+                        setPerCaption((current) => ({ ...current, [platform.id]: e.target.value }))
+                      }
                       placeholder="Share a moment..."
                       className="mt-1 w-full rounded-lg border border-love-ink/20 p-3"
                     />
@@ -504,8 +542,8 @@ export function SocialComposer() {
             <legend className="text-sm font-semibold">Post to</legend>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {PLATFORMS.map(({ id, label, Icon, brand }) => {
-                // Instagram cannot post without media; Facebook can.
-                const blocked = id === "instagram" && files.length === 0;
+                // Website and Instagram cannot post without media; Facebook can.
+                const blocked = NEEDS_IMAGE.includes(id) && files.length === 0;
                 return (
                   <label
                     key={id}

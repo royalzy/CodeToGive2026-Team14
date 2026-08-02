@@ -8,17 +8,27 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 from app.schemas.social import (
     FB_MAX_CAPTION,
     IG_MAX_CAPTION,
+    WEB_MAX_CAPTION,
     PlatformResult,
     SocialPostResponse,
 )
-from app.services import image_host, meta
+from app.services import image_host, media_store, meta
 
 router = APIRouter(prefix="/social-posts", tags=["social"])
 
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
-VALID_PLATFORMS = {"instagram", "facebook"}
-CAPTION_LIMITS = {"instagram": IG_MAX_CAPTION, "facebook": FB_MAX_CAPTION}
+# Ordered as they appear in the composer: the website first, then the
+# external platforms.
+PLATFORM_ORDER = ("website", "instagram", "facebook")
+VALID_PLATFORMS = set(PLATFORM_ORDER)
+# Only these are published through the Meta Graph API; the website is local.
+META_PLATFORMS = {"instagram", "facebook"}
+CAPTION_LIMITS = {
+    "website": WEB_MAX_CAPTION,
+    "instagram": IG_MAX_CAPTION,
+    "facebook": FB_MAX_CAPTION,
+}
 IG_MIN_EDGE = meta.IG_MIN_WIDTH_PX
 # Meta's publish calls routinely take 10-30s; the default httpx timeout is too tight.
 PUBLISH_TIMEOUT_S = 60.0
@@ -73,7 +83,7 @@ def _parse_platforms(raw: list[str]) -> list[str]:
             detail="Choose at least one platform to post to.",
         )
     # Preserve a stable order rather than set ordering.
-    return [p for p in ("instagram", "facebook") if p in set(flattened)]
+    return [p for p in PLATFORM_ORDER if p in set(flattened)]
 
 
 def _resolve_captions(
@@ -119,11 +129,16 @@ async def create_social_post(
     # Optional per-platform overrides; each falls back to `caption`.
     caption_instagram: Annotated[str | None, Form()] = None,
     caption_facebook: Annotated[str | None, Form()] = None,
+    caption_website: Annotated[str | None, Form()] = None,
 ) -> SocialPostResponse:
     targets = _parse_platforms(platforms)
     captions = _resolve_captions(
         caption.strip(),
-        {"instagram": caption_instagram, "facebook": caption_facebook},
+        {
+            "website": caption_website,
+            "instagram": caption_instagram,
+            "facebook": caption_facebook,
+        },
         targets,
     )
 
@@ -131,11 +146,13 @@ async def create_social_post(
     # but blank, so treat a missing filename as "no image".
     uploads = [item for item in images if item.filename]
 
-    if not uploads and "instagram" in targets:
+    needs_image = sorted({"instagram", "website"} & set(targets))
+    if not uploads and needs_image:
+        names = " and ".join(name.title() for name in needs_image)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
-                "Instagram requires an image. Add one, or post to Facebook only "
+                f"{names} requires an image. Add one, or post to Facebook only "
                 "for a text-only update."
             ),
         )
@@ -173,12 +190,62 @@ async def create_social_post(
         # upload always reports the upload problem rather than a missing token.
         normalised.append(_normalise_image(raw, upload.filename or "image"))
 
+    results: list[PlatformResult] = []
+
+    # The website is written to disk locally, so it needs neither Meta
+    # credentials nor Cloudinary. Handle it before any Meta setup, so a
+    # website-only post works with nothing configured at all.
+    if "website" in targets:
+        try:
+            entry = media_store.save_post(normalised, captions["website"])
+            results.append(
+                PlatformResult(
+                    platform="website",
+                    status="published",
+                    caption=captions["website"],
+                    permalink="/media",
+                    media_url=entry["images"][0],
+                )
+            )
+        except media_store.MediaStoreError as exc:
+            results.append(
+                PlatformResult(
+                    platform="website",
+                    status="failed",
+                    caption=captions["website"],
+                    error=str(exc),
+                )
+            )
+
+    meta_targets = [platform for platform in targets if platform in META_PLATFORMS]
+    if not meta_targets:
+        return SocialPostResponse(image_urls=[], results=results)
+
+    def meta_setup_failed(message: str, http_status: int) -> SocialPostResponse:
+        """Report a Meta-side failure without discarding work already done.
+
+        Raising here would throw away the results list, so a website post that
+        already succeeded would be reported as a total failure while its files
+        sat in the working tree. Once anything has been published, every later
+        problem is reported per platform instead.
+        """
+        if not results:
+            raise HTTPException(status_code=http_status, detail=message)
+        results.extend(
+            PlatformResult(
+                platform=platform,
+                status="failed",
+                caption=captions[platform],
+                error=message,
+            )
+            for platform in meta_targets
+        )
+        return SocialPostResponse(image_urls=[], results=results)
+
     try:
         token = meta.require_token()
     except meta.MetaNotConfiguredError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
-        ) from exc
+        return meta_setup_failed(str(exc), status.HTTP_503_SERVICE_UNAVAILABLE)
 
     image_urls: list[str] = []
 
@@ -191,25 +258,17 @@ async def create_social_post(
                 url = await image_host.publish_image(client, payload)
                 await image_host.verify_reachable(client, url)
             except image_host.ImageHostError as exc:
-                raise HTTPException(
-                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
-                ) from exc
+                return meta_setup_failed(str(exc), status.HTTP_503_SERVICE_UNAVAILABLE)
             image_urls.append(url)
 
         try:
             page_id, page_token, ig_user_id = await meta.resolve_targets(client, token)
         except meta.MetaNotConfiguredError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
-            ) from exc
+            return meta_setup_failed(str(exc), status.HTTP_503_SERVICE_UNAVAILABLE)
         except meta.MetaError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY, detail=exc.as_detail()
-            ) from exc
+            return meta_setup_failed(exc.as_detail(), status.HTTP_502_BAD_GATEWAY)
 
-        results: list[PlatformResult] = []
-
-        for platform in targets:
+        for platform in meta_targets:
             text = captions[platform]
             # Publish each platform independently so a failure on one does not
             # discard a success on the other.

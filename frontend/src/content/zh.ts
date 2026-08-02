@@ -33,6 +33,7 @@ export const navigation = [
   { label: "捐款", href: "/donate" },
   { label: "支援", href: "/help" },
   { label: "了解更多", href: "/neuro-strengths" },
+  { label: "媒體", href: "/media" },
 ];
 
 export const personas = [
