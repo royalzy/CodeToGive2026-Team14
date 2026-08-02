@@ -7939,6 +7939,13 @@ textarea {
     color 160ms ease;
 }
 
+/* The shared rule above sets a 6px radius for buttons in general, but this
+ * one sits inside the pill-shaped .supporter-quick-actions tray — it needs
+ * to stay fully rounded to match the outer shape. */
+.supporter-quick-action {
+  border-radius: 999px;
+}
+
 .button,
 .header-cta,
 .landing-hero-cta-primary,
