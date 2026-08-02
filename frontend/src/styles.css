@@ -653,7 +653,6 @@ h3 {
   position: relative;
   min-height: 760px;
   overflow: hidden;
-  background: var(--pink);
 }
 
 .home-hero-grid {
@@ -824,7 +823,7 @@ h3 {
 }
 
 .accent-red {
-  --card-accent: var(--red);
+  --card-accent: var(--red-text);
 }
 
 .accent-yellow {
@@ -8791,8 +8790,8 @@ textarea:focus,
 }
 
 .landing-quick-link-featured {
-  border-color: var(--red);
-  background: var(--red);
+  border-color: var(--red-text);
+  background: var(--red-text);
 }
 
 .landing-quick-link-featured:hover {
@@ -8825,7 +8824,7 @@ textarea:focus,
   padding: 0.9rem 1.35rem 0.9rem 0.9rem;
   border: 2px solid white;
   border-radius: 999px;
-  background: var(--red);
+  background: var(--red-text);
   box-shadow: 0 10px 30px rgb(12 22 38 / 28%);
   color: white;
   font-size: 1.08rem;
@@ -8836,7 +8835,7 @@ textarea:focus,
 }
 
 .landing-help-button:hover {
-  background: #ff285c;
+  background: #8a2c22;
   box-shadow: 0 14px 34px rgb(12 22 38 / 34%);
   transform: translateY(-2px);
 }
@@ -8885,6 +8884,7 @@ textarea:focus,
   align-items: flex-end;
   overflow: hidden;
   border-bottom: 1px solid var(--ink);
+  background: #0f2229;
   color: white;
   isolation: isolate;
 }
@@ -9266,7 +9266,7 @@ textarea:focus,
 .home-card-number {
   display: block;
   margin-bottom: clamp(1.25rem, 2.5vw, 2rem);
-  color: var(--red);
+  color: var(--red-text);
   font-size: 0.8rem;
   font-weight: 800;
 }
@@ -9281,6 +9281,13 @@ textarea:focus,
   margin: 0;
   color: var(--muted);
   font-size: 0.84rem;
+}
+
+/* var(--muted) narrowly fails 4.5:1 on the yellow and pink card
+ * backgrounds specifically (it's fine on cream). */
+.home-barrier-card:nth-child(2) p,
+.home-barrier-card:nth-child(3) p {
+  color: #3a474c;
 }
 
 .home-support {
