@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as umami from "../analytics/umami";
 import { DonatePage } from "../pages/DonatePage";
 import { VolunteerApplicationPage } from "../pages/VolunteerApplicationPage";
+import { LanguageProvider } from "../components/LanguageContext";
 
 function jsonResponse(payload: unknown, status = 200) {
   return new Response(JSON.stringify(payload), {
@@ -16,21 +17,25 @@ function jsonResponse(payload: unknown, status = 200) {
 
 function renderDonate() {
   return render(
-    <MemoryRouter>
-      <DonatePage />
-    </MemoryRouter>,
+    <LanguageProvider>
+      <MemoryRouter>
+        <DonatePage />
+      </MemoryRouter>,
+    </LanguageProvider>,
   );
 }
 
 function renderVolunteerApplication() {
   return render(
-    <MemoryRouter
+    <LanguageProvider>
+      <MemoryRouter
       initialEntries={[
         "/volunteer/apply?roleId=community_event_volunteer&firstStep=interest_only&journey=guided",
       ]}
     >
       <VolunteerApplicationPage />
     </MemoryRouter>,
+    </LanguageProvider>,
   );
 }
 

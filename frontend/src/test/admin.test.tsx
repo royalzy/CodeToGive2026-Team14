@@ -1,15 +1,18 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { LanguageProvider } from "../components/LanguageContext";
 
 async function renderAdminPage() {
   vi.resetModules();
   const { AdminPage } = await import("../pages/AdminPage");
   // The page links to the Media page, so it needs router context.
   return render(
-    <MemoryRouter>
-      <AdminPage />
-    </MemoryRouter>,
+    <LanguageProvider>
+      <MemoryRouter>
+        <AdminPage />
+      </MemoryRouter>,
+    </LanguageProvider>,
   );
 }
 
