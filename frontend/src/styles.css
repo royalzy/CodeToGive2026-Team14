@@ -4842,6 +4842,10 @@ section.volunteer-ways-section {
   color: var(--yellow);
 }
 
+.volunteer-role-next-section .volunteer-session-card .eyebrow {
+  color: var(--red-text);
+}
+
 .volunteer-role-next-section > .shell > .volunteer-role-next-heading > .text-link {
   color: white;
 }
@@ -4892,7 +4896,7 @@ section.volunteer-ways-section {
 
 .role-fact-label {
   margin: 0 0 0.3rem;
-  color: var(--red);
+  color: var(--red-text);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -4926,7 +4930,7 @@ section.volunteer-ways-section {
   background: var(--yellow);
 }
 
-.role-bento-tile h3 {
+.role-bento-tile h2 {
   margin-bottom: 1rem;
   font-size: 1.15rem;
 }

@@ -136,6 +136,7 @@ export function VolunteerApplicationPage() {
   return (
     <>
       <section className="section form-section volunteer-application-section">
+        <h1 className="sr-only">Volunteer application for {selectedRole.title}</h1>
         <div className="shell form-layout">
           <aside className="form-aside">
             <h2>{selectedRole.title}</h2>

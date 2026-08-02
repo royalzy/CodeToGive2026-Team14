@@ -90,7 +90,7 @@ export function VolunteerRolePage() {
 
           <div className="role-bento-grid">
             <div className="role-bento-tile role-bento-tile--do">
-              <h3>You may do</h3>
+              <h2>You may do</h2>
               <ul className="role-expectation-list">
                 {role.tasks.map((task) => (
                   <li key={task}>
@@ -101,7 +101,7 @@ export function VolunteerRolePage() {
               </ul>
             </div>
             <div className="role-bento-tile role-bento-tile--dont">
-              <h3>Not expected of you</h3>
+              <h2>Not expected of you</h2>
               <ul className="role-expectation-list">
                 {role.boundaries.map((boundary) => (
                   <li key={boundary}>
@@ -112,7 +112,7 @@ export function VolunteerRolePage() {
               </ul>
             </div>
             <div className="role-bento-tile role-bento-tile--support">
-              <h3>Love 21 provides</h3>
+              <h2>Love 21 provides</h2>
               <ul className="role-expectation-list">
                 {role.support.map((item) => (
                   <li key={item}>{item}</li>
