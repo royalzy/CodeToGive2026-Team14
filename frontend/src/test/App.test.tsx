@@ -29,7 +29,7 @@ describe("route backbone", () => {
     ["/", "Every Life is", 1],
     ["/impact", "Crystal steps forward.", 1],
     ["/community", "People making this possible.", 1],
-    ["/volunteer", "Start with what you already know.", 2],
+    ["/volunteer", "Volunteer with Love 21", 1],
     ["/donate", "received", 1],
     ["/donor-profile", "Your impact, kept honest.", 1],
     ["/help", "Let us find a starting point together", 2],
@@ -124,32 +124,43 @@ describe("closed-loop forms", () => {
 
     renderRoute("/volunteer/match");
     expect(
-      screen.getByRole("heading", { name: "What type of volunteer are you?", level: 1 }),
+      screen.getByRole("heading", { name: "Volunteer personality quiz", level: 1 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Five quick questions, one fun result.", level: 2 }),
     ).toBeInTheDocument();
     expect(screen.getByText(/might not be fully accurate/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Start the quiz" }));
     expect(screen.getByText("Question 1 of 5")).toBeInTheDocument();
 
-    for (let i = 0; i < 5; i += 1) {
-      const options = screen.getAllByRole("button", { name: /./ }).filter((button) =>
-        button.className.includes("volunteer-quiz-option"),
-      );
-      await user.click(options[3]);
+    const creativeAnswers = [
+      /too shy myself/i,
+      /^Creative stuff/i,
+      /work alongside them/i,
+      /Using my creativity/i,
+      /^Creative\. I think outside the box/i,
+    ];
+
+    for (const [index, answer] of creativeAnswers.entries()) {
+      await user.click(screen.getByRole("button", { name: answer }));
+      if (index < creativeAnswers.length - 1) {
+        await screen.findByText(`Question ${index + 2} of 5`);
+      }
     }
 
-    expect(screen.getByText("The Behind-the-Scenes Hero")).toBeInTheDocument();
+    expect(await screen.findByText("The Creative Spirit")).toBeInTheDocument();
 
-    const eventHelperHeading = screen.getByRole("heading", {
-      name: "Community Event Helper",
+    const creativeArtsHeading = screen.getByRole("heading", {
+      name: "Creative Arts Class Assistant",
     });
     await user.click(
-      within(eventHelperHeading.closest("article")!).getByRole("link", {
+      within(creativeArtsHeading.closest("article")!).getByRole("link", {
         name: "Explore this role",
       }),
     );
     expect(
-      screen.getByRole("heading", { name: "Community Event Helper", level: 1 }),
+      screen.getByRole("heading", { name: "Creative Arts Class Assistant", level: 1 }),
     ).toBeInTheDocument();
   });
 

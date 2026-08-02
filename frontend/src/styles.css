@@ -1,11 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,500;0,7..72,600;1,7..72,500&family=Work+Sans:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --color-love-red: #e7634f;
   --color-love-pink: #f7d9d1;
   --color-love-yellow: #ffd84d;
-  --color-love-blue: #1687a7;
+  --color-love-blue: #0f6f8a;
   --color-love-teal: #237f82;
   --color-love-orange: #e7634f;
   --color-love-ink: #17313b;
@@ -44,6 +45,28 @@
   display: none;
 }
 
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(rgba(23, 22, 37, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23, 22, 37, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-dot-pattern {
+  background-image: radial-gradient(rgba(23, 22, 37, 0.12) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+}
+
+.bg-stripe-pattern {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(23, 22, 37, 0.05) 0,
+    rgba(23, 22, 37, 0.05) 2px,
+    transparent 2px,
+    transparent 14px
+  );
+}
+
 :root {
   color: #17313b;
   background: #fff9ed;
@@ -56,7 +79,7 @@
   --red-text: #a4372a;
   --pink: #f7d9d1;
   --yellow: #ffd84d;
-  --blue: #1687a7;
+  --blue: #0f6f8a;
   --teal: #237f82;
   --orange: #e7634f;
   --ink: #17313b;
@@ -3185,7 +3208,7 @@ h3 {
 }
 
 .volunteer-accent-red .volunteer-testimonial-avatar {
-  background: var(--red);
+  background: var(--red-text);
 }
 
 .volunteer-accent-yellow .volunteer-testimonial-avatar {
@@ -3198,7 +3221,7 @@ h3 {
 }
 
 .volunteer-accent-orange .volunteer-testimonial-avatar {
-  background: var(--orange);
+  background: var(--red-text);
 }
 
 .volunteer-testimonial-identity {
@@ -3815,7 +3838,7 @@ h3 {
 }
 
 .volunteer-quiz-intro .eyebrow {
-  color: var(--red);
+  color: var(--red-text);
 }
 
 .volunteer-quiz-disclaimer {
@@ -5062,8 +5085,8 @@ h3 {
 }
 
 .landing-learn-toc-btn.active {
-  background: var(--red);
-  border-color: var(--red);
+  background: var(--red-text);
+  border-color: var(--red-text);
   color: white;
   box-shadow: 0 12px 30px rgb(233 0 63 / 25%);
 }
@@ -7463,7 +7486,7 @@ h3 {
   --donor-paper: #ffffff;
   --donor-ink: #17313b;
   --donor-muted: #56676d;
-  --donor-ox: #1687a7;
+  --donor-ox: var(--blue);
   --donor-apricot: #ffd84d;
   --donor-peach: #dff4f7;
   --donor-line: #c9d9d8;
@@ -7764,7 +7787,7 @@ textarea:focus,
 
 .landing-hero-lede,
 .landing-hero-tagline,
-.landing-desc {
+.landing-hero .landing-desc {
   color: rgb(255 255 255 / 90%);
 }
 
@@ -7889,6 +7912,11 @@ textarea:focus,
   color: rgb(255 255 255 / 82%);
 }
 
+.landing-myth-bust strong,
+.landing-section.landing-section-alt .landing-cta-header h2 {
+  color: white;
+}
+
 /* Shared internal-page foundations */
 .page-hero,
 .page-hero-blue {
@@ -7946,6 +7974,10 @@ textarea:focus,
   border-color: var(--line);
   border-radius: 8px;
   box-shadow: 0 10px 30px rgb(23 49 59 / 8%);
+}
+
+.volunteer-role-sidebar dt {
+  color: var(--blue);
 }
 
 :is(
@@ -8036,6 +8068,7 @@ textarea:focus,
 .match-option-grid label:has(input:checked),
 .donation-amount-grid label:has(input:checked),
 .amount-grid label:has(input:checked) {
+  color: var(--ink);
   background: #fff5c5;
   border-color: #d8ab1c;
   box-shadow: 0 0 0 2px rgb(255 216 77 / 25%);
@@ -8103,7 +8136,7 @@ textarea:focus,
   --donor-paper: #ffffff;
   --donor-ink: #17313b;
   --donor-muted: #56676d;
-  --donor-ox: #1687a7;
+  --donor-ox: var(--blue);
   --donor-apricot: #ffd84d;
   --donor-peach: #dff4f7;
   --donor-line: #c9d9d8;
@@ -8217,6 +8250,15 @@ textarea:focus,
 .donate-a-flow-card .donation-steps li.complete {
   color: var(--blue);
   border-color: var(--blue);
+}
+
+.donate-a-flow-card .donation-steps li.current {
+  color: var(--ink);
+}
+
+.donate-a-evidence strong,
+.donate-a-evidence a {
+  color: var(--blue);
 }
 
 .donate-a-flow-card .donation-steps li.current > span,

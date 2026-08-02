@@ -4,6 +4,13 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { useAuth } from "../hooks/useAuth";
 
+const routePageTitles: Record<string, string> = {
+  "/volunteer": "Volunteer with Love 21",
+  "/volunteer/match": "Volunteer personality quiz",
+  "/volunteer/roles": "Browse volunteer roles",
+  "/volunteer/sessions": "Browse volunteer sessions",
+};
+
 function Wordmark() {
   return (
     <span className="wordmark wordmark-image" aria-label="Love 21 Foundation">
@@ -161,6 +168,7 @@ function SupporterQuickActions({ pathname }: { pathname: string }) {
 
 export function Layout() {
   const { pathname } = useLocation();
+  const pageTitle = routePageTitles[pathname];
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -170,6 +178,7 @@ export function Layout() {
     <>
       <Header />
       <main id="main-content">
+        {pageTitle && <h1 className="sr-only">{pageTitle}</h1>}
         <Outlet />
       </main>
       <SupporterQuickActions pathname={pathname} />

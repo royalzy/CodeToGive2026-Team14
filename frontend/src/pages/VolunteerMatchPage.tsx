@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { PageHero } from "../components/Cards";
 import { QuizShareModal } from "../components/volunteer/QuizShareModal";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
@@ -77,11 +76,6 @@ export function VolunteerMatchPage() {
 
   return (
     <>
-      <PageHero
-        title="What type of volunteer are you?"
-        body="Answer five quick, situational questions and we'll match you with the volunteer role that fits your personality best."
-        tone="red"
-      />
       <section className="section volunteer-quiz-section">
         <div className="shell volunteer-quiz-shell">
           {resultLetter ? (

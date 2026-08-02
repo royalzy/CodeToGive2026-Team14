@@ -9,7 +9,7 @@ import {
 } from "chart.js";
 import { Radar } from "react-chartjs-2";
 
-import { TRAITS, type Archetype, type TraitId } from "./data";
+import { TRAITS, type TraitId } from "./data";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, ChartTooltip);
 
@@ -54,13 +54,7 @@ const CHART_OPTIONS = {
   },
 };
 
-export function ConstellationRadar({
-  archetype,
-  values,
-}: {
-  archetype: Archetype;
-  values: Record<TraitId, number>;
-}) {
+export function ConstellationRadar({ values }: { values: Record<TraitId, number> }) {
   const chartData = useMemo(
     () => ({
       labels: CHART_LABELS,
@@ -83,29 +77,13 @@ export function ConstellationRadar({
   );
 
   return (
-    <div className="neuro-radar-column flex flex-col">
-      <div className="neuro-radar-frame relative w-full">
-        <div
-          className="pointer-events-none absolute inset-0 rounded-full bg-love-blue/20 blur-3xl"
-          aria-hidden="true"
-        />
-        <div className="relative h-full w-full rounded-3xl border border-love-blue/10 bg-white/50 p-4">
-          <Radar data={chartData} options={CHART_OPTIONS} />
-        </div>
-      </div>
-
+    <div className="relative aspect-square w-full">
       <div
-        key={archetype.id}
-        className="neuro-radar-note rounded-2xl border border-love-teal/20 bg-love-ink text-love-cream shadow-sm"
-      >
-        <p className="text-sm">
-          <span className="font-semibold text-love-yellow">The Myth: </span>
-          {archetype.myth}
-        </p>
-        <p className="mt-3 text-sm">
-          <span className="font-semibold text-love-teal">The Reality — {archetype.realityTitle}: </span>
-          {archetype.realityBody}
-        </p>
+        className="pointer-events-none absolute inset-0 rounded-full bg-love-blue/20 blur-3xl"
+        aria-hidden="true"
+      />
+      <div className="relative h-full w-full rounded-3xl border border-love-blue/10 bg-white/50 p-4">
+        <Radar data={chartData} options={CHART_OPTIONS} />
       </div>
     </div>
   );
