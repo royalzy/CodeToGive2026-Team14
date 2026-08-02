@@ -1775,20 +1775,25 @@ h3 {
 .form-aside {
   position: sticky;
   top: 8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .form-aside h2 {
+  margin: 0;
   font-size: clamp(2.5rem, 4vw, 4rem);
 }
 
 .form-aside>p {
+  margin: 0;
   font-size: 1.05rem;
 }
 
 .privacy-note,
 .simulation-badge {
   padding: 1.25rem;
-  margin-top: 2rem;
+  margin-top: 0;
   color: white;
   background: var(--blue);
   border-radius: 1rem;
