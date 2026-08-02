@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "rounds": [
+    {
+      "id": "rw-001",
+      "theme": "stigma",
+      "kick": "One of these is actually TRUE. Can you spot it?",
+      "twist": "all_myths",
+      "statements": [
+        {
+          "id": "st-001a",
+          "text": "Australian rower Chris Morgan won three Olympic medals before being diagnosed with autism, which is why his condition never affected his career.",
+          "is_myth": true,
+          "status": "verified",
+          "reveal": "Chris Morgan is a three-time Olympian and won bronze at London 2012 — but he says his autism helped him succeed: \"Autism made me successful.\"",
+          "source": {
+            "label": "ABC News (2021), Olympedia #118026",
+            "url": "https://www.abc.net.au/news/2021-04-29/chris-morgan-autism-struggle-olympics-rowing-neurodiversity/100103374"
+          }
+        },
+        {
+          "id": "st-001b",
+          "text": "Love 21 spent just 15% of its budget on administrative overhead last year.",
+          "is_myth": true,
+          "status": "verified",
+          "reveal": "The real figure is 6% — Love 21 directs the rest of every dollar to its programmes for members and families.",
+          "source": {
+            "label": "Love 21 Foundation financials (FY2025)",
+            "url": "https://love21foundation.com/"
+          }
+        },
+        {
+          "id": "st-001c",
+          "text": "Vaccines cause autism.",
+          "is_myth": true,
+          "status": "verified",
+          "reveal": "This has been thoroughly debunked. There is no link between vaccines and autism.",
+          "source": {
+            "label": "World Health Organization",
+            "url": "https://www.who.int/news-room/feature-stories/detail/measles-immunization"
+          }
+        }
+      ]
+    }
+  ]
+}
