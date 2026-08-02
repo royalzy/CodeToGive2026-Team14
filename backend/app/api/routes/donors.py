@@ -14,6 +14,7 @@ from app.schemas.donor import (
     DonorProfileResponse,
     DonorSessionCreate,
     DonorSummary,
+    PublicWallPost,
     WallPostCreate,
     WallPostResponse,
 )
@@ -241,6 +242,34 @@ def get_my_wall_posts(
             nickname=donor.nickname,
             message=row["message"],
             status="pending",
+            created_at=row["created_at"],
+        )
+        for row in rows
+    ]
+
+
+@router.get("/donor-wall/public", response_model=list[PublicWallPost])
+def get_public_wall_posts(
+    limit: int = 50,
+) -> list[PublicWallPost]:
+    """The public "hall of appreciation": recent wall messages without identity.
+
+    Only nickname, message, and timestamp are exposed — never the donation id
+    or the donor's profile id.
+    """
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT w.id, p.nickname, w.message, w.created_at"
+            " FROM donor_wall_posts w"
+            " JOIN donor_profiles p ON p.id = w.donor_id"
+            " ORDER BY w.created_at DESC LIMIT ?",
+            (max(1, min(limit, 100)),),
+        ).fetchall()
+    return [
+        PublicWallPost(
+            id=row["id"],
+            nickname=row["nickname"],
+            message=row["message"],
             created_at=row["created_at"],
         )
         for row in rows
