@@ -7182,3 +7182,136 @@ textarea:focus,
     transition: none;
   }
 }
+
+// -- Hero Myth Check --------------------------------------------------------
+
+.hero-myth {
+  max-width: 640px;
+  margin: 0 auto 2.5rem;
+  padding: 1.5rem;
+  text-align: left;
+  background: rgb(255 255 255 / 96%);
+  border: 1px solid rgb(12 22 38 / 10%);
+  border-radius: 1.25rem;
+  box-shadow: 0 24px 60px rgb(12 22 38 / 12%);
+}
+
+.hero-myth-kick {
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.hero-myth-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.hero-myth-statement {
+  width: 100%;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  text-align: left;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgb(12 22 38 / 14%);
+  border-radius: 0.75rem;
+  background: #fdfdff;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+
+.hero-myth-statement:hover:not(:disabled) {
+  border-color: var(--red);
+  background: #fff5f7;
+  transform: translateY(-1px);
+}
+
+.hero-myth-statement.picked {
+  border-color: var(--red);
+  background: #fff5f7;
+}
+
+.hero-myth-statement:disabled {
+  cursor: default;
+}
+
+.hero-myth-index {
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgb(233 0 63 / 12%);
+  color: var(--red);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.hero-myth-reveal {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px dashed rgb(12 22 38 / 18%);
+}
+
+.hero-myth-punchline {
+  margin-bottom: 0.9rem;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--red);
+}
+
+.hero-myth-verdicts {
+  margin: 0 0 1.1rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.hero-myth-verdicts li {
+  padding: 0.8rem 1rem;
+  border: 1px solid rgb(12 22 38 / 9%);
+  border-radius: 0.75rem;
+  background: #f6f8fb;
+}
+
+.hero-myth-verdicts li.picked {
+  border-color: var(--red);
+  background: #fff5f7;
+}
+
+.hero-myth-verdicts strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.hero-myth-verdicts p {
+  margin: 0 0 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.hero-myth-verdicts a {
+  font-size: 0.8rem;
+  color: var(--blue);
+}
+
+.hero-myth-cta {
+  display: inline-block;
+}

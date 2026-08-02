@@ -325,3 +325,50 @@ export function previewDonationImpact(
     signal,
   ).then((result) => impactPreviewSchema.parse(result));
 }
+
+const heroRoundStatementSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+});
+
+const heroRoundSchema = z.object({
+  id: z.string(),
+  theme: z.string().nullable(),
+  kick: z.string().nullable(),
+  twist: z.string(),
+  statements: z.array(heroRoundStatementSchema),
+});
+
+const revealStatementSchema = z.object({
+  id: z.string(),
+  is_myth: z.boolean(),
+  reveal: z.string(),
+  source: z.object({ label: z.string(), url: z.string() }),
+});
+
+const revealSchema = z.object({
+  round_id: z.string(),
+  twist: z.string(),
+  punchline: z.string(),
+  selected_statement_id: z.string(),
+  statements: z.array(revealStatementSchema),
+});
+
+export type HeroRound = z.infer<typeof heroRoundSchema>;
+export type RevealResult = z.infer<typeof revealSchema>;
+
+export function getHeroRound(signal?: AbortSignal): Promise<HeroRound> {
+  return getJson<unknown>("/api/v1/quiz/rounds/hero", signal).then((result) =>
+    heroRoundSchema.parse(result),
+  );
+}
+
+export function answerHeroRound(payload: {
+  round_id: string;
+  selected_statement_id: string;
+  lang: string;
+}): Promise<RevealResult> {
+  return postJson<unknown, unknown>("/api/v1/quiz/rounds/answer", payload).then(
+    (result) => revealSchema.parse(result),
+  );
+}
