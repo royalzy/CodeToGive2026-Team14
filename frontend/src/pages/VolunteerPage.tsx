@@ -2,9 +2,10 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import { SectionHeading } from "../components/Cards";
+import { VolunteerHero } from "../components/volunteer/VolunteerHero";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
-import { VolunteerProgramAccordion } from "../components/volunteer/VolunteerProgramAccordion";
+import { VolunteerProgramBento } from "../components/volunteer/VolunteerProgramBento";
 import { VolunteerTestimonialMarquee } from "../components/volunteer/VolunteerTestimonialMarquee";
 import { volunteerTestimonials } from "../content/volunteer";
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
@@ -16,7 +17,12 @@ export function VolunteerPage() {
 
   return (
     <>
-      <section className="section volunteer-entry-section">
+      <VolunteerHero />
+
+      <section
+        className="section volunteer-entry-section volunteer-hero-reveal"
+        id="volunteer-entry"
+      >
         <div className="shell">
           <SectionHeading
             eyebrow="Choose your way in"
@@ -39,11 +45,11 @@ export function VolunteerPage() {
                   Take our 1 minute quiz and discover the role that was made for you.
                 </p>
                 <div className="volunteer-inline-actions">
-                  <Link className="button button-light" to="/volunteer/match">
+                  <Link className="button button-quiz-highlight" to="/volunteer/match">
                     Find out{" "}
                     <span aria-hidden="true">→</span>
                   </Link>
-                  <Link className="button button-dark" to="/volunteer/roles">
+                  <Link className="button button-outline" to="/volunteer/roles">
                     Browse all roles
                   </Link>
                 </div>
@@ -56,11 +62,11 @@ export function VolunteerPage() {
       <section className="section volunteer-role-preview-section">
         <div className="shell">
           <SectionHeading
-            eyebrow="Three ways to contribute, across every programme"
-            title="Clear roles. Clear boundaries."
-            body="Assist an existing class, host a new one, or help at a large event. Open a programme below to see the roles and boundaries that come with it."
+            eyebrow="Five programmes, endless ways to help"
+            title="Find the programme that fits you."
+            body="Every programme welcomes assistants, leaders and event helpers. Pick the one that speaks to you to see its roles in full."
           />
-          <VolunteerProgramAccordion />
+          <VolunteerProgramBento />
         </div>
       </section>
 
