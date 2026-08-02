@@ -66,6 +66,23 @@ export function VolunteerMatchPage() {
     setAnswers((current) => current.slice(0, -1));
   }
 
+  function skipToEnd() {
+    if (answers.length === 0) return;
+    const lastAnswer = answers[answers.length - 1];
+    const paddedAnswers = [
+      ...answers,
+      ...Array(quizQuestions.length - answers.length).fill(lastAnswer),
+    ];
+    const finalLetter = tallyQuizAnswers(paddedAnswers);
+    setAnswers(paddedAnswers);
+    setResultLetter(finalLetter);
+    trackVolunteerEvent("role_match_completed", { journey_path: "guided" });
+    trackVolunteerEvent("recommended_role_viewed", {
+      journey_path: "guided",
+      role_id: quizResults[finalLetter].matches[0].roleId,
+    });
+  }
+
   function retakeQuiz() {
     setAnswers([]);
     setResultLetter(null);
@@ -93,8 +110,10 @@ export function VolunteerMatchPage() {
               total={quizQuestions.length}
               progress={progress}
               canGoBack={answers.length > 0}
+              canSkip={answers.length > 0}
               onSelect={selectAnswer}
               onBack={goBack}
+              onSkip={skipToEnd}
             />
           ) : (
             <QuizIntroView key="intro" onStart={beginQuiz} />
@@ -159,16 +178,20 @@ function QuizQuestionView({
   total,
   progress,
   canGoBack,
+  canSkip,
   onSelect,
   onBack,
+  onSkip,
 }: {
   question: QuizQuestion;
   index: number;
   total: number;
   progress: number;
   canGoBack: boolean;
+  canSkip: boolean;
   onSelect: (letter: QuizLetter) => void;
   onBack: () => void;
+  onSkip: () => void;
 }) {
   const [selected, setSelected] = useState<QuizLetter | null>(null);
 
@@ -244,6 +267,16 @@ function QuizQuestionView({
           )}
         </div>
       </div>
+      {canSkip && (
+        <button
+          type="button"
+          className="text-link volunteer-quiz-skip"
+          onClick={onSkip}
+          disabled={Boolean(selected)}
+        >
+          Skip to result <span aria-hidden="true">→</span>
+        </button>
+      )}
     </div>
   );
 }

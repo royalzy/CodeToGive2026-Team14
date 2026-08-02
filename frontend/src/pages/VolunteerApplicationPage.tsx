@@ -135,16 +135,9 @@ export function VolunteerApplicationPage() {
 
   return (
     <>
-      <PageHero
-        eyebrow="Demo expression of interest"
-        title="Share details only after choosing a first step."
-        body="This prototype validates your answers and immediately discards them. Nothing is saved or sent to Love 21."
-        tone="yellow"
-      />
-      <section className="section form-section">
+      <section className="section form-section volunteer-application-section">
         <div className="shell form-layout">
           <aside className="form-aside">
-            <p className="eyebrow">Your selection</p>
             <h2>{selectedRole.title}</h2>
             {session ? (
               <div className="application-selection-card">
