@@ -198,6 +198,10 @@ export interface LandingContent {
     stats: LandingStat[];
     images: LandingHeroImage[];
   };
+  mythQuiz: {
+    eyebrow: string;
+    title: string;
+  };
   whatWeDo: {
     eyebrow: string;
     title: string;

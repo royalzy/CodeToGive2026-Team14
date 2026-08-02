@@ -73,6 +73,7 @@ export function HomePage() {
   return (
     <>
       <Hero c={c} />
+      <MythQuizSection c={c} />
       <WhatWeDo c={c} />
       <Impact c={c} />
       <LearnSection c={c} />
@@ -168,34 +169,39 @@ function HeroMythCheck() {
     <div className="hero-myth" aria-live="polite">
       <p className="hero-myth-kick">{round.kick}</p>
       <ul className="hero-myth-list">
-        {round.statements.map((st, i) => (
-          <li key={st.id}>
-            <button
-              type="button"
-              className={`hero-myth-statement${st.id === selectedId ? " picked" : ""}`}
-              onClick={() => choose(st.id)}
-              disabled={Boolean(reveal) || busy}
-            >
-              <span className="hero-myth-index">{i + 1}</span>
-              <span className="hero-myth-text">{st.text}</span>
-            </button>
-          </li>
-        ))}
+        {round.statements.map((st, i) => {
+          const verdict = reveal?.statements.find((r) => r.id === st.id);
+          return (
+            <li key={st.id}>
+              <button
+                type="button"
+                className={`hero-myth-statement${st.id === selectedId ? " picked" : ""}`}
+                onClick={() => choose(st.id)}
+                disabled={Boolean(reveal) || busy}
+              >
+                <span className="hero-myth-index">{i + 1}</span>
+                <span className="hero-myth-text">{st.text}</span>
+              </button>
+              <div className={`hero-myth-panel${verdict ? " open" : ""}`}>
+                <div className="hero-myth-panel-inner">
+                  {verdict && (
+                    <div className={`hero-myth-verdict${st.id === reveal?.selected_statement_id ? " picked" : ""}`}>
+                      <strong>{verdict.is_myth ? "Myth" : "True"}</strong>
+                      <p>{verdict.reveal}</p>
+                      <a href={verdict.source.url} target="_blank" rel="noreferrer">
+                        {verdict.source.label}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </li>
+          );
+        })}
       </ul>
       {reveal && (
         <div className="hero-myth-reveal">
           <p className="hero-myth-punchline">{reveal.punchline}</p>
-          <ul className="hero-myth-verdicts">
-            {reveal.statements.map((st) => (
-              <li key={st.id} className={st.id === reveal.selected_statement_id ? "picked" : ""}>
-                <strong>{st.is_myth ? "Myth" : "True"}</strong>
-                <p>{st.reveal}</p>
-                <a href={st.source.url} target="_blank" rel="noreferrer">
-                  {st.source.label}
-                </a>
-              </li>
-            ))}
-          </ul>
           {attempts !== null && (
             <p className="hero-myth-community">
               {attempts.toLocaleString()}{" "}
@@ -242,7 +248,6 @@ function Hero({ c }: { c: typeof import("../content/en").landingContent }) {
           <a href="#community" className="landing-hero-cta-primary" data-cta="community-hero">{c.hero.ctaPrimary} ↓</a>
           <Link to="/volunteer" className="landing-hero-cta-secondary" data-cta="volunteer-hero">{c.hero.ctaSecondary}</Link>
         </div>
-        <HeroMythCheck />
         <div className="landing-hero-dots" role="tablist" aria-label="Hero images">
           {images.map((img, i) => (
             <button key={img.src} role="tab" aria-selected={imgIdx === i}
@@ -258,6 +263,20 @@ function Hero({ c }: { c: typeof import("../content/en").landingContent }) {
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Myth Quiz ────────────────────────────────────────────────────────────
+
+function MythQuizSection({ c }: { c: typeof import("../content/en").landingContent }) {
+  return (
+    <section id="myth-quiz" className="landing-section">
+      <div className="shell">
+        <p className="landing-eyebrow">{c.mythQuiz.eyebrow}</p>
+        <h2 className="landing-title">{c.mythQuiz.title}</h2>
+        <HeroMythCheck />
       </div>
     </section>
   );

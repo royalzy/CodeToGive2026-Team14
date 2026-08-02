@@ -21,6 +21,11 @@ export const landingContent: LandingContent = {
         ],
     },
 
+    mythQuiz: {
+        eyebrow: "Test Yourself",
+        title: "Myth or Fact?",
+    },
+
     whatWeDo: {
         eyebrow: "Our Community",
         title: "What We Do",

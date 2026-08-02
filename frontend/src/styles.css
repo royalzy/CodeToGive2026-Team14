@@ -4579,7 +4579,7 @@ h3 {
 
 .landing-hero h1 em {
   font-style: normal;
-  color: var(--red);
+  color: white;
 }
 
 .landing-hero-lede {
@@ -5082,7 +5082,7 @@ h3 {
 
 .landing-quiz-card {
   padding: 2.5rem;
-  border-radius: 1.5rem;
+  border-radius: 1rem;
   background: white;
   border: 1px solid rgb(12 22 38 / 10%);
   border-top: 6px solid var(--blue);
@@ -5312,7 +5312,7 @@ h3 {
   position: relative;
   overflow: hidden;
   padding: 2rem 1.5rem;
-  border-radius: 1.5rem;
+  border-radius: 1rem;
   text-align: center;
   background: white;
   border: 1px solid rgb(12 22 38 / 8%);
@@ -5345,6 +5345,7 @@ h3 {
   display: block;
   margin-bottom: 0.6rem;
   color: var(--red);
+  background: none;
 }
 
 .landing-impact-card strong {
@@ -5401,7 +5402,7 @@ h3 {
 
 .landing-mission-pillar {
   padding: 1rem;
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   background: rgb(73 169 157 / 7%);
   border: 1px solid rgb(73 169 157 / 14%);
 }
@@ -5419,6 +5420,7 @@ h3 {
 
 .landing-mission-pillar span {
   font-size: 0.75rem;
+  line-height: 1.5;
   color: #5e6472;
 }
 
@@ -5449,7 +5451,7 @@ h3 {
 }
 
 .landing-cta-card {
-  border-radius: 1.5rem;
+  border-radius: 1rem;
   overflow: hidden;
   background: white;
   border: 1px solid rgb(12 22 38 / 10%);
@@ -7587,7 +7589,12 @@ textarea {
 
 .landing-hero-cta-secondary {
   color: white;
+  background: rgb(255 255 255 / 16%);
   border-color: rgb(255 255 255 / 72%);
+}
+
+.landing-hero-cta-primary {
+  border-radius: 999px;
 }
 
 .button-outline:hover,
@@ -7696,6 +7703,14 @@ textarea:focus,
   text-shadow: 0 2px 24px rgb(0 0 0 / 24%);
 }
 
+@media (min-width: 1024px) {
+  #learn .landing-title {
+    max-width: none;
+    white-space: nowrap;
+    font-size: clamp(2rem, 3.2vw, 3.4rem);
+  }
+}
+
 .landing-hero-lede,
 .landing-hero-tagline,
 .landing-hero .landing-desc {
@@ -7758,8 +7773,18 @@ textarea:focus,
   color: var(--ink);
   background: white;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 16px;
   box-shadow: 0 10px 30px rgb(23 49 59 / 8%);
+}
+
+.landing-mission-pillar:hover,
+.landing-impact-card:hover,
+.landing-quiz-card:hover,
+.landing-cta-card:hover,
+.landing-fact-body:hover,
+.landing-pillar-info:hover {
+  border-color: #9bbab9;
+  box-shadow: 0 16px 38px rgb(23 49 59 / 13%);
 }
 
 .landing-pillar-number,
@@ -7805,26 +7830,22 @@ textarea:focus,
 }
 
 .landing-myth-bust,
-.landing-why21,
-.landing-cta-header {
+.landing-why21 {
   color: white;
   background: var(--ink);
 }
 
 .landing-myth-bust h2,
-.landing-why21 h2,
-.landing-section-alt .landing-cta-header h2 {
+.landing-why21 h2 {
   color: white;
 }
 
 .landing-myth-bust p,
-.landing-why21 p,
-.landing-cta-header p {
+.landing-why21 p {
   color: rgb(255 255 255 / 82%);
 }
 
-.landing-myth-bust strong,
-.landing-section.landing-section-alt .landing-cta-header h2 {
+.landing-myth-bust strong {
   color: white;
 }
 
@@ -8358,14 +8379,7 @@ textarea:focus,
 // -- Hero Myth Check --------------------------------------------------------
 
 .hero-myth {
-  max-width: 640px;
-  margin: 0 auto 6rem;
-  padding: 1.5rem;
   text-align: left;
-  background: rgb(255 255 255 / 96%);
-  border: 1px solid rgb(12 22 38 / 10%);
-  border-radius: 1.25rem;
-  box-shadow: 0 24px 60px rgb(12 22 38 / 12%);
 }
 
 .hero-myth-kick {
@@ -8442,27 +8456,35 @@ textarea:focus,
   color: var(--orange);
 }
 
-.hero-myth-verdicts {
-  margin: 0 0 1.1rem;
-  padding: 0;
-  list-style: none;
+.hero-myth-panel {
   display: grid;
-  gap: 0.7rem;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
 }
 
-.hero-myth-verdicts li {
+.hero-myth-panel.open {
+  grid-template-rows: 1fr;
+}
+
+.hero-myth-panel-inner {
+  overflow: hidden;
+  min-height: 0;
+  padding-top: 0.6rem;
+}
+
+.hero-myth-verdict {
   padding: 0.8rem 1rem;
   border: 1px solid rgb(12 22 38 / 9%);
   border-radius: 0.75rem;
   background: #f6f8fb;
 }
 
-.hero-myth-verdicts li.picked {
+.hero-myth-verdict.picked {
   border-color: var(--red);
   background: #fff5f7;
 }
 
-.hero-myth-verdicts strong {
+.hero-myth-verdict strong {
   display: block;
   margin-bottom: 0.3rem;
   font-size: 0.72rem;
@@ -8472,14 +8494,15 @@ textarea:focus,
   color: var(--red);
 }
 
-.hero-myth-verdicts p {
+.hero-myth-verdict p {
   margin: 0 0 0.25rem;
   font-size: 0.9rem;
   line-height: 1.5;
   color: var(--ink);
 }
 
-.hero-myth-verdicts a {
+.hero-myth-verdict a {
+  display: inline-block;
   font-size: 0.8rem;
   color: var(--blue);
 }
