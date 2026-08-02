@@ -1,5 +1,6 @@
 import type { Program } from "./types";
 import { programs } from "./programs";
+import type { Lang } from "./languageContextValue";
 
 export type VolunteerRoleId =
   | "dance_activity_buddy"
@@ -588,3 +589,349 @@ export function getVolunteerSession(
 export function getVolunteerRolesForProgram(programSlug: Program["slug"]): VolunteerRole[] {
   return volunteerRoles.filter((role) => role.programSlug === programSlug);
 }
+
+// Traditional Chinese mirrors of the English content above. This file is not
+// part of the src/content/en.ts + zh.ts barrel, so translations live here
+// instead, keyed by id and merged onto the English record via the
+// `localizeVolunteer*` helpers. Author in Traditional Chinese only —
+// Simplified is derived at render time via localizeDeep.
+
+type VolunteerRoleCopy = Pick<
+  VolunteerRole,
+  | "title"
+  | "shortTitle"
+  | "summary"
+  | "contribution"
+  | "tasks"
+  | "boundaries"
+  | "timeCommitment"
+  | "experience"
+  | "interactionLevel"
+  | "support"
+>;
+
+export const volunteerRoleCopyZh: Record<VolunteerRoleId, VolunteerRoleCopy> = {
+  dance_activity_buddy: {
+    title: "創意藝術課堂助理",
+    shortTitle: "創意藝術助理",
+    summary:
+      "與會員一起參與舞蹈和創意藝術活動，給予尊重的鼓勵，讓活動室成為讓人感到自在的地方。",
+    contribution: "你的參與，有助營造一個讓大家可以自在活動、創作，並享受共聚時光的活動。",
+    tasks: [
+      "參與熱身和主要活動",
+      "給予鼓勵，不施加壓力",
+      "協助準備簡單的器材或用品",
+      "配合教練和計劃團隊的指示",
+    ],
+    boundaries: [
+      "你不會提供個人照顧",
+      "你不會在沒有職員支援下獨自帶領課堂",
+      "你不會替會員作決定",
+      "你不會提供醫療或行為建議",
+    ],
+    timeCommitment: "有支援的兩小時體驗，之後可按你的意願，每月或更頻密地參與。",
+    experience: "毋須具備舞蹈或教學經驗。",
+    interactionLevel: "高 — 你會與會員一同參與活動。",
+    support: ["活動前的簡短講解", "全程有教練或 Love 21 團隊在場", "首次參與後的簡短回顧"],
+  },
+  sports_activity_buddy: {
+    title: "體育課堂助理",
+    shortTitle: "體育助理",
+    summary:
+      "參與適應性體育活動——由地滾球到拳擊——協助每位參加者以自己的步伐感受融入。",
+    contribution: "以隊友身分出現，有助讓運動變得更有社交性、更具鼓勵性，並聚焦於每個人的強項。",
+    tasks: [
+      "參與示範和團隊活動",
+      "協助搬運及收拾輕便器材",
+      "鼓勵努力，不作比較",
+      "遵從教練的安全指引",
+    ],
+    boundaries: [
+      "你不會評估某人的能力",
+      "你不會在沒有教練同意下更改活動",
+      "你不會在未經詢問下提供身體協助",
+      "你不會獨自處理突發事件",
+    ],
+    timeCommitment: "有支援的兩小時體驗，日後機會安排彈性。",
+    experience: "毋須具備教練或體育資歷。",
+    interactionLevel: "高 — 預期有主動且共同的參與。",
+    support: ["清晰的活動及安全指引", "全程有教練在場", "隨時可以暫停及提問"],
+  },
+  community_event_volunteer: {
+    title: "社區活動助手",
+    shortTitle: "活動助手",
+    summary:
+      "協助公眾活動——包括企業義工日——讓會員、家庭和訪客感到有條理、友善且容易參與。",
+    contribution: "你有助營造連繫的條件——從熱情的歡迎，到細心的幕後支援。",
+    tasks: [
+      "歡迎參加者並提供方向指引",
+      "準備活動或資訊區域",
+      "協助簡單的登記工作",
+      "在活動團隊邀請時參與其中",
+    ],
+    boundaries: [
+      "你只可查閱與工作相關的資訊",
+      "你不會代表會員發言",
+      "你不會在未經同意下為他人拍照",
+      "遇到不熟悉的要求時，請轉交活動負責人處理",
+    ],
+    timeCommitment: "歡迎單次參與，毋須定期承諾。",
+    experience: "毋須具備活動籌辦經驗。",
+    interactionLevel: "彈性 — 可選擇迎賓、活動或場地佈置支援。",
+    support: ["明確的工作範圍及指定活動負責人", "訪客到達前的活動簡報", "隨時有團隊成員解答疑問"],
+  },
+  nutrition_class_assistant: {
+    title: "營養工作坊助理",
+    shortTitle: "營養助理",
+    summary: "協助食物準備，帶領小組完成烹飪和健康飲食工作坊。",
+    contribution: "你有助把營養指導變成親身體驗、具社交性的活動，讓家庭能在家中延續。",
+    tasks: [
+      "協助設置及收拾簡單的備餐工作台",
+      "逐步帶領小組完成食譜",
+      "協助營養師或計劃負責人進行示範",
+      "鼓勵參與，不催促任何人",
+    ],
+    boundaries: [
+      "你不會提供個人化的飲食或醫療建議",
+      "你不會在沒有職員監督下獨自處理食物",
+      "你不會在未經職員批准下處理過敏或食材替代事宜",
+      "健康相關問題請轉交計劃負責人",
+    ],
+    timeCommitment: "有支援的兩小時體驗，之後可按你的意願，每月或更頻密地參與。",
+    experience: "毋須具備營養或廚藝資歷。",
+    interactionLevel: "高 — 親身參與的小組支援。",
+    support: ["事前的簡短講解及食譜說明", "全程有營養師或 Love 21 團隊在場", "首次參與後的簡短回顧"],
+  },
+  family_support_assistant: {
+    title: "家庭支援助理",
+    shortTitle: "家庭支援助理",
+    summary: "歡迎家庭和照顧者，協助促進小組對話和活動。",
+    contribution: "你的存在讓家庭在陪伴子女的同時，感受到歡迎、聆聽和支持。",
+    tasks: [
+      "在家庭到達時給予歡迎",
+      "協助促進小組對話或活動",
+      "協助簡單的後勤工作，例如登記及安排座位",
+      "全程遵從家庭支援負責人的指示",
+    ],
+    boundaries: [
+      "你不會提供輔導或臨床建議",
+      "你不會向他人透露家庭的資訊",
+      "你不會在沒有職員在場下獨自帶領活動",
+      "敏感議題請轉交計劃負責人",
+    ],
+    timeCommitment: "有支援的兩小時體驗，之後可按你的意願，每月或更頻密地參與。",
+    experience: "毋須具備輔導或帶領活動經驗。",
+    interactionLevel: "高 — 溫暖、以對話為本的支援。",
+    support: ["活動前的簡短講解", "全程有家庭支援負責人在場", "首次參與後的簡短回顧"],
+  },
+  sports_class_leader: {
+    title: "體育課堂帶領者",
+    shortTitle: "體育課堂帶領者",
+    summary: "主持或帶領新的體育課堂——例如龍舟或地滾球小組——讓會員參與。",
+    contribution: "帶領新課堂能擴闊 Love 21 提供的活動範疇，讓你能按自己的經驗塑造活動。",
+    tasks: [
+      "與計劃團隊一起策劃簡單的課堂流程",
+      "帶領熱身和主要活動",
+      "調整節奏和指示，讓每個人都能參與",
+      "每節活動後與統籌人員進行檢討",
+    ],
+    boundaries: [
+      "你不會在沒有先進行有支援的試教前獨自開班",
+      "在較高風險的活動中，你不會獨自作出安全決定",
+      "你不會在未經職員確認下拒絕會員參與",
+      "你不會在沒有支援下獨自處理事故",
+    ],
+    timeCommitment: "先進行簡短的共同策劃，再有支援地帶領首堂課，然後才獨立帶班。",
+    experience: "具備相關體育、教練或教學經驗會有幫助，但並非必要。",
+    interactionLevel: "高 — 你會在職員支援下帶領小組。",
+    support: ["與體育計劃負責人共同策劃", "首堂課有職員在場", "適應期間持續有人跟進"],
+  },
+  enrichment_class_leader: {
+    title: "創意藝術課堂帶領者",
+    shortTitle: "創意藝術課堂帶領者",
+    summary: "主持或帶領新的創意藝術、手工藝或音樂課堂，讓會員探索。",
+    contribution: "帶領新課堂能為計劃帶來新意念和興趣，直接源自你的強項。",
+    tasks: [
+      "與計劃團隊一起策劃簡單的課堂流程",
+      "帶領熱身和主要創作活動",
+      "調整物料和節奏，讓每個人都能參與",
+      "每節活動後與統籌人員進行檢討",
+    ],
+    boundaries: [
+      "你不會在沒有先進行有支援的試教前獨自開班",
+      "你不會在未經職員確認下拒絕會員參與",
+      "你不會使用未經安全檢查的物料",
+      "你不會在沒有支援下獨自處理事故",
+    ],
+    timeCommitment: "先進行簡短的共同策劃，再有支援地帶領首堂課，然後才獨立帶班。",
+    experience: "具備相關創作、教學或帶領活動經驗會有幫助，但並非必要。",
+    interactionLevel: "高 — 你會在職員支援下帶領小組。",
+    support: ["與充實計劃負責人共同策劃", "首堂課有職員在場", "適應期間持續有人跟進"],
+  },
+};
+
+export function localizeVolunteerRole(role: VolunteerRole, lang: Lang): VolunteerRole {
+  if (lang === "en") return role;
+  return { ...role, ...volunteerRoleCopyZh[role.id] };
+}
+
+type VolunteerSessionCopy = Pick<
+  VolunteerSession,
+  | "title"
+  | "dateLabel"
+  | "location"
+  | "summary"
+  | "schedule"
+  | "bring"
+  | "smallTask"
+>;
+
+export const volunteerSessionCopyZh: Record<VolunteerSessionId, VolunteerSessionCopy> = {
+  saturday_dance_project: {
+    title: "週六舞蹈計劃",
+    dateLabel: "8 月 15 日星期六（示範）",
+    location: "Love 21 中心 — 示範地點",
+    summary: "有支援的首次參與，包括職員簡介和共同舞蹈活動。",
+    schedule: [
+      { time: "09:50", activity: "到達並與計劃團隊見面" },
+      { time: "10:00", activity: "參與簡短的義工簡介" },
+      { time: "10:10", activity: "與會員見面並一起熱身" },
+      { time: "10:30", activity: "參與主要舞蹈活動" },
+      { time: "11:50", activity: "與團隊簡短回顧" },
+    ],
+    bring: ["舒適的衣物", "飲用水", "開放而尊重的態度"],
+    smallTask: "記住兩個名字，積極參與而非在旁觀看，並在提供協助前先詢問。",
+  },
+  sunday_sports_session: {
+    title: "週日體育活動",
+    dateLabel: "8 月 16 日星期日（示範）",
+    location: "社區體育場地 — 示範地點",
+    summary: "在教練和義工團隊陪同下，體驗共融地滾球和拳擊活動。",
+    schedule: [
+      { time: "13:50", activity: "到達並與教練見面" },
+      { time: "14:00", activity: "回顧活動和安全指引" },
+      { time: "14:15", activity: "與會員一起熱身" },
+      { time: "14:30", activity: "參與主要體育活動" },
+      { time: "15:50", activity: "收拾並與團隊回顧" },
+    ],
+    bring: ["運動鞋", "飲用水", "舒適的衣物"],
+    smallTask: "鼓勵努力而不作比較，給予對方回應的時間，並在協助前先詢問。",
+  },
+  dragon_boat_training_day: {
+    title: "龍舟訓練日",
+    dateLabel: "8 月 23 日星期六（示範）",
+    location: "海濱划艇中心 — 示範地點",
+    summary: "與團隊一同出海，體驗協助帶領新體育課堂的感覺。",
+    schedule: [
+      { time: "07:50", activity: "到達並與統籌人員見面" },
+      { time: "08:00", activity: "安全簡介及分配龍舟" },
+      { time: "08:30", activity: "水上熱身及訓練練習" },
+      { time: "09:30", activity: "主要訓練環節" },
+      { time: "11:30", activity: "檢討並策劃下一節活動" },
+    ],
+    bring: ["快乾衣物", "防曬用品", "飲用水"],
+    smallTask: "跟隨現任負責人觀摩，了解活動編排方式，並分享一個未來訓練的構思。",
+  },
+  nutrition_cooking_workshop: {
+    title: "營養工作坊助手",
+    dateLabel: "8 月 16 日星期六（示範）",
+    location: "Love 21 中心廚房 — 示範地點",
+    summary: "協助食物準備，帶領小組完成簡單健康食譜。",
+    schedule: [
+      { time: "10:50", activity: "到達並與營養師見面" },
+      { time: "11:00", activity: "食譜講解及食物安全簡介" },
+      { time: "11:15", activity: "協助小組進行備餐" },
+      { time: "12:30", activity: "一起分享和品嚐" },
+      { time: "12:50", activity: "收拾並與團隊回顧" },
+    ],
+    bring: ["包頭鞋", "如有需要請備髮圈", "開放而有耐性的態度"],
+    smallTask: "協助一個小組完成食譜步驟，並在提供實際協助前先詢問。",
+  },
+  family_support_afternoon: {
+    title: "家庭支援下午聚會",
+    dateLabel: "8 月 14 日星期四（示範）",
+    location: "Love 21 中心 — 示範地點",
+    summary: "在輕鬆而支持的環境中，歡迎家庭並協助促進小組對話。",
+    schedule: [
+      { time: "12:50", activity: "到達並與家庭支援負責人見面" },
+      { time: "13:00", activity: "在家庭到達時給予歡迎" },
+      { time: "13:15", activity: "協助小組對話或活動" },
+      { time: "14:45", activity: "協助簡單的清理工作" },
+      { time: "14:50", activity: "與團隊簡短回顧" },
+    ],
+    bring: ["舒適的衣物", "飲用水", "溫暖而有耐性的態度"],
+    smallTask: "以姓名歡迎兩個家庭，並在不主導的情況下支援對話。",
+  },
+  community_csr_volunteer_day: {
+    title: "企業社會責任義工日",
+    dateLabel: "8 月 19 日星期二（示範）",
+    location: "社區體育場地 — 示範地點",
+    summary: "與企業團隊一同參與循環訓練活動，和會員一起負責其中一個運動站。",
+    schedule: [
+      { time: "09:20", activity: "到達並與 Love 21 團隊見面" },
+      { time: "09:30", activity: "介紹社群和當天的活動" },
+      { time: "09:50", activity: "負責循環訓練中的其中一個運動站" },
+      { time: "11:30", activity: "小組活動及拍照（須經同意）" },
+      { time: "12:15", activity: "與團隊一起回顧和分享得著" },
+    ],
+    bring: ["舒適的衣物", "運動鞋", "開放而好奇的態度"],
+    smallTask: "負責一個簡單的運動站，鼓勵努力而不比較參加者表現。",
+  },
+};
+
+export function localizeVolunteerSession(session: VolunteerSession, lang: Lang): VolunteerSession {
+  if (lang === "en") return session;
+  return { ...session, ...volunteerSessionCopyZh[session.id] };
+}
+
+type VolunteerTestimonialCopy = Pick<VolunteerTestimonial, "quote" | "role" | "org">;
+
+// Keyed by the (untranslated) name so English-only fields (name, org where it
+// is a company name) stay put; only quote/role/org copy is mirrored here.
+export const volunteerTestimonialCopyZh: Record<string, VolunteerTestimonialCopy> = {
+  Chaim: {
+    quote:
+      "我們在 Love 21 的體驗很棒。我們首先與 Jeff 和 Carmel 見面，他們講解了這個社群面對的挑戰，然後我們協助了一節循環訓練課，每個人負責一個運動站，幫助社群成員透過簡單的運動保持活躍。這是一次難忘的經歷，很高興能夠幫助一個有著這麼重要使命的機構！",
+    role: "企業社會責任義工",
+    org: "Argyll Scott",
+  },
+  Laura: {
+    quote:
+      "在 Love 21 做義工對我們來說是一次大開眼界的經歷，遇到一些可愛的會員，也有很棒的空間！我們很喜歡不同的活動，也很高興能參與這個了不起的社群。",
+    role: "企業社會責任義工",
+    org: "Nakama Global",
+  },
+  Marcus: {
+    quote:
+      "我原本以為只是幫忙一個下午，最後卻從會員身上學到很多。團隊給了我們清楚的簡介，我從未感到不知所措。",
+    role: "個人義工",
+    org: "體育計劃",
+  },
+  Priya: {
+    quote:
+      "作為一個在這方面毫無經驗的學生，我起初有點緊張。Love 21 的教練讓一切變得容易：清晰的指引、熱情的歡迎，還有樂意讓我們參與的會員。",
+    role: "學生義工",
+    org: "創意藝術計劃",
+  },
+  "Wei Ling": {
+    quote:
+      "最讓我印象深刻的是活動安排得非常有條理。每個站都有明確的工作，職員也一直在附近解答疑問。我們整個團隊都想再來。",
+    role: "企業社會責任義工",
+    org: "龍舟訓練日",
+  },
+};
+
+export function localizeVolunteerTestimonial(
+  testimonial: VolunteerTestimonial,
+  lang: Lang,
+): VolunteerTestimonial {
+  if (lang === "en") return testimonial;
+  const zh = volunteerTestimonialCopyZh[testimonial.name];
+  return zh ? { ...testimonial, ...zh } : testimonial;
+}
+
+export const matchRoleTypeLabelZh: Record<VolunteerRoleType, string> = {
+  class_assistant: "協助現有課堂",
+  class_leader: "主持或帶領新課堂",
+  event_helper: "支援大型活動",
+};

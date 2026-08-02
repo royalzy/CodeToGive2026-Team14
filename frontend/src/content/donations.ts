@@ -1,5 +1,7 @@
 import type { AllocationShare, WishlistItem } from "./types";
 import type { CauseId, ImpactPreview } from "../api/client";
+import type { Lang } from "./languageContextValue";
+import { localizeDeep } from "../lib/zhConvert";
 
 // A pre-baked donor profile so demos can skip typing. The email is fixed
 // and reused across every demo run, so DonatePage falls back to signing
@@ -47,7 +49,7 @@ export type DonationImpactMessage = {
   detail: string;
 };
 
-export function getDonationImpactMessage(
+function getImpactMessageEn(
   impact: ImpactPreview | null,
 ): DonationImpactMessage {
   if (!impact) {
@@ -124,6 +126,91 @@ export function getDonationImpactMessage(
         detail: "Your donation could help support Love 21’s wider programmes.",
       };
   }
+}
+
+function getImpactMessageZh(impact: ImpactPreview | null): DonationImpactMessage {
+  if (!impact) {
+    return {
+      headline: "每一份禮物，都能創造多一種可能。",
+      detail: "你的捐款將支持 Love 21 的服務項目和社群。",
+    };
+  }
+
+  if (impact.mode === "flexible") {
+    return {
+      headline: "一份禮物，成就許多成長、連繫和發光的時刻。",
+      detail: "你的捐款讓 Love 21 能靈活地把支援投放到最需要的地方。",
+    };
+  }
+
+  if (impact.mode === "contribution") {
+    switch (impact.copy_key) {
+      case "dance":
+        return {
+          headline: "又一次移動、學習和發光的機會，由此開始。",
+          detail: "你的捐款有助支持舞蹈訓練機會。",
+        };
+      case "sports":
+        return {
+          headline: "每一步邁向自信，都始於一個機會。",
+          detail: "你的捐款有助支持有支援的體育活動。",
+        };
+      case "nutrition":
+        return {
+          headline: "美好的明天，可以由一個關懷的選擇開始。",
+          detail: "你的捐款有助支持營養及飲食指導服務。",
+        };
+      case "family_support":
+        return {
+          headline: "沒有一個家庭應該獨自面對這段旅程。",
+          detail: "你的捐款有助支持家庭與照顧者。",
+        };
+      default:
+        return {
+          headline: "每一份禮物，都能創造多一種可能。",
+          detail: "你的捐款有助支持 Love 21 更廣泛的服務項目。",
+        };
+    }
+  }
+
+  const count = impact.estimated_units;
+  const displayCount = count.toLocaleString("en-HK");
+  switch (impact.copy_key) {
+    case "dance":
+      return {
+        headline: `多 ${displayCount} 次移動、學習和發光的機會。`,
+        detail: `你的捐款有助支持大約 ${displayCount} 節舞蹈訓練課堂。`,
+      };
+    case "sports":
+      return {
+        headline: `多 ${displayCount} 次自信邁步的機會。`,
+        detail: `你的捐款有助支持大約 ${displayCount} 節體育活動。`,
+      };
+    case "nutrition":
+      return {
+        headline: `多 ${displayCount} 次建立健康習慣的機會。`,
+        detail: `你的捐款有助支持大約 ${displayCount} 次營養諮詢。`,
+      };
+    case "family_support":
+      return {
+        headline: `多 ${displayCount} 次讓家庭感到被支持的機會。`,
+        detail: `你的捐款有助支持大約 ${displayCount} 次家庭支援機會。`,
+      };
+    default:
+      return {
+        headline: `多 ${displayCount} 種可能，由此展開。`,
+        detail: "你的捐款有助支持 Love 21 更廣泛的服務項目。",
+      };
+  }
+}
+
+export function getLocalizedImpactMessage(
+  impact: ImpactPreview | null,
+  lang: Lang,
+): DonationImpactMessage {
+  return lang === "en"
+    ? getImpactMessageEn(impact)
+    : localizeDeep(getImpactMessageZh(impact), lang);
 }
 
 export const wishlistItems: WishlistItem[] = [

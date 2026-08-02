@@ -1,7 +1,32 @@
 import type { ImpactPreview } from "../../api/client";
-import { getDonationImpactMessage } from "../../content/donations";
+import { getLocalizedImpactMessage } from "../../content/donations";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
 
 export type PreviewStatus = "idle" | "loading" | "success" | "error";
+
+const copyByLang = {
+  en: {
+    kicker: "Your possible impact",
+    calculating: "Calculating another possibility…",
+    liveEstimateUnavailable: "Live estimate unavailable — showing a general impact message.",
+    yourAmount: (amount: string) => `Your HK$${amount}`,
+    yourGift: "Your gift",
+    footerStrong: "Demonstration estimates for prototype purposes.",
+    footerBody:
+      "Impact estimates are based on average programme costs. Donations support Love 21’s wider programmes and are allocated according to operational needs.",
+  },
+  zh: {
+    kicker: "你可能帶來的影響",
+    calculating: "正在計算多一種可能…",
+    liveEstimateUnavailable: "即時預算暫時無法載入 — 現顯示一般性的成效訊息。",
+    yourAmount: (amount: string) => `你的 HK$${amount}`,
+    yourGift: "你的捐款",
+    footerStrong: "示範用途的原型預算數字。",
+    footerBody:
+      "成效預算是根據平均服務項目成本計算。捐款用於支持 Love 21 更廣泛的服務項目，並按實際運作需要分配。",
+  },
+} as const;
 
 export function ImpactCard({
   amountHkd,
@@ -14,7 +39,9 @@ export function ImpactCard({
   status: PreviewStatus;
   imageSrc?: string;
 }) {
-  const message = getDonationImpactMessage(impact);
+  const { lang } = useLanguage();
+  const copy = localizeDeep(copyByLang[lang === "en" ? "en" : "zh"], lang);
+  const message = getLocalizedImpactMessage(impact, lang);
   const visualUnitCount =
     impact?.mode === "counted"
       ? Math.min(impact.estimated_units, 8)
@@ -39,19 +66,19 @@ export function ImpactCard({
       )}
       <div className="impact-card-body">
         <div className="impact-card-topline">
-          <span className="impact-card-kicker">Your possible impact</span>
+          <span className="impact-card-kicker">{copy.kicker}</span>
         </div>
 
         {status === "loading" ? (
           <div className="impact-loading">
             <span aria-hidden="true" />
-            Calculating another possibility…
+            {copy.calculating}
           </div>
         ) : (
           <>
             {status === "error" && (
               <p className="impact-service-note">
-                Live estimate unavailable — showing a general impact message.
+                {copy.liveEstimateUnavailable}
               </p>
             )}
             <h2>{message.headline}</h2>
@@ -64,19 +91,17 @@ export function ImpactCard({
             )}
             <p className="impact-amount">
               {Number.isInteger(amountHkd) && amountHkd >= 10
-                ? `Your HK$${amountHkd.toLocaleString("en-HK")}`
-                : "Your gift"}
+                ? copy.yourAmount(amountHkd.toLocaleString("en-HK"))
+                : copy.yourGift}
             </p>
             <p>{message.detail}</p>
           </>
         )}
 
         <footer>
-          <strong>Demonstration estimates for prototype purposes.</strong>
+          <strong>{copy.footerStrong}</strong>
           <span>
-            Impact estimates are based on average programme costs. Donations
-            support Love 21’s wider programmes and are allocated according to
-            operational needs.
+            {copy.footerBody}
           </span>
         </footer>
       </div>

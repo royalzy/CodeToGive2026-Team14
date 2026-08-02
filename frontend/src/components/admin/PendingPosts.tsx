@@ -7,6 +7,9 @@ import {
   type PlatformId,
   type ScheduledPost,
 } from "../../api/client";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
+import type { Lang } from "../../content/languageContextValue";
 
 const PLATFORM_LABEL: Record<PlatformId, string> = {
   website: "Website",
@@ -25,11 +28,13 @@ function PendingRow({
   busy,
   onPublish,
   onDelete,
+  lang,
 }: {
   post: ScheduledPost;
   busy: boolean;
   onPublish: (id: string) => void;
   onDelete: (id: string) => void;
+  lang: Lang;
 }) {
   // Collapsed by default so a long list stays scannable; expanding shows
   // enough to identify which post it is.
@@ -53,7 +58,9 @@ function PendingRow({
           <span aria-hidden="true">{open ? "▾" : "▸"}</span>
           <span className="pending-when">
             {formatWhen(post.scheduled_for)}
-            {overdue && !autoPublishes ? <em className="pending-overdue"> · due</em> : null}
+            {overdue && !autoPublishes ? (
+              <em className="pending-overdue"> · {lang === "en" ? "due" : localizeDeep("已到期", lang)}</em>
+            ) : null}
           </span>
           <span className="pending-preview">{firstCaption.slice(0, 48)}</span>
         </button>
@@ -61,7 +68,13 @@ function PendingRow({
         <span className="pending-platforms">
           {post.platforms.map((p) => PLATFORM_LABEL[p]).join(" · ")}
           <span className={autoPublishes ? "pending-auto" : "pending-manual"}>
-            {autoPublishes ? "posts automatically" : "needs you"}
+            {autoPublishes
+              ? lang === "en"
+                ? "posts automatically"
+                : localizeDeep("自動發佈", lang)
+              : lang === "en"
+                ? "needs you"
+                : localizeDeep("需要人手處理", lang)}
           </span>
         </span>
       </div>
@@ -90,7 +103,13 @@ function PendingRow({
               onClick={() => onPublish(post.id)}
               disabled={busy}
             >
-              {busy ? "Posting…" : "Post now"}
+              {busy
+                ? lang === "en"
+                  ? "Posting…"
+                  : localizeDeep("發佈中…", lang)
+                : lang === "en"
+                  ? "Post now"
+                  : localizeDeep("立即發佈", lang)}
             </button>
             <button
               type="button"
@@ -98,7 +117,7 @@ function PendingRow({
               onClick={() => onDelete(post.id)}
               disabled={busy}
             >
-              Delete
+              {lang === "en" ? "Delete" : localizeDeep("刪除", lang)}
             </button>
           </div>
         </div>
@@ -108,6 +127,7 @@ function PendingRow({
 }
 
 export function PendingPosts({ refreshKey }: { refreshKey: number }) {
+  const { lang } = useLanguage();
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -138,15 +158,33 @@ export function PendingPosts({ refreshKey }: { refreshKey: number }) {
       const response = await publishScheduledPost(id);
       const ok = response.results.filter((r) => r.status === "published");
       const failed = response.results.filter((r) => r.status === "failed");
-      setNotice(
-        failed.length === 0
-          ? `Published to ${ok.map((r) => PLATFORM_LABEL[r.platform]).join(" and ")}.`
-          : `Published to ${ok.length} of ${response.results.length}. ` +
-              failed.map((r) => `${PLATFORM_LABEL[r.platform]}: ${r.error}`).join(" "),
-      );
+      if (lang === "en") {
+        setNotice(
+          failed.length === 0
+            ? `Published to ${ok.map((r) => PLATFORM_LABEL[r.platform]).join(" and ")}.`
+            : `Published to ${ok.length} of ${response.results.length}. ` +
+                failed.map((r) => `${PLATFORM_LABEL[r.platform]}: ${r.error}`).join(" "),
+        );
+      } else {
+        setNotice(
+          failed.length === 0
+            ? localizeDeep(`已發佈至 ${ok.map((r) => PLATFORM_LABEL[r.platform]).join(" 和 ")}。`, lang)
+            : localizeDeep(
+                `已發佈至 ${ok.length} / ${response.results.length} 個平台。` +
+                  failed.map((r) => `${PLATFORM_LABEL[r.platform]}：${r.error}`).join(" "),
+                lang,
+              ),
+        );
+      }
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not publish that post.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : lang === "en"
+            ? "Could not publish that post."
+            : localizeDeep("無法發佈該貼文。", lang),
+      );
     } finally {
       setBusyId(null);
     }
@@ -160,7 +198,13 @@ export function PendingPosts({ refreshKey }: { refreshKey: number }) {
       await deleteScheduledPost(id);
       setPosts((current) => current.filter((p) => p.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not delete that post.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : lang === "en"
+            ? "Could not delete that post."
+            : localizeDeep("無法刪除該貼文。", lang),
+      );
     } finally {
       setBusyId(null);
     }
@@ -170,7 +214,7 @@ export function PendingPosts({ refreshKey }: { refreshKey: number }) {
 
   return (
     <div className="pending-posts">
-      <h3>Scheduled posts</h3>
+      <h3>{lang === "en" ? "Scheduled posts" : localizeDeep("已排程貼文", lang)}</h3>
 
       {notice ? <p className="pending-notice">{notice}</p> : null}
       {error ? (
@@ -188,11 +232,14 @@ export function PendingPosts({ refreshKey }: { refreshKey: number }) {
               busy={busyId === post.id}
               onPublish={handlePublish}
               onDelete={handleDelete}
+              lang={lang}
             />
           ))}
         </ul>
       ) : (
-        <p className="pending-empty">Nothing scheduled.</p>
+        <p className="pending-empty">
+          {lang === "en" ? "Nothing scheduled." : localizeDeep("暫無已排程的貼文。", lang)}
+        </p>
       )}
     </div>
   );

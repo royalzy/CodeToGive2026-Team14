@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
 import { LABEL_STYLES } from "./ArticleCard";
-import type { Article } from "./data";
+import { localizeArticle, localizeArticleLabel, type Article } from "./data";
 
 function renderRichText(content: string) {
   const paragraphs = content
@@ -35,6 +37,7 @@ export function ArticleModal({
   onClose: () => void;
 }) {
   const [isVisible, setIsVisible] = useState(false);
+  const { lang } = useLanguage();
 
   useEffect(() => {
     if (!article) {
@@ -57,6 +60,8 @@ export function ArticleModal({
 
   if (!article) return null;
 
+  const copy = localizeDeep(localizeArticle(article, lang), lang);
+
   return (
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 transition-opacity duration-300 ${
@@ -77,7 +82,7 @@ export function ArticleModal({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close article"
+            aria-label={lang === "en" ? "Close article" : localizeDeep("關閉文章", lang)}
             className="flex h-11 w-11 items-center justify-center rounded-full bg-love-ink/5 text-love-ink shadow-sm transition-colors hover:bg-love-ink/10"
           >
             <X size={22} />
@@ -88,18 +93,18 @@ export function ArticleModal({
           <span
             className={`inline-block rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${LABEL_STYLES[article.label]}`}
           >
-            {article.label}
+            {localizeDeep(localizeArticleLabel(article.label, lang), lang)}
           </span>
           <h3
             id="article-modal-title"
             className="mt-4 text-3xl font-bold text-love-ink sm:text-4xl"
           >
-            {article.title}
+            {copy.title}
           </h3>
-          <p className="mt-3 text-lg text-love-ink/60">{article.subtitle}</p>
+          <p className="mt-3 text-lg text-love-ink/60">{copy.subtitle}</p>
 
           <div className="prose prose-lg mt-8 max-w-none text-love-ink prose-p:leading-relaxed prose-strong:text-love-ink">
-            {renderRichText(article.content)}
+            {renderRichText(copy.content)}
           </div>
         </div>
       </div>

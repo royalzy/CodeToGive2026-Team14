@@ -5,11 +5,14 @@ import { MemberCard, SectionHeading } from "../components/Cards";
 import { useAuth } from "../hooks/useAuth";
 import { useLanguage } from "../hooks/useLanguage";
 import { addBooking, canBookMember, isAlreadyBooked, MAX_PER_WEEK } from "../content/booking";
+import { dashboardCopy } from "../content/dashboard";
 import type { Booking } from "../content/types";
+import { localizeDeep } from "../lib/zhConvert";
 
 export function DashboardPage() {
   const { family, logout } = useAuth();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const copy = localizeDeep(dashboardCopy[lang === "en" ? "en" : "zh"], lang);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -24,15 +27,15 @@ export function DashboardPage() {
 
   function handleBook(memberSlug: string, eventId: string, eventDate: string) {
     if (isAlreadyBooked(memberSlug, eventId, bookings)) {
-      setMessage("Already booked for this session.");
+      setMessage(copy.alreadyBooked);
       return;
     }
     if (!canBookMember(memberSlug, eventDate, bookings)) {
-      setMessage("Booking limit reached for this week or day.");
+      setMessage(copy.bookingLimitReached);
       return;
     }
     setBookings(addBooking(memberSlug, eventId, bookings));
-    setMessage("Booked! Check your upcoming sessions below.");
+    setMessage(copy.bookedSuccess);
   }
 
   const allBookings = members.flatMap((m) =>
@@ -46,11 +49,11 @@ export function DashboardPage() {
     <>
       <section className="page-hero page-hero-blue">
         <div className="shell page-hero-inner">
-          <p className="eyebrow">Family dashboard</p>
-          <h1>Welcome, {family.name}</h1>
+          <p className="eyebrow">{copy.eyebrow}</p>
+          <h1>{copy.welcome(family.name)}</h1>
           <div style={{ marginTop: "1rem" }}>
             <button className="button button-outline" type="button" onClick={logout}>
-              Sign out
+              {copy.signOut}
             </button>
           </div>
         </div>
@@ -67,8 +70,8 @@ export function DashboardPage() {
       <section className="section">
         <div className="shell">
           <SectionHeading
-            eyebrow="Your members"
-            title="Who are you booking for?"
+            eyebrow={copy.yourMembersEyebrow}
+            title={copy.whoBookingTitle}
           />
           <div className="member-grid">
             {members.map((member) => {
@@ -91,7 +94,7 @@ export function DashboardPage() {
                       />
                     </div>
                     <p style={{ fontSize: "0.78rem", color: "var(--muted)", marginTop: "0.3rem" }}>
-                      {weekCount} of {MAX_PER_WEEK} bookings this week
+                      {copy.bookingsThisWeek(weekCount, MAX_PER_WEEK)}
                     </p>
                   </div>
                 </article>
@@ -104,9 +107,9 @@ export function DashboardPage() {
       <section className="section section-soft">
         <div className="shell">
           <SectionHeading
-            eyebrow="Browse and book"
-            title="Available sessions"
-            body="Choose a session and select which member to sign up."
+            eyebrow={copy.browseAndBookEyebrow}
+            title={copy.availableSessionsTitle}
+            body={copy.chooseSessionBody}
           />
           <div className="opportunity-grid">
             {t.bookableEvents.map((ev) => (
@@ -114,7 +117,7 @@ export function DashboardPage() {
                 <p className="eyebrow">{ev.date} · {ev.time}</p>
                 <h3>{ev.title}</h3>
                 <p style={{ fontSize: "0.85rem", color: "var(--muted)" }}>
-                  {ev.location} · Ages {ev.ageRange} · {ev.spots} spots
+                  {ev.location} · {copy.agesLabel} {ev.ageRange} · {ev.spots} {copy.spotsLabel}
                 </p>
                 <div className="activity-buttons" style={{ marginTop: "0.75rem" }}>
                   {members.map((member) => {
@@ -129,7 +132,7 @@ export function DashboardPage() {
                         onClick={() => handleBook(member.slug, ev.id, ev.date)}
                         style={{ fontSize: "0.8rem", padding: "0.4rem 0.75rem" }}
                       >
-                        {booked ? `✓ ${member.name}` : `${member.name} — Sign up`}
+                        {booked ? `✓ ${member.name}` : `${member.name} — ${copy.signUpSuffix}`}
                       </button>
                     );
                   })}
@@ -144,8 +147,8 @@ export function DashboardPage() {
         <section className="section">
           <div className="shell">
             <SectionHeading
-              eyebrow="Your calendar"
-              title="Upcoming sessions"
+              eyebrow={copy.yourCalendarEyebrow}
+              title={copy.upcomingSessionsTitle}
             />
             <div className="help-grid">
               {allBookings.map((b) =>
@@ -153,7 +156,7 @@ export function DashboardPage() {
                   <article key={b.id} className="support-card">
                     <p className="eyebrow">{b.event.date} · {b.event.time}</p>
                     <h3>{b.event.title}</h3>
-                    <p>Booked for: {b.memberName}</p>
+                    <p>{copy.bookedForLabel} {b.memberName}</p>
                     <p style={{ fontSize: "0.85rem", color: "var(--muted)" }}>{b.event.location}</p>
                   </article>
                 ) : null,

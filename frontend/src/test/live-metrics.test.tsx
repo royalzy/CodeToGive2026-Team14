@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { LanguageProvider } from "../components/LanguageContext";
 import { LiveMetrics } from "../components/admin/LiveMetrics";
 
 function jsonResponse(payload: unknown, status = 200) {
@@ -36,7 +37,11 @@ describe("LiveMetrics admin widget", () => {
   it("renders the live backend summary numbers", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse(summary));
 
-    render(<LiveMetrics />);
+    render(
+      <LanguageProvider>
+        <LiveMetrics />
+      </LanguageProvider>,
+    );
 
     expect(await screen.findByText("42")).toBeInTheDocument();
     expect(screen.getByText("Myth-check answers")).toBeInTheDocument();
@@ -50,7 +55,11 @@ describe("LiveMetrics admin widget", () => {
   it("shows the fallback notice when the API is unreachable", async () => {
     vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("offline"));
 
-    render(<LiveMetrics />);
+    render(
+      <LanguageProvider>
+        <LiveMetrics />
+      </LanguageProvider>,
+    );
 
     expect(await screen.findByText("API not reachable")).toBeInTheDocument();
   });

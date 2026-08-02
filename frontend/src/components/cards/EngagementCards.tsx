@@ -1,8 +1,15 @@
 import { Link } from "react-router-dom";
 
 import type { AllocationShare, VolunteerOpportunity, WishlistItem } from "../../content/types";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
 
 export function OpportunityCard({ opportunity }: { opportunity: VolunteerOpportunity }) {
+  const { lang } = useLanguage();
+  const spotsLabel =
+    lang === "en"
+      ? `${opportunity.spots} spot${opportunity.spots > 1 ? "s" : ""} left`
+      : localizeDeep(`剩餘 ${opportunity.spots} 個名額`, lang);
   return (
     <article className={`opportunity-card accent-${opportunity.accent}`}>
       <p className="eyebrow">{opportunity.date}</p>
@@ -10,7 +17,7 @@ export function OpportunityCard({ opportunity }: { opportunity: VolunteerOpportu
       <p>{opportunity.role}</p>
       <div className="opportunity-meta">
         <span>{opportunity.time}</span>
-        <span>{opportunity.spots} spot{opportunity.spots > 1 ? "s" : ""} left</span>
+        <span>{spotsLabel}</span>
       </div>
     </article>
   );

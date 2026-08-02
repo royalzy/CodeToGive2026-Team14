@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { DonationSuccess } from "../components/donate/DonationSuccess";
+import { LanguageProvider } from "../components/LanguageContext";
 
 afterEach(() => {
   cleanup();
@@ -28,30 +29,32 @@ describe("DonationSuccess wall persistence", () => {
       }), { status: 201, headers: { "Content-Type": "application/json" } }));
 
     render(
-      <MemoryRouter>
-        <DonationSuccess
-          result={{
-            donation_intent_id: "DON-RETRY",
-            status: "simulated",
-            simulation: true,
-            persistence: "stored",
-            impact: {
-              cause_id: "dance",
-              amount_hkd: 600,
-              mode: "counted",
-              copy_key: "dance",
-              estimated_units: 4,
-              unit_key: "dance_training_session",
-              is_estimate: true,
-            },
-          }}
-          donorName="Retry Donor"
-          donorEmail="retry@example.com"
-          anonymous={false}
-          causeLabel="Discover a Talent"
-          onStayInvolved={() => undefined}
-        />
-      </MemoryRouter>,
+      <LanguageProvider>
+          <MemoryRouter>
+            <DonationSuccess
+              result={{
+                donation_intent_id: "DON-RETRY",
+                status: "simulated",
+                simulation: true,
+                persistence: "stored",
+                impact: {
+                  cause_id: "dance",
+                  amount_hkd: 600,
+                  mode: "counted",
+                  copy_key: "dance",
+                  estimated_units: 4,
+                  unit_key: "dance_training_session",
+                  is_estimate: true,
+                },
+              }}
+              donorName="Retry Donor"
+              donorEmail="retry@example.com"
+              anonymous={false}
+              causeLabel="Discover a Talent"
+              onStayInvolved={() => undefined}
+            />
+          </MemoryRouter>,
+      </LanguageProvider>,
     );
 
     await user.click(screen.getByRole("button", { name: "Send for review" }));

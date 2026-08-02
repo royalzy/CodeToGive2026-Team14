@@ -87,7 +87,7 @@ describe("landing page myth check", () => {
     const user = userEvent.setup();
     vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
       const url = String(input);
-      if (url.endsWith("/quiz/rounds/hero")) {
+      if (url.includes("/quiz/rounds/hero")) {
         return jsonResponse(round);
       }
       if (url.endsWith("/quiz/rounds/answer")) {

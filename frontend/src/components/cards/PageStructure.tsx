@@ -1,3 +1,6 @@
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
+
 export function SectionHeading({
   eyebrow,
   title,
@@ -51,6 +54,7 @@ export function StatusPanel({
   reference?: string;
   tone?: "success" | "notice";
 }) {
+  const { lang } = useLanguage();
   return (
     <div className={`status-panel status-${tone}`} role="status">
       <span className="status-mark" aria-hidden="true">
@@ -61,7 +65,8 @@ export function StatusPanel({
         {children}
         {reference && (
           <p className="reference">
-            Demo reference: <strong>{reference}</strong>
+            {lang === "en" ? "Demo reference: " : localizeDeep("示例參考：", lang)}
+            <strong>{reference}</strong>
           </p>
         )}
       </div>

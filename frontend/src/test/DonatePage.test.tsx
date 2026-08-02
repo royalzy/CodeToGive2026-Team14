@@ -10,6 +10,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { ImpactPreview } from "../api/client";
+import { LanguageProvider } from "../components/LanguageContext";
 import { DonatePage } from "../pages/DonatePage";
 
 const optionsPayload = {
@@ -147,9 +148,11 @@ function installApiMock({
 
 function renderDonatePage() {
   return render(
-    <MemoryRouter>
-      <DonatePage />
-    </MemoryRouter>,
+    <LanguageProvider>
+      <MemoryRouter>
+        <DonatePage />
+      </MemoryRouter>
+    </LanguageProvider>,
   );
 }
 
@@ -165,9 +168,11 @@ describe("donor impact journey", () => {
     const user = userEvent.setup();
     render(
       <StrictMode>
-        <MemoryRouter>
-          <DonatePage />
-        </MemoryRouter>
+        <LanguageProvider>
+          <MemoryRouter>
+            <DonatePage />
+          </MemoryRouter>
+        </LanguageProvider>
       </StrictMode>,
     );
 

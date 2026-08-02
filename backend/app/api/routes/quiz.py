@@ -13,8 +13,8 @@ router = APIRouter(prefix="/quiz", tags=["quiz"])
 
 
 @router.get("/rounds/hero", response_model=HeroRoundResponse)
-async def hero_round() -> HeroRoundResponse:
-    round_ = get_hero_round()
+async def hero_round(lang: str = "en") -> HeroRoundResponse:
+    round_ = get_hero_round(lang=lang)
     if not round_:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

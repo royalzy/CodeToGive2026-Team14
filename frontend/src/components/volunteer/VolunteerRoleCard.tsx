@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 
 import { CardOptionsMenu } from "../CardOptionsMenu";
-import { programs } from "../../content/programs";
 import type { VolunteerRole, VolunteerRoleType } from "../../content/volunteer";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
 import { trackVolunteerEvent } from "../../lib/volunteerAnalytics";
 import type { VolunteerMatchLevel } from "../../lib/volunteerMatching";
 import { copyDetails, copyLink, shareOrCopyLink } from "../../lib/shareUtils";
@@ -12,6 +13,33 @@ const roleTypeLabels: Record<VolunteerRoleType, string> = {
   class_leader: "Class leader",
   event_helper: "Event helper",
 };
+
+const roleTypeLabelsZh: Record<VolunteerRoleType, string> = {
+  class_assistant: "課堂助理",
+  class_leader: "課堂帶領者",
+  event_helper: "活動助手",
+};
+
+const copy = {
+  en: {
+    moreOptionsFor: (title: string) => `More options for ${title}`,
+    share: "Share",
+    copyLink: "Copy link",
+    copyRoleDetails: "Copy role details",
+    time: "Time",
+    experience: "Experience",
+    exploreRole: "Explore this role",
+  },
+  zh: {
+    moreOptionsFor: (title: string) => `${title}的更多選項`,
+    share: "分享",
+    copyLink: "複製連結",
+    copyRoleDetails: "複製角色詳情",
+    time: "時間",
+    experience: "經驗",
+    exploreRole: "了解這個角色",
+  },
+} as const;
 
 export function VolunteerRoleCard({
   role,
@@ -26,7 +54,13 @@ export function VolunteerRoleCard({
   journeyPath?: "quick" | "guided";
   featured?: boolean;
 }) {
-  const program = programs.find((item) => item.slug === role.programSlug);
+  const { lang, t: content } = useLanguage();
+  const t = copy[lang === "en" ? "en" : "zh"];
+  const roleTypeLabel = localizeDeep(
+    (lang === "en" ? roleTypeLabels : roleTypeLabelsZh)[role.roleType],
+    lang,
+  );
+  const program = content.programs.find((item) => item.slug === role.programSlug);
   const shareContent = {
     url: `/volunteer/roles/${role.id}?journey=${journeyPath}`,
     title: role.title,
@@ -44,11 +78,11 @@ export function VolunteerRoleCard({
       }`}
     >
       <CardOptionsMenu
-        label={`More options for ${role.title}`}
+        label={localizeDeep(t.moreOptionsFor(role.title), lang)}
         items={[
           {
             key: "share",
-            label: "Share",
+            label: localizeDeep(t.share, lang),
             onSelect: (announce) => {
               track();
               return shareOrCopyLink(shareContent, announce);
@@ -56,7 +90,7 @@ export function VolunteerRoleCard({
           },
           {
             key: "copy-link",
-            label: "Copy link",
+            label: localizeDeep(t.copyLink, lang),
             onSelect: (announce) => {
               track();
               return copyLink(shareContent.url, announce);
@@ -64,7 +98,7 @@ export function VolunteerRoleCard({
           },
           {
             key: "copy-details",
-            label: "Copy role details",
+            label: localizeDeep(t.copyRoleDetails, lang),
             onSelect: (announce) => copyDetails(shareContent, announce),
           },
         ]}
@@ -75,9 +109,7 @@ export function VolunteerRoleCard({
       </div>
       <div className="volunteer-role-card-badges">
         {program && <span className="volunteer-role-badge">{program.title}</span>}
-        <span className="volunteer-role-badge volunteer-role-badge-muted">
-          {roleTypeLabels[role.roleType]}
-        </span>
+        <span className="volunteer-role-badge volunteer-role-badge-muted">{roleTypeLabel}</span>
       </div>
       <h2>{role.title}</h2>
       <p>{role.summary}</p>
@@ -90,11 +122,11 @@ export function VolunteerRoleCard({
       )}
       <dl className="volunteer-role-facts">
         <div>
-          <dt>Time</dt>
+          <dt>{localizeDeep(t.time, lang)}</dt>
           <dd>{role.timeCommitment}</dd>
         </div>
         <div>
-          <dt>Experience</dt>
+          <dt>{localizeDeep(t.experience, lang)}</dt>
           <dd>{role.experience}</dd>
         </div>
       </dl>
@@ -102,7 +134,7 @@ export function VolunteerRoleCard({
         className="button button-dark"
         to={`/volunteer/roles/${role.id}?journey=${journeyPath}`}
       >
-        Explore this role
+        {localizeDeep(t.exploreRole, lang)}
       </Link>
     </article>
   );

@@ -1,4 +1,6 @@
-import { ARCHETYPES } from "./data";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
+import { ARCHETYPES, localizeArchetype } from "./data";
 
 export function ArchetypeSwitcher({
   activeId,
@@ -7,14 +9,17 @@ export function ArchetypeSwitcher({
   activeId: string;
   onSelect: (id: string) => void;
 }) {
+  const { lang } = useLanguage();
+
   return (
     <div
       role="tablist"
-      aria-label="Neurodiversity archetypes"
+      aria-label={lang === "en" ? "Neurodiversity archetypes" : localizeDeep("神經多樣性原型", lang)}
       className="neuro-archetype-switcher flex flex-wrap justify-center"
     >
-      {ARCHETYPES.map((archetype) => {
-        const isActive = archetype.id === activeId;
+      {ARCHETYPES.map((rawArchetype) => {
+        const archetype = localizeDeep(localizeArchetype(rawArchetype, lang), lang);
+        const isActive = rawArchetype.id === activeId;
 
         return (
           <button

@@ -13,6 +13,7 @@ import {
 } from "../../content/support";
 import { useLanguage } from "../../hooks/useLanguage";
 import { recommendSupportPathways } from "../../lib/supportMatching";
+import { localizeDeep } from "../../lib/zhConvert";
 import "./SupportFinder.css";
 
 type AnswerValue = Audience | Need | StartStyle;
@@ -20,6 +21,29 @@ type Draft = Partial<Record<"audience" | "need" | "start", AnswerValue>>;
 
 /** How many alternatives to show under the primary suggestion. */
 const ALTERNATIVES_SHOWN = 2;
+
+const finderCopy = {
+  en: {
+    basedOnAnswers: "Based on your answers",
+    otherThingsHelp: "Other things that might help",
+    changeLastAnswer: "Change my last answer",
+    startAgain: "Start again",
+    back: "Back",
+    questionOf: "Question {step} of {total}",
+  },
+  zh: {
+    basedOnAnswers: "根據你的答案",
+    otherThingsHelp: "其他可能有幫助的選項",
+    changeLastAnswer: "更改我的上一個答案",
+    startAgain: "重新開始",
+    back: "返回",
+    questionOf: "第 {step} 條問題，共 {total} 條",
+  },
+} as const;
+
+function formatQuestionOf(template: string, step: number, total: number): string {
+  return template.replace("{step}", String(step)).replace("{total}", String(total));
+}
 
 function visibleOptions(
   options: SupportOption<AnswerValue>[],
@@ -40,7 +64,8 @@ interface SupportFinderProps {
 }
 
 export function SupportFinder({ onComplete }: SupportFinderProps) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const copy = localizeDeep(finderCopy[lang === "en" ? "en" : "zh"], lang);
   const supportQuestions = t.supportQuestions as SupportQuestion[];
   const supportPathways = t.supportPathways as SupportPathway[];
   const [step, setStep] = useState(0);
@@ -96,7 +121,7 @@ export function SupportFinder({ onComplete }: SupportFinderProps) {
     return (
       <div className="support-finder">
         <p className="support-finder-step" ref={headingRef} tabIndex={-1}>
-          Based on your answers
+          {copy.basedOnAnswers}
         </p>
 
         <article className="support-finder-primary">
@@ -116,7 +141,7 @@ export function SupportFinder({ onComplete }: SupportFinderProps) {
         {alternatives.length > 0 ? (
           <>
             <p className="support-finder-alt-heading">
-              Other things that might help
+              {copy.otherThingsHelp}
             </p>
             <div className="support-finder-alts">
               {alternatives.map(({ pathway }) =>
@@ -138,10 +163,10 @@ export function SupportFinder({ onComplete }: SupportFinderProps) {
 
         <div className="support-finder-controls">
           <button type="button" className="support-finder-link" onClick={back}>
-            Change my last answer
+            {copy.changeLastAnswer}
           </button>
           <button type="button" className="support-finder-link" onClick={restart}>
-            Start again
+            {copy.startAgain}
           </button>
         </div>
       </div>
@@ -151,7 +176,7 @@ export function SupportFinder({ onComplete }: SupportFinderProps) {
   return (
     <div className="support-finder">
       <p className="support-finder-step" ref={headingRef} tabIndex={-1}>
-        Question {step + 1} of {supportQuestions.length}
+        {formatQuestionOf(copy.questionOf, step + 1, supportQuestions.length)}
       </p>
 
       <div
@@ -160,7 +185,7 @@ export function SupportFinder({ onComplete }: SupportFinderProps) {
         aria-valuemin={1}
         aria-valuemax={supportQuestions.length}
         aria-valuenow={step + 1}
-        aria-label={`Question ${step + 1} of ${supportQuestions.length}`}
+        aria-label={formatQuestionOf(copy.questionOf, step + 1, supportQuestions.length)}
       >
         {supportQuestions.map((item, index) => (
           <span key={item.id} className={index <= step ? "is-done" : undefined} />
@@ -190,7 +215,7 @@ export function SupportFinder({ onComplete }: SupportFinderProps) {
       {step > 0 ? (
         <div className="support-finder-controls">
           <button type="button" className="support-finder-link" onClick={back}>
-            Back
+            {copy.back}
           </button>
         </div>
       ) : null}

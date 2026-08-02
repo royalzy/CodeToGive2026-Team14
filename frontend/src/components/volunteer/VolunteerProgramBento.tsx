@@ -2,9 +2,10 @@ import { Apple, Dumbbell, HeartHandshake, Sparkles, Users } from "lucide-react";
 import type { ComponentType } from "react";
 import { Link } from "react-router-dom";
 
-import { programs } from "../../content/programs";
 import type { Program } from "../../content/types";
 import { getVolunteerRolesForProgram } from "../../content/volunteer";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
 
 type IconComponent = ComponentType<{ size?: number; strokeWidth?: number }>;
 
@@ -16,7 +17,21 @@ const programIcons: Record<Program["slug"], IconComponent> = {
   enrichment: Sparkles,
 };
 
+const copy = {
+  en: {
+    roleCount: (count: number) => `${count} role${count === 1 ? "" : "s"}`,
+    exploreProgramme: "Explore programme",
+  },
+  zh: {
+    roleCount: (count: number) => `${count} 個角色`,
+    exploreProgramme: "探索計劃",
+  },
+} as const;
+
 export function VolunteerProgramBento() {
+  const { lang, t: content } = useLanguage();
+  const t = copy[lang === "en" ? "en" : "zh"];
+  const programs = content.programs;
   const tiles = programs
     .map((program) => ({ program, roles: getVolunteerRolesForProgram(program.slug) }))
     .filter((tile) => tile.roles.length > 0);
@@ -44,11 +59,9 @@ export function VolunteerProgramBento() {
               <p className="volunteer-bento-description">{program.description}</p>
             </span>
             <span className="volunteer-bento-meta">
-              <span className="volunteer-bento-count">
-                {roles.length} role{roles.length === 1 ? "" : "s"}
-              </span>
+              <span className="volunteer-bento-count">{t.roleCount(roles.length)}</span>
               <span className="volunteer-bento-cta">
-                Explore programme <span aria-hidden="true">→</span>
+                {localizeDeep(t.exploreProgramme, lang)} <span aria-hidden="true">→</span>
               </span>
             </span>
           </Link>

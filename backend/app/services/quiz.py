@@ -15,9 +15,27 @@ from app.db import get_connection
 BANK_PATH = Path(__file__).resolve().parent.parent / "data" / "question_bank.json"
 
 TWIST_PUNCHLINES = {
-    "all_myths": "Gotcha — all three are myths.",
-    "all_true": "Surprise — all three are true.",
+    "all_myths": {
+        "en": "Gotcha — all three are myths.",
+        "zh": "答對了——三項全部都是迷思。",
+    },
+    "all_true": {
+        "en": "Surprise — all three are true.",
+        "zh": "意外吧——三項全部都是事實。",
+    },
 }
+
+SUPPORTED_LANGS = ("en", "zh")
+
+
+def normalize_lang(lang: str) -> str:
+    """Any zh-* variant (zh-Hant, zh-Hans, ...) collapses to "zh"."""
+    return "zh" if lang.startswith("zh") else "en"
+
+
+def localized(value: dict, lang: str) -> str:
+    lang = normalize_lang(lang)
+    return value.get(lang) or value.get("en", "")
 
 
 def load_bank() -> dict:
@@ -56,15 +74,18 @@ def validate_bank(bank: dict) -> list[str]:
                 issues.append(f"round {rid}: duplicate statement id {sid}")
             statement_ids.add(sid)
 
-            if not st.get("text"):
-                issues.append(f"statement {sid}: empty text")
-            if not st.get("reveal"):
-                issues.append(f"statement {sid}: empty reveal")
+            for lang in SUPPORTED_LANGS:
+                if not (st.get("text") or {}).get(lang):
+                    issues.append(f"statement {sid}: missing {lang} text")
+                if not (st.get("reveal") or {}).get(lang):
+                    issues.append(f"statement {sid}: missing {lang} reveal")
             if st.get("status") not in {"verified", "needs-verify", "unverified"}:
                 issues.append(f"statement {sid}: invalid status {st.get('status')!r}")
             source = st.get("source") or {}
-            if not source.get("label") or not source.get("url"):
-                issues.append(f"statement {sid}: source needs label and url")
+            label = source.get("label") or {}
+            if not all(label.get(lang) for lang in SUPPORTED_LANGS) or not source.get("url"):
+                langs = "/".join(SUPPORTED_LANGS)
+                issues.append(f"statement {sid}: source needs label ({langs}) and url")
 
             is_myth = bool(st.get("is_myth"))
             if twist == "all_myths" and not is_myth:
@@ -74,7 +95,7 @@ def validate_bank(bank: dict) -> list[str]:
     return issues
 
 
-def get_hero_round() -> dict:
+def get_hero_round(lang: str = "en") -> dict:
     """The first verified round, sanitized for public consumption.
 
     The answer key (``is_myth``, ``reveal``, ``source``) is stripped.
@@ -87,9 +108,11 @@ def get_hero_round() -> dict:
         return {
             "id": round_["id"],
             "theme": round_.get("theme"),
-            "kick": round_.get("kick"),
+            "kick": localized(round_.get("kick") or {}, lang),
             "twist": round_["twist"],
-            "statements": [{"id": st["id"], "text": st["text"]} for st in statements],
+            "statements": [
+                {"id": st["id"], "text": localized(st["text"], lang)} for st in statements
+            ],
         }
     return {}
 
@@ -124,14 +147,17 @@ def grade_hero_round(round_id: str, selected_statement_id: str, lang: str = "en"
     return {
         "round_id": round_id,
         "twist": round_["twist"],
-        "punchline": TWIST_PUNCHLINES[round_["twist"]],
+        "punchline": localized(TWIST_PUNCHLINES[round_["twist"]], lang),
         "selected_statement_id": selected_statement_id,
         "statements": [
             {
                 "id": st["id"],
                 "is_myth": st["is_myth"],
-                "reveal": st["reveal"],
-                "source": st["source"],
+                "reveal": localized(st["reveal"], lang),
+                "source": {
+                    "label": localized(st["source"]["label"], lang),
+                    "url": st["source"]["url"],
+                },
             }
             for st in statements
         ],

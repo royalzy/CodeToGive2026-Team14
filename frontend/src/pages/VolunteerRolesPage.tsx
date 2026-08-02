@@ -4,16 +4,43 @@ import { useSearchParams } from "react-router-dom";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerRoleCard } from "../components/volunteer/VolunteerRoleCard";
-import { programs } from "../content/programs";
 import {
+  localizeVolunteerRole,
+  matchRoleTypeLabelZh,
   matchRoleTypeOptions,
   volunteerRoles,
   type VolunteerInterest,
   type VolunteerRoleType,
 } from "../content/volunteer";
+import { useLanguage } from "../hooks/useLanguage";
+import { localizeDeep } from "../lib/zhConvert";
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
 
+const pageCopy = {
+  en: {
+    programmeLabel: "Programme",
+    contributeLabel: "How you'd contribute",
+    clearFilters: "Clear filters",
+    emptyTitle: "No roles match those filters yet.",
+    emptyBody: "Try clearing a filter, or subscribe below to hear about new roles.",
+    newsletterTitle: "None of these feel right for now?",
+    newsletterBody: "Subscribe and we'll let you know when new roles or programmes open up.",
+  },
+  zh: {
+    programmeLabel: "計劃",
+    contributeLabel: "你希望如何參與",
+    clearFilters: "清除篩選",
+    emptyTitle: "暫時沒有符合篩選條件的職位。",
+    emptyBody: "試試清除篩選，或在下方訂閱以了解新職位消息。",
+    newsletterTitle: "暫時未找到合適的角色？",
+    newsletterBody: "訂閱後，我們會在有新職位或計劃開放時通知你。",
+  },
+} as const;
+
 export function VolunteerRolesPage() {
+  const { lang, t } = useLanguage();
+  const copy = localizeDeep(pageCopy[lang === "en" ? "en" : "zh"], lang);
+  const programs = t.programs;
   const [searchParams] = useSearchParams();
   const [activePrograms, setActivePrograms] = useState<VolunteerInterest[]>(() => {
     const requested = searchParams.get("program")?.split(",") ?? [];
@@ -45,7 +72,7 @@ export function VolunteerRolesPage() {
         }),
       }))
       .filter((group) => group.roles.length > 0);
-  }, [activePrograms, activeRoleTypes]);
+  }, [programs, activePrograms, activeRoleTypes]);
 
   const filterKey = `${activePrograms.join(",")}|${activeRoleTypes.join(",")}`;
   const totalResults = filteredByProgram.reduce((sum, group) => sum + group.roles.length, 0);
@@ -56,7 +83,7 @@ export function VolunteerRolesPage() {
         <div className="shell">
           <div className="volunteer-filter-bar">
             <div className="volunteer-filter-group">
-              <span className="volunteer-filter-group-label">Programme</span>
+              <span className="volunteer-filter-group-label">{copy.programmeLabel}</span>
               <div className="volunteer-filter-chips">
                 {programs.map((program) => (
                   <button
@@ -74,7 +101,7 @@ export function VolunteerRolesPage() {
               </div>
             </div>
             <div className="volunteer-filter-group">
-              <span className="volunteer-filter-group-label">How you'd contribute</span>
+              <span className="volunteer-filter-group-label">{copy.contributeLabel}</span>
               <div className="volunteer-filter-chips">
                 {matchRoleTypeOptions.map((option) => (
                   <button
@@ -86,7 +113,7 @@ export function VolunteerRolesPage() {
                     aria-pressed={activeRoleTypes.includes(option.value)}
                     onClick={() => toggle(option.value, activeRoleTypes, setActiveRoleTypes)}
                   >
-                    {option.label}
+                    {lang === "en" ? option.label : localizeDeep(matchRoleTypeLabelZh[option.value], lang)}
                   </button>
                 ))}
               </div>
@@ -100,7 +127,7 @@ export function VolunteerRolesPage() {
                   setActiveRoleTypes([]);
                 }}
               >
-                Clear filters
+                {copy.clearFilters}
               </button>
             )}
           </div>
@@ -114,7 +141,10 @@ export function VolunteerRolesPage() {
                   </h2>
                   <div className="volunteer-role-grid">
                     {roles.map((role) => (
-                      <VolunteerRoleCard key={role.id} role={role} />
+                      <VolunteerRoleCard
+                        key={role.id}
+                        role={localizeDeep(localizeVolunteerRole(role, lang), lang)}
+                      />
                     ))}
                   </div>
                 </div>
@@ -122,8 +152,8 @@ export function VolunteerRolesPage() {
             </div>
           ) : (
             <div className="volunteer-filter-empty">
-              <h2>No roles match those filters yet.</h2>
-              <p>Try clearing a filter, or subscribe below to hear about new roles.</p>
+              <h2>{copy.emptyTitle}</h2>
+              <p>{copy.emptyBody}</p>
               <button
                 type="button"
                 className="button button-dark"
@@ -132,7 +162,7 @@ export function VolunteerRolesPage() {
                   setActiveRoleTypes([]);
                 }}
               >
-                Clear filters
+                {copy.clearFilters}
               </button>
             </div>
           )}
@@ -148,8 +178,8 @@ export function VolunteerRolesPage() {
         <div className="shell">
           <VolunteerNewsletterSignup
             source="volunteer_roles_page"
-            title="None of these feel right for now?"
-            body="Subscribe and we'll let you know when new roles or programmes open up."
+            title={copy.newsletterTitle}
+            body={copy.newsletterBody}
           />
         </div>
       </section>

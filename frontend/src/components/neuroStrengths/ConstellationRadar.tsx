@@ -9,7 +9,9 @@ import {
 } from "chart.js";
 import { Radar } from "react-chartjs-2";
 
-import { TRAITS, type TraitId } from "./data";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
+import { localizeTraitLabel, TRAITS, type TraitId } from "./data";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, ChartTooltip);
 
@@ -22,8 +24,6 @@ function wrapChartLabel(label: string): string | string[] {
   const mid = Math.ceil(words.length / 2);
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 }
-
-const CHART_LABELS = TRAITS.map((trait) => wrapChartLabel(trait.label));
 
 const CHART_OPTIONS = {
   responsive: true,
@@ -55,12 +55,21 @@ const CHART_OPTIONS = {
 };
 
 export function ConstellationRadar({ values }: { values: Record<TraitId, number> }) {
+  const { lang } = useLanguage();
+  const chartLabels = useMemo(
+    () =>
+      TRAITS.map((trait) => wrapChartLabel(localizeDeep(localizeTraitLabel(trait.id, lang), lang))),
+    [lang],
+  );
+  const strengthScoreLabel =
+    lang === "en" ? "Strength score" : localizeDeep("強項評分", lang);
+
   const chartData = useMemo(
     () => ({
-      labels: CHART_LABELS,
+      labels: chartLabels,
       datasets: [
         {
-          label: "Strength score",
+          label: strengthScoreLabel,
           data: TRAITS.map((trait) => values[trait.id]),
           backgroundColor: "rgba(20, 85, 192, 0.25)",
           borderColor: "#1455c0",
@@ -73,7 +82,7 @@ export function ConstellationRadar({ values }: { values: Record<TraitId, number>
         },
       ],
     }),
-    [values],
+    [values, chartLabels, strengthScoreLabel],
   );
 
   return (

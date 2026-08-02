@@ -3,13 +3,9 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { useLanguage } from "../hooks/useLanguage";
 import { useAuth } from "../hooks/useAuth";
-
-const routePageTitles: Record<string, string> = {
-  "/volunteer": "Volunteer with Love 21",
-  "/volunteer/match": "Volunteer personality quiz",
-  "/volunteer/roles": "Browse volunteer roles",
-  "/volunteer/sessions": "Browse volunteer sessions",
-};
+import { langFullLabel, langOrder, langShortLabel } from "../content/languageContextValue";
+import { layoutCopy, routePageTitles } from "../content/layout";
+import { localizeDeep } from "../lib/zhConvert";
 
 const socialLinks = [
   {
@@ -80,9 +76,59 @@ function Wordmark() {
   );
 }
 
+function LanguageSwitcher() {
+  const { lang, setLang } = useLanguage();
+
+  return (
+    <details className="lang-dropdown">
+      <summary className="lang-toggle" aria-label={`Language: ${langFullLabel[lang]}`}>
+        {langShortLabel[lang]}
+      </summary>
+      <div className="lang-dropdown-menu" role="menu">
+        {langOrder.map((option) => (
+          <button
+            key={option}
+            type="button"
+            role="menuitemradio"
+            aria-checked={option === lang}
+            className={`lang-dropdown-option${option === lang ? " active" : ""}`}
+            onClick={(event) => {
+              setLang(option);
+              event.currentTarget.closest("details")?.removeAttribute("open");
+            }}
+          >
+            {langFullLabel[option]}
+          </button>
+        ))}
+      </div>
+    </details>
+  );
+}
+
+function MobileLanguageOptions() {
+  const { lang, setLang } = useLanguage();
+
+  return (
+    <div className="mobile-lang-options" role="group" aria-label="Language">
+      {langOrder.map((option) => (
+        <button
+          key={option}
+          type="button"
+          aria-current={option === lang}
+          className={`mobile-nav-button${option === lang ? " active" : ""}`}
+          onClick={() => setLang(option)}
+        >
+          {langFullLabel[option]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function Header() {
-  const { lang, setLang, t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { family, logout } = useAuth();
+  const copy = localizeDeep(layoutCopy[lang === "en" ? "en" : "zh"], lang);
 
   return (
     <header className="site-header">
@@ -107,39 +153,25 @@ function Header() {
           <div className="header-actions">
             <div className="header-auth">
               <Link className="button button-small button-dark" to="/dashboard">
-                Dashboard
+                {copy.dashboard}
               </Link>
               <button className="lang-toggle" type="button" onClick={logout}>
-                Sign out
+                {copy.signOut}
               </button>
             </div>
-            <button
-              className="lang-toggle"
-              type="button"
-              onClick={() => setLang(lang === "en" ? "zh" : "en")}
-              aria-label={`Switch to ${lang === "en" ? "Traditional Chinese" : "English"}`}
-            >
-              {lang === "en" ? "繁" : "EN"}
-            </button>
+            <LanguageSwitcher />
           </div>
         ) : (
           <div className="header-actions">
             <Link className="button button-small button-dark header-cta" to="/login">
-              Sign in
+              {copy.signIn}
             </Link>
-            <button
-              className="lang-toggle"
-              type="button"
-              onClick={() => setLang(lang === "en" ? "zh" : "en")}
-              aria-label={`Switch to ${lang === "en" ? "Traditional Chinese" : "English"}`}
-            >
-              {lang === "en" ? "繁" : "EN"}
-            </button>
+            <LanguageSwitcher />
           </div>
         )}
 
         <details className="mobile-menu">
-          <summary aria-label="Open navigation">Menu</summary>
+          <summary aria-label={copy.openNavigation}>Menu</summary>
           <nav aria-label="Mobile navigation">
             {t.navigation.map((item) => (
               <NavLink key={item.href} to={item.href}>
@@ -149,21 +181,16 @@ function Header() {
             <hr style={{ margin: "0.5rem 0", borderColor: "var(--line)" }} />
             {family ? (
               <>
-                <NavLink to="/dashboard">Dashboard</NavLink>
+                <NavLink to="/dashboard">{copy.dashboard}</NavLink>
                 <button type="button" onClick={logout} className="mobile-nav-button">
-                  Sign out
+                  {copy.signOut}
                 </button>
               </>
             ) : (
-              <NavLink to="/login">Sign in</NavLink>
+              <NavLink to="/login">{copy.signIn}</NavLink>
             )}
-            <button
-              type="button"
-              onClick={() => setLang(lang === "en" ? "zh" : "en")}
-              className="mobile-nav-button"
-            >
-              {lang === "en" ? "繁體中文" : "English"}
-            </button>
+            <hr style={{ margin: "0.5rem 0", borderColor: "var(--line)" }} />
+            <MobileLanguageOptions />
           </nav>
         </details>
       </div>
@@ -172,17 +199,18 @@ function Header() {
 }
 
 function Footer() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const copy = localizeDeep(layoutCopy[lang === "en" ? "en" : "zh"], lang);
 
   return (
     <footer className="site-footer">
       <div className="shell footer-grid">
         <div>
           <Wordmark />
-          <p className="footer-tagline">So much ability. So many ways to belong.</p>
+          <p className="footer-tagline">{copy.footerTagline}</p>
         </div>
         <div>
-          <p className="footer-heading">Explore</p>
+          <p className="footer-heading">{copy.footerExplore}</p>
           {t.navigation.map((item) => (
             <Link key={item.href} to={item.href}>
               {item.label}
@@ -190,14 +218,11 @@ function Footer() {
           ))}
         </div>
         <div>
-          <p className="footer-heading">Prototype note</p>
-          <p>
-            This hackathon experience stores demo donor profiles securely but
-            does not process real donations.
-          </p>
+          <p className="footer-heading">{copy.footerPrototypeNoteHeading}</p>
+          <p>{copy.footerPrototypeNoteBody}</p>
         </div>
         <div>
-          <p className="footer-heading footer-social-heading">Follow us</p>
+          <p className="footer-heading footer-social-heading">{copy.footerFollowUs}</p>
           <div className="footer-social-links" aria-label="Social media links">
             {socialLinks.map(({ label, href, className, Icon }) => (
               <a
@@ -218,8 +243,8 @@ function Footer() {
         </div>
       </div>
       <div className="shell footer-bottom">
-        <span>Love 21 Foundation hackathon prototype</span>
-        <span>#SoMuchAbility</span>
+        <span>{copy.footerBottomLeft}</span>
+        <span>{copy.footerBottomRight}</span>
       </div>
     </footer>
   );
@@ -233,15 +258,15 @@ function SupporterQuickActions({ pathname }: { pathname: string }) {
     <aside className={`supporter-quick-actions supporter-quick-actions-${pathname.slice(1)}`} aria-label="Supporter quick actions">
       {pathname === "/supporter" ? (
         <Link className="supporter-quick-action supporter-quick-action-primary" to="/donate">
-          {lang === "zh" ? "立即捐款" : "Make a donation"}
+          {lang === "en" ? "Make a donation" : localizeDeep("立即捐款", lang)}
         </Link>
       ) : (
         <Link className="supporter-quick-action supporter-quick-action-primary" to="/supporter">
-          {lang === "zh" ? "支持者" : "Supporters"}
+          {lang === "en" ? "Supporters" : localizeDeep("支持者", lang)}
         </Link>
       )}
       <Link className="supporter-quick-action" to="/donor-profile">
-        {lang === "zh" ? "我的捐款檔案" : "My donor profile"}
+        {lang === "en" ? "My donor profile" : localizeDeep("我的捐款檔案", lang)}
       </Link>
     </aside>
   );
@@ -249,7 +274,11 @@ function SupporterQuickActions({ pathname }: { pathname: string }) {
 
 export function Layout() {
   const { pathname } = useLocation();
-  const pageTitle = routePageTitles[pathname];
+  const { lang } = useLanguage();
+  const pageTitle = localizeDeep(
+    routePageTitles[lang === "en" ? "en" : "zh"][pathname],
+    lang,
+  );
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });

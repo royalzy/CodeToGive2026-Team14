@@ -35,19 +35,13 @@ import {
   ImpactCard,
   type PreviewStatus,
 } from "../components/donate/ImpactCard";
-import {
-  DEMO_DONOR_DETAILS,
-  donationPrograms,
-  getDonationImpactMessage,
-} from "../content/donations";
+import { DEMO_DONOR_DETAILS, getLocalizedImpactMessage } from "../content/donations";
+import { useLanguage } from "../hooks/useLanguage";
+import { localizeDeep } from "../lib/zhConvert";
 
 type FormStep = "gift" | "details" | "review" | "success";
 
 const fallbackPresets = [200, 400, 600, 1000];
-const fallbackChoices: CauseChoice[] = donationPrograms.map((program) => ({
-  causeId: program.value,
-  label: program.label,
-}));
 
 const demoDonorSuffix = Math.random().toString(36).slice(2, 7);
 
@@ -63,71 +57,264 @@ const initialDetails: DonorDetails = {
   consentToUpdates: false,
 };
 
-const stepLabels: Array<{ id: FormStep; label: string }> = [
-  { id: "gift", label: "Your gift" },
-  { id: "details", label: "Your details" },
-  { id: "review", label: "Review" },
-  { id: "success", label: "Complete" },
-];
+const stepLabelsCopy = {
+  en: [
+    { id: "gift" as const, label: "Your gift" },
+    { id: "details" as const, label: "Your details" },
+    { id: "review" as const, label: "Review" },
+    { id: "success" as const, label: "Complete" },
+  ],
+  zh: [
+    { id: "gift" as const, label: "捐款" },
+    { id: "details" as const, label: "你的資料" },
+    { id: "review" as const, label: "確認" },
+    { id: "success" as const, label: "完成" },
+  ],
+} as const;
 
-const transparencyRows = [
-  {
-    label: "Direct programmes & coaching",
-    percentage: 62,
-    detail: "1,860 coaching hours for 126 young people, plus 48 family support sessions.",
-  },
-  {
-    label: "Employment & life-skills",
-    percentage: 21,
-    detail: "32 paid work placements; 24 participants moved into sustained employment.",
-  },
-  {
-    label: "Programme staff & safeguarding",
-    percentage: 12,
-    detail: "Two case workers, background checks, training and participant transport support.",
-  },
-  {
-    label: "Operations & payment fees",
-    percentage: 5,
-    detail: "Rent, accounting, audit and card fees. Nothing hidden inside programme costs.",
-  },
-] as const;
+const transparencyRowsCopy = {
+  en: [
+    {
+      label: "Direct programmes & coaching",
+      percentage: 62,
+      detail: "1,860 coaching hours for 126 young people, plus 48 family support sessions.",
+    },
+    {
+      label: "Employment & life-skills",
+      percentage: 21,
+      detail: "32 paid work placements; 24 participants moved into sustained employment.",
+    },
+    {
+      label: "Programme staff & safeguarding",
+      percentage: 12,
+      detail: "Two case workers, background checks, training and participant transport support.",
+    },
+    {
+      label: "Operations & payment fees",
+      percentage: 5,
+      detail: "Rent, accounting, audit and card fees. Nothing hidden inside programme costs.",
+    },
+  ],
+  zh: [
+    {
+      label: "直接服務項目及教練",
+      percentage: 62,
+      detail: "為 126 位年輕人提供 1,860 小時教練指導，加上 48 節家庭支援活動。",
+    },
+    {
+      label: "就業及生活技能",
+      percentage: 21,
+      detail: "32 個有薪實習職位；24 位參加者成功獲得持續就業。",
+    },
+    {
+      label: "服務團隊及保障措施",
+      percentage: 12,
+      detail: "兩位個案主任、背景審查、培訓及參加者交通支援。",
+    },
+    {
+      label: "營運及付款手續費",
+      percentage: 5,
+      detail: "租金、會計、審計及信用卡手續費，全部公開透明，不隱藏於服務成本中。",
+    },
+  ],
+} as const;
 
-const causeImages: Record<CauseId, { src: string; alt: string }> = {
-  where_needed_most: {
-    src: "/images/donate-1.png",
-    alt: "Love 21 members taking part across our programmes",
+const causeImagesCopy: Record<"en" | "zh", Record<CauseId, { src: string; alt: string }>> = {
+  en: {
+    where_needed_most: {
+      src: "/images/donate-1.png",
+      alt: "Love 21 members taking part across our programmes",
+    },
+    sports: {
+      src: "/images/sports-session.jpg",
+      alt: "A member taking part in a supported sports session",
+    },
+    dance: {
+      src: "/images/crystal-performing.jpg",
+      alt: "A member performing with confidence",
+    },
+    nutrition: {
+      src: "/images/donate-5.png",
+      alt: "A dietitian-led nutrition and life-skills session",
+    },
+    family_support: {
+      src: "/images/donate-3.png",
+      alt: "Programme staff supporting a family session",
+    },
   },
-  sports: {
-    src: "/images/sports-session.jpg",
-    alt: "A member taking part in a supported sports session",
-  },
-  dance: {
-    src: "/images/crystal-performing.jpg",
-    alt: "A member performing with confidence",
-  },
-  nutrition: {
-    src: "/images/donate-5.png",
-    alt: "A dietitian-led nutrition and life-skills session",
-  },
-  family_support: {
-    src: "/images/donate-3.png",
-    alt: "Programme staff supporting a family session",
+  zh: {
+    where_needed_most: {
+      src: "/images/donate-1.png",
+      alt: "Love 21 會員參與我們的各項服務",
+    },
+    sports: {
+      src: "/images/sports-session.jpg",
+      alt: "會員參與有支援的體育活動",
+    },
+    dance: {
+      src: "/images/crystal-performing.jpg",
+      alt: "會員自信地演出",
+    },
+    nutrition: {
+      src: "/images/donate-5.png",
+      alt: "由營養師帶領的營養及生活技能活動",
+    },
+    family_support: {
+      src: "/images/donate-3.png",
+      alt: "服務團隊支援家庭活動",
+    },
   },
 };
 
-const transparencyPhotos = [
-  { id: "photo-1", src: "/images/donate-1.png", alt: "Young people in a coaching session" },
-  { id: "photo-2", src: "/images/donate-2.png", alt: "Participants at a life-skills workshop" },
-  { id: "photo-3", src: "/images/donate-3.png", alt: "A mentor working one-to-one with a participant" },
-  { id: "photo-4", src: "/images/donate-4.png", alt: "Programme staff supporting a family session" },
-] as const;
+const transparencyPhotosCopy = {
+  en: [
+    { id: "photo-1", src: "/images/donate-1.png", alt: "Young people in a coaching session" },
+    { id: "photo-2", src: "/images/donate-2.png", alt: "Participants at a life-skills workshop" },
+    { id: "photo-3", src: "/images/donate-3.png", alt: "A mentor working one-to-one with a participant" },
+    { id: "photo-4", src: "/images/donate-4.png", alt: "Programme staff supporting a family session" },
+  ],
+  zh: [
+    { id: "photo-1", src: "/images/donate-1.png", alt: "年輕人參與教練指導活動" },
+    { id: "photo-2", src: "/images/donate-2.png", alt: "參加者出席生活技能工作坊" },
+    { id: "photo-3", src: "/images/donate-3.png", alt: "導師與參加者一對一相處" },
+    { id: "photo-4", src: "/images/donate-4.png", alt: "服務團隊支援家庭活動" },
+  ],
+} as const;
+
+type DonateCopy = {
+  transparencyEyebrow: string;
+  headlineLine1: string;
+  headlineLine2: string;
+  remainingNote: string;
+  evidenceLabel: string;
+  evidenceBody: string;
+  meetSupporters: string;
+  donateNow: string;
+  photosAria: string;
+  prevPhoto: string;
+  nextPhoto: string;
+  donationProgressAria: string;
+  donationFlowAria: string;
+  simulationBanner: string;
+  giftHeading: string;
+  continueToDetails: string;
+  giftFootnote: string;
+  impactAria: string;
+  detailsHeading: string;
+  profileReady: (nickname: string) => string;
+  back: string;
+  openingProfile: string;
+  reviewAndContinue: string;
+  reviewHeading: string;
+  reviewFootnote: string;
+  confirming: string;
+  confirmDonation: (amount: string) => string;
+  optionsUnavailable: string;
+  amountRangeError: string;
+  receiptEmailRequired: string;
+  validEmailRequired: string;
+  nameTooLong: string;
+  emailRequired: string;
+  passwordTooShort: string;
+  nicknameRequired: string;
+  nicknameTooLong: string;
+  profileOpenError: string;
+  donationConfirmError: string;
+};
+
+const donateCopy: Record<"en" | "zh", DonateCopy> = {
+  en: {
+    transparencyEyebrow: "Jan–Jun 2026 · independently reviewed",
+    headlineLine1: "HK$3.28m received.",
+    headlineLine2: "HK$2.91m put to work.",
+    remainingNote: "The remaining HK$370k is committed to programmes already scheduled for August–October.",
+    evidenceLabel: "Evidence, not estimates:",
+    evidenceBody: "attendance logs, coach records and 90-day employment follow-ups support these figures.",
+    meetSupporters: "Meet our supporters →",
+    donateNow: "Donate now",
+    photosAria: "Photos from our programmes",
+    prevPhoto: "Show previous photo",
+    nextPhoto: "Show next photo",
+    donationProgressAria: "Donation progress",
+    donationFlowAria: "Donation flow",
+    simulationBanner:
+      "Hackathon simulation — no payment is taken. Donor profiles and their demo donation records are stored in the local service.",
+    giftHeading: "How would you like to give?",
+    continueToDetails: "Continue to your details",
+    giftFootnote: "Secure payment · Receipt by email · You can change your mind before confirming",
+    impactAria: "Your possible impact",
+    detailsHeading: "Your details",
+    profileReady: (nickname: string) => `Donor profile ready for ${nickname}.`,
+    back: "Back",
+    openingProfile: "Opening your donor profile…",
+    reviewAndContinue: "Review & continue to secure payment",
+    reviewHeading: "Review your prototype donation",
+    reviewFootnote: "This confirms a prototype intention only. No money will be charged.",
+    confirming: "Confirming…",
+    confirmDonation: (amount: string) => `Confirm prototype donation of HK$${amount}`,
+    optionsUnavailable: "Live choices are temporarily unavailable. Safe prototype defaults are shown.",
+    amountRangeError: "Enter a whole HKD amount between HK$10 and HK$1,000,000.",
+    receiptEmailRequired: "Enter an email to receive your receipt.",
+    validEmailRequired: "Enter a valid email address.",
+    nameTooLong: "Keep the name to 100 characters or fewer.",
+    emailRequired: "Enter the email for your donor profile.",
+    passwordTooShort: "Use at least 6 characters for this prototype.",
+    nicknameRequired: "Choose a nickname for your donor profile.",
+    nicknameTooLong: "Keep the nickname to 40 characters or fewer.",
+    profileOpenError: "We could not open your donor profile. Please try again.",
+    donationConfirmError: "We could not confirm the prototype donation. Please try again.",
+  },
+  zh: {
+    transparencyEyebrow: "2026年1至6月 · 獨立審核",
+    headlineLine1: "已收到 HK$3.28m 捐款。",
+    headlineLine2: "已投入 HK$2.91m 於服務。",
+    remainingNote: "餘下的 HK$370k 已承諾用於8月至10月已排定的服務項目。",
+    evidenceLabel: "有實據，不是估算：",
+    evidenceBody: "出席紀錄、教練記錄及90天就業跟進均支持以上數字。",
+    meetSupporters: "認識我們的支持者 →",
+    donateNow: "立即捐款",
+    photosAria: "我們服務項目的相片",
+    prevPhoto: "顯示上一張相片",
+    nextPhoto: "顯示下一張相片",
+    donationProgressAria: "捐款進度",
+    donationFlowAria: "捐款流程",
+    simulationBanner:
+      "黑客松模擬 — 不會收取任何款項。捐款人帳戶及示範捐款紀錄儲存在本地服務中。",
+    giftHeading: "你想以哪種方式捐款？",
+    continueToDetails: "繼續填寫你的資料",
+    giftFootnote: "安全付款 · 電郵收據 · 確認前仍可更改",
+    impactAria: "你可能帶來的影響",
+    detailsHeading: "你的資料",
+    profileReady: (nickname: string) => `捐款人帳戶已準備就緒：${nickname}。`,
+    back: "返回",
+    openingProfile: "正在開啟你的捐款人帳戶…",
+    reviewAndContinue: "確認並前往安全付款",
+    reviewHeading: "確認你的模擬捐款",
+    reviewFootnote: "此步驟僅確認模擬捐款意向，不會收取任何款項。",
+    confirming: "確認中…",
+    confirmDonation: (amount: string) => `確認模擬捐款 HK$${amount}`,
+    optionsUnavailable: "即時選項暫時無法載入，現顯示安全的預設原型選項。",
+    amountRangeError: "請輸入 HK$10 至 HK$1,000,000 之間的整數金額。",
+    receiptEmailRequired: "請輸入接收收據的電郵地址。",
+    validEmailRequired: "請輸入有效的電郵地址。",
+    nameTooLong: "姓名請保持在100個字元或以下。",
+    emailRequired: "請輸入你捐款人帳戶的電郵地址。",
+    passwordTooShort: "此原型至少需要6個字元的密碼。",
+    nicknameRequired: "請為你的捐款人帳戶選擇一個暱稱。",
+    nicknameTooLong: "暱稱請保持在40個字元或以下。",
+    profileOpenError: "未能開啟你的捐款人帳戶，請再試一次。",
+    donationConfirmError: "未能確認此模擬捐款，請再試一次。",
+  },
+} as const;
 
 function isValidAmount(amount: number): boolean {
   return Number.isInteger(amount) && amount >= 10 && amount <= 1_000_000;
 }
 
-function validateDetails(details: DonorDetails): DonorDetailsErrors {
+function validateDetails(
+  details: DonorDetails,
+  copy: DonateCopy,
+): DonorDetailsErrors {
   const errors: DonorDetailsErrors = {};
   const name = details.donorName.trim();
   const email = details.donorEmail.trim();
@@ -136,31 +323,31 @@ function validateDetails(details: DonorDetails): DonorDetailsErrors {
     if (details.wantsAnonymousReceipt) {
       const receiptEmail = details.anonymousReceiptEmail.trim();
       if (!receiptEmail) {
-        errors.anonymousReceiptEmail = "Enter an email to receive your receipt.";
+        errors.anonymousReceiptEmail = copy.receiptEmailRequired;
       } else if (!z.string().email().safeParse(receiptEmail).success) {
-        errors.anonymousReceiptEmail = "Enter a valid email address.";
+        errors.anonymousReceiptEmail = copy.validEmailRequired;
       }
     }
     return errors;
   }
 
   if (name.length > 100) {
-    errors.donorName = "Keep the name to 100 characters or fewer.";
+    errors.donorName = copy.nameTooLong;
   }
   if (!email) {
-    errors.donorEmail = "Enter the email for your donor profile.";
+    errors.donorEmail = copy.emailRequired;
   } else if (!z.string().email().safeParse(email).success) {
-    errors.donorEmail = "Enter a valid email address.";
+    errors.donorEmail = copy.validEmailRequired;
   }
   if (details.donorPassword.length < 6) {
-    errors.donorPassword = "Use at least 6 characters for this prototype.";
+    errors.donorPassword = copy.passwordTooShort;
   }
   if (details.profileMode === "new") {
     const nickname = details.donorNickname.trim();
     if (!nickname) {
-      errors.donorNickname = "Choose a nickname for your donor profile.";
+      errors.donorNickname = copy.nicknameRequired;
     } else if (nickname.length > 40) {
-      errors.donorNickname = "Keep the nickname to 40 characters or fewer.";
+      errors.donorNickname = copy.nicknameTooLong;
     }
   }
   return errors;
@@ -174,12 +361,25 @@ function isAbortError(error: unknown): boolean {
 }
 
 export function DonatePage() {
+  const { lang, t } = useLanguage();
+  const copy = localizeDeep(donateCopy[lang === "en" ? "en" : "zh"], lang);
+  const stepLabels = localizeDeep(stepLabelsCopy[lang === "en" ? "en" : "zh"], lang);
+  const transparencyRows = localizeDeep(transparencyRowsCopy[lang === "en" ? "en" : "zh"], lang);
+  const causeImages = localizeDeep(causeImagesCopy[lang === "en" ? "en" : "zh"], lang);
+  const transparencyPhotos = localizeDeep(
+    transparencyPhotosCopy[lang === "en" ? "en" : "zh"],
+    lang,
+  );
+  const fallbackChoices: CauseChoice[] = t.donationPrograms.map((program) => ({
+    causeId: program.value,
+    label: program.label,
+  }));
+
   const [step, setStep] = useState<FormStep>("gift");
   const [causeId, setCauseId] = useState<CauseId>("where_needed_most");
   const [amountInput, setAmountInput] = useState("400");
   const [presets, setPresets] = useState<number[]>(fallbackPresets);
-  const [causeChoices, setCauseChoices] =
-    useState<CauseChoice[]>(fallbackChoices);
+  const [liveCauseIds, setLiveCauseIds] = useState<CauseId[] | null>(null);
   const [optionsNotice, setOptionsNotice] = useState<string | null>(null);
   const [preview, setPreview] = useState<ImpactPreview | null>(null);
   const [previewStatus, setPreviewStatus] =
@@ -207,12 +407,20 @@ export function DonatePage() {
   const previousStep = useRef<FormStep>(step);
 
   const amountHkd = Number(amountInput);
+  const causeChoices: CauseChoice[] = useMemo(() => {
+    if (!liveCauseIds) return fallbackChoices;
+    return liveCauseIds.map((id) => ({
+      causeId: id,
+      label: t.donationPrograms.find((program) => program.value === id)?.label ?? id,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveCauseIds, t]);
   const selectedCauseLabel =
     causeChoices.find((choice) => choice.causeId === causeId)?.label ??
     "Love 21";
   const impactMessage = useMemo(
-    () => getDonationImpactMessage(preview),
-    [preview],
+    () => getLocalizedImpactMessage(preview, lang),
+    [preview, lang],
   );
   const donorDisplayName =
     authenticatedDonor?.nickname || details.donorNickname.trim() || details.donorName.trim();
@@ -237,15 +445,7 @@ export function DonatePage() {
     getDonationImpactOptions(controller.signal)
       .then((options) => {
         setPresets(options.preset_amounts_hkd);
-        setCauseChoices(
-          options.causes.map((cause) => ({
-            causeId: cause.cause_id,
-            label:
-              donationPrograms.find(
-                (program) => program.value === cause.cause_id,
-              )?.label ?? cause.cause_id,
-          })),
-        );
+        setLiveCauseIds(options.causes.map((cause) => cause.cause_id));
         if (!causeTouched.current) {
           setCauseId(options.default_cause_id);
         }
@@ -253,13 +453,12 @@ export function DonatePage() {
       })
       .catch((error: unknown) => {
         if (!isAbortError(error)) {
-          setOptionsNotice(
-            "Live choices are temporarily unavailable. Safe prototype defaults are shown.",
-          );
+          setOptionsNotice(copy.optionsUnavailable);
         }
       });
 
     return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -335,9 +534,7 @@ export function DonatePage() {
 
   function continueToDetails() {
     if (!isValidAmount(amountHkd)) {
-      setAmountError(
-        "Enter a whole HKD amount between HK$10 and HK$1,000,000.",
-      );
+      setAmountError(copy.amountRangeError);
       return;
     }
     setAmountError(undefined);
@@ -347,7 +544,7 @@ export function DonatePage() {
   async function continueToReview() {
     const errors = authenticatedDonor && !details.anonymous
       ? {}
-      : validateDetails(details);
+      : validateDetails(details, copy);
     setDetailsErrors(errors);
     if (Object.keys(errors).length > 0) return;
     setProfileError(null);
@@ -386,7 +583,7 @@ export function DonatePage() {
             setAuthenticatedDonor(authResult.profile);
             setDetails((current) => ({ ...current, donorPassword: "" }));
           } catch {
-            setProfileError("We could not open your donor profile. Please try again.");
+            setProfileError(copy.profileOpenError);
             return;
           }
         } else if (error instanceof ApiError && error.code === "email_taken") {
@@ -399,7 +596,7 @@ export function DonatePage() {
           setProfileError(
             error instanceof Error
               ? error.message
-              : "We could not open your donor profile. Please try again.",
+              : copy.profileOpenError,
           );
           return;
         }
@@ -449,7 +646,7 @@ export function DonatePage() {
       setSubmitError(
         error instanceof Error
           ? error.message
-          : "We could not confirm the prototype donation. Please try again.",
+          : copy.donationConfirmError,
       );
     } finally {
       setIsSubmitting(false);
@@ -480,9 +677,13 @@ export function DonatePage() {
         <div className="donate-a-main">
           <div className="donate-a-top-row">
             <article className="donate-a-transparency" aria-labelledby="donation-transparency-title">
-              <p className="donor-community-eyebrow">Jan–Jun 2026 · independently reviewed</p>
-              <h1 id="donation-transparency-title">HK$3.28m received.<br />HK$2.91m put to work.</h1>
-              <p>The remaining HK$370k is committed to programmes already scheduled for August–October.</p>
+              <p className="donor-community-eyebrow">{copy.transparencyEyebrow}</p>
+              <h1 id="donation-transparency-title">
+                {copy.headlineLine1}
+                <br />
+                {copy.headlineLine2}
+              </h1>
+              <p>{copy.remainingNote}</p>
               <div className="donate-a-allocation">
                 {transparencyRows.map((item) => (
                   <div className="donate-a-allocation-row" key={item.label}>
@@ -492,9 +693,9 @@ export function DonatePage() {
                   </div>
                 ))}
               </div>
-              <div className="donate-a-evidence"><strong>Evidence, not estimates:</strong> attendance logs, coach records and 90-day employment follow-ups support these figures.</div>
+              <div className="donate-a-evidence"><strong>{copy.evidenceLabel}</strong> {copy.evidenceBody}</div>
               <Link className="donor-community-button donor-community-button-primary donate-a-supporter-link" to="/supporter">
-                Meet our supporters →
+                {copy.meetSupporters}
               </Link>
               <button
                 type="button"
@@ -504,11 +705,11 @@ export function DonatePage() {
                 }
               >
                 <span aria-hidden="true">↓</span>
-                Donate now
+                {copy.donateNow}
               </button>
             </article>
 
-            <aside className="donate-a-photos" aria-label="Photos from our programmes">
+            <aside className="donate-a-photos" aria-label={copy.photosAria}>
               <div className="donate-a-photo-stack">
                 {transparencyPhotos.map((photo) => {
                   const depth = photoStackOrder.indexOf(photo.id);
@@ -532,7 +733,7 @@ export function DonatePage() {
               <button
                 type="button"
                 className="donate-a-photo-nav donate-a-photo-nav-prev"
-                aria-label="Show previous photo"
+                aria-label={copy.prevPhoto}
                 onClick={() => cyclePhotoStack(-1)}
               >
                 ‹
@@ -540,7 +741,7 @@ export function DonatePage() {
               <button
                 type="button"
                 className="donate-a-photo-nav donate-a-photo-nav-next"
-                aria-label="Show next photo"
+                aria-label={copy.nextPhoto}
                 onClick={() => cyclePhotoStack(1)}
               >
                 ›
@@ -553,10 +754,10 @@ export function DonatePage() {
             ref={flowPanelRef}
             tabIndex={-1}
             onFocusCapture={() => trackFormStarted("donation")}
-            aria-label="Donation flow"
+            aria-label={copy.donationFlowAria}
           >
             <div className="donate-a-flow-topline">
-              <ol className="donation-steps" aria-label="Donation progress">
+              <ol className="donation-steps" aria-label={copy.donationProgressAria}>
                 {stepLabels.map((item, index) => {
                   const currentIndex = stepLabels.findIndex(
                     (candidate) => candidate.id === step,
@@ -576,7 +777,7 @@ export function DonatePage() {
             </div>
 
             <div className="simulation-banner" role="note">
-              Hackathon simulation — no payment is taken. Donor profiles and their demo donation records are stored in the local service.
+              {copy.simulationBanner}
             </div>
 
             {optionsNotice && <div className="form-alert form-notice" role="status">{optionsNotice}</div>}
@@ -584,7 +785,7 @@ export function DonatePage() {
             {step === "gift" && (
               <>
                 <div className="form-heading">
-                  <h2 id="donation-flow-title">How would you like to give?</h2>
+                  <h2 id="donation-flow-title">{copy.giftHeading}</h2>
                 </div>
                 <div className="donate-a-gift-grid">
                   <div className="donate-a-gift-fields">
@@ -601,11 +802,11 @@ export function DonatePage() {
                       onCustomAmountConfirmed={confirmCustomAmount}
                     />
                     <button className="button button-dark button-full" type="button" onClick={continueToDetails}>
-                      Continue to your details
+                      {copy.continueToDetails}
                     </button>
-                    <p className="form-footnote">Secure payment · Receipt by email · You can change your mind before confirming</p>
+                    <p className="form-footnote">{copy.giftFootnote}</p>
                   </div>
-                  <aside className="donate-a-gift-impact" aria-label="Your possible impact">
+                  <aside className="donate-a-gift-impact" aria-label={copy.impactAria}>
                     <div className="donate-a-impact-preview">
                       <ImpactCard
                         amountHkd={amountHkd}
@@ -622,7 +823,7 @@ export function DonatePage() {
             {step === "details" && (
               <>
                 <div className="form-heading">
-                  <h2 id="donation-flow-title">Your details</h2>
+                  <h2 id="donation-flow-title">{copy.detailsHeading}</h2>
                 </div>
                 <DonorDetailsForm
                   value={details}
@@ -634,14 +835,14 @@ export function DonatePage() {
                 />
                 {authenticatedDonor && !details.anonymous && (
                   <div className="form-alert form-notice" role="status">
-                    Donor profile ready for {authenticatedDonor.nickname}.
+                    {copy.profileReady(authenticatedDonor.nickname)}
                   </div>
                 )}
                 {profileError && <div className="form-alert" role="alert">{profileError}</div>}
                 <div className="button-row">
-                  <button className="button button-outline" type="button" onClick={() => setStep("gift")}>Back</button>
+                  <button className="button button-outline" type="button" onClick={() => setStep("gift")}>{copy.back}</button>
                   <button className="button button-dark" type="button" onClick={continueToReview} disabled={isAuthenticating}>
-                    {isAuthenticating ? "Opening your donor profile…" : "Review & continue to secure payment"}
+                    {isAuthenticating ? copy.openingProfile : copy.reviewAndContinue}
                   </button>
                 </div>
               </>
@@ -650,7 +851,7 @@ export function DonatePage() {
             {step === "review" && (
               <>
                 <div className="form-heading">
-                  <h2 id="donation-flow-title">Review your prototype donation</h2>
+                  <h2 id="donation-flow-title">{copy.reviewHeading}</h2>
                 </div>
                 {submitError && <div className="form-alert" role="alert">{submitError}</div>}
                 <DonationReview
@@ -668,11 +869,11 @@ export function DonatePage() {
                     imageSrc={causeImages[causeId].src}
                   />
                 </div>
-                <p className="form-footnote review-footnote">This confirms a prototype intention only. No money will be charged.</p>
+                <p className="form-footnote review-footnote">{copy.reviewFootnote}</p>
                 <div className="button-row">
-                  <button className="button button-outline" type="button" onClick={() => setStep("details")} disabled={isSubmitting}>Back</button>
+                  <button className="button button-outline" type="button" onClick={() => setStep("details")} disabled={isSubmitting}>{copy.back}</button>
                   <button className="button button-dark" type="button" onClick={submitDonationIntent} disabled={isSubmitting}>
-                    {isSubmitting ? "Confirming…" : `Confirm prototype donation of HK$${amountHkd.toLocaleString("en-HK")}`}
+                    {isSubmitting ? copy.confirming : copy.confirmDonation(amountHkd.toLocaleString("en-HK"))}
                   </button>
                 </div>
               </>

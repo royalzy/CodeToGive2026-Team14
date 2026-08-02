@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useLanguage } from "../hooks/useLanguage";
+import { localizeDeep } from "../lib/zhConvert";
 
 export function LoginPage() {
   const { login, family } = useAuth();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const navigate = useNavigate();
 
   if (family) {
@@ -38,14 +39,16 @@ export function LoginPage() {
                     type="button"
                     onClick={() => handleLogin(fam.id)}
                   >
-                    Sign in
+                    {lang === "en" ? "Sign in" : localizeDeep("登入", lang)}
                   </button>
                 </article>
               );
             })}
           </div>
           <p className="section-cta" style={{ marginTop: "1.5rem", color: "var(--muted)", fontSize: "0.85rem" }}>
-            Demo sign-in — no real authentication. In a live service, families would use secure login.
+            {lang === "en"
+              ? "Demo sign-in — no real authentication. In a live service, families would use secure login."
+              : localizeDeep("示範登入 — 並非真實驗證。在正式服務中，家庭將使用安全登入方式。", lang)}
           </p>
         </div>
       </section>

@@ -1,4 +1,6 @@
-import type { Article } from "./data";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
+import { localizeArticle, localizeArticleLabel, type Article } from "./data";
 
 // eslint-disable-next-line react-refresh/only-export-components -- small shared lookup, also used by ArticleModal
 export const LABEL_STYLES: Record<Article["label"], string> = {
@@ -11,6 +13,9 @@ export const LABEL_STYLES: Record<Article["label"], string> = {
 };
 
 export function ArticleCard({ article, onOpen }: { article: Article; onOpen: () => void }) {
+  const { lang } = useLanguage();
+  const copy = localizeDeep(localizeArticle(article, lang), lang);
+
   return (
     <button
       type="button"
@@ -20,10 +25,10 @@ export function ArticleCard({ article, onOpen }: { article: Article; onOpen: () 
       <span
         className={`inline-block rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${LABEL_STYLES[article.label]}`}
       >
-        {article.label}
+        {localizeDeep(localizeArticleLabel(article.label, lang), lang)}
       </span>
-      <p className="mt-3 text-lg font-bold text-love-ink">{article.title}</p>
-      <p className="mt-1 text-sm leading-relaxed text-love-ink/70">{article.subtitle}</p>
+      <p className="mt-3 text-lg font-bold text-love-ink">{copy.title}</p>
+      <p className="mt-1 text-sm leading-relaxed text-love-ink/70">{copy.subtitle}</p>
     </button>
   );
 }

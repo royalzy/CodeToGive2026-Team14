@@ -27,10 +27,27 @@ def test_grading_reveals_all_statements_and_punchline():
     reveal = grade_hero_round("rw-001", "st-001a", lang="en")
     assert reveal is not None
     assert reveal["twist"] == "all_myths"
-    assert reveal["punchline"] == TWIST_PUNCHLINES["all_myths"]
+    assert reveal["punchline"] == TWIST_PUNCHLINES["all_myths"]["en"]
     assert len(reveal["statements"]) == 3
     assert all(st["is_myth"] for st in reveal["statements"])
     assert all(st["reveal"] and st["source"]["label"] for st in reveal["statements"])
+
+
+def test_hero_round_is_localized():
+    en_round = get_hero_round(lang="en")
+    zh_round = get_hero_round(lang="zh-Hant")
+    assert en_round["kick"] != zh_round["kick"]
+    for en_st, zh_st in zip(en_round["statements"], zh_round["statements"], strict=True):
+        assert en_st["text"] != zh_st["text"]
+
+
+def test_grading_reveal_is_localized():
+    reveal = grade_hero_round("rw-001", "st-001a", lang="zh")
+    assert reveal is not None
+    assert reveal["punchline"] == TWIST_PUNCHLINES["all_myths"]["zh"]
+    for st in reveal["statements"]:
+        assert st["reveal"]
+        assert st["source"]["label"]
 
 
 def test_unknown_round_or_statement_returns_none():
