@@ -8,6 +8,7 @@ export type DonationEventName =
   | "donation_details_started"
   | "donation_intent_submitted"
   | "donation_success_displayed"
+  | "donation_impact_shared"
   | "stay_involved_clicked";
 
 type DonationEventParameters = {
