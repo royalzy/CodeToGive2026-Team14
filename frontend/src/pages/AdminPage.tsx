@@ -1,16 +1,12 @@
 import { PageHero, SectionHeading } from "../components/Cards";
+import { analyticsDashboardUrl } from "../analytics/umami";
+import { SocialComposer } from "../components/admin/SocialComposer";
 
 const adminMetrics = [
   { value: "1,234", label: "visitors this month", accent: "blue" as const },
   { value: "45", label: "volunteer sign-ups", accent: "red" as const },
   { value: "23", label: "donation intents", accent: "yellow" as const },
   { value: "8", label: "social posts scheduled", accent: "teal" as const },
-];
-
-const scheduledPosts = [
-  { date: "10 Aug 2025", platform: "Facebook", content: "Crystal completed her 50th dance session! 🎉 #SoMuchAbility" },
-  { date: "12 Aug 2025", platform: "LinkedIn", content: "Join our community performance showcase. 60+ members on stage." },
-  { date: "15 Aug 2025", platform: "Instagram", content: "Behind the scenes: nutrition workshop with Chef Ka Wai 👨‍🍳" },
 ];
 
 export function AdminPage() {
@@ -37,20 +33,43 @@ export function AdminPage() {
       </section>
 
       <section className="section section-soft">
+        <div className="shell admin-social">
+          <SectionHeading
+            eyebrow="Social media"
+            title="Create a post"
+            body={
+              // \u00A0 keeps "at once." together if this ever wraps on a narrow screen
+              "Upload an image, write a caption and publish to Instagram and Facebook Page at once."
+            }
+          />
+          <SocialComposer />
+        </div>
+      </section>
+
+      <section className="section">
         <div className="shell">
           <SectionHeading
-            eyebrow="Automation preview"
-            title="Scheduled social posts"
-            body="In a live service, achievements and events would be automatically drafted for review and posting."
+            eyebrow="Audience insights"
+            title="Site analytics"
+            body="Live visitor trends, referrers and conversion funnels from Umami."
           />
-          <div className="help-grid">
-            {scheduledPosts.map((post) => (
-              <article key={post.content} className="support-card">
-                <p className="eyebrow">{post.date} · {post.platform}</p>
-                <p>{post.content}</p>
-              </article>
-            ))}
-          </div>
+          {analyticsDashboardUrl ? (
+            <iframe
+              title="Umami analytics dashboard"
+              src={analyticsDashboardUrl}
+              style={{ width: "100%", height: "640px", border: 0, borderRadius: "12px" }}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="privacy-note" style={{ maxWidth: "600px", margin: "0 auto" }}>
+              <strong>Analytics not configured</strong>
+              <p>
+                Set <code>VITE_UMAMI_DASHBOARD_URL</code> to the shareable Umami
+                dashboard link to display live audience insights here.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

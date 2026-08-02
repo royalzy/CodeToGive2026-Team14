@@ -1,0 +1,364 @@
+# ----------------------------------------
+# 報表數據匯報
+# 帳戶：Love21foundation
+# 資源：website
+# ----------------------------------------
+#  
+# 開始日期：20260703
+# 結束日期：20260730
+活躍使用者,新使用者人數,每位活躍使用者的平均參與時間,事件計數
+1861,1545,53.04459967759269,34909
+
+#  
+# 開始日期：20260703
+# 結束日期：20260730
+網頁標題與畫面類別,瀏覽,活躍使用者,事件計數,跳出率
+LOVE 21 Foundation,12311,1861,34555,0.45539194456474663
+LOVE 21基金会,0,4,33,0
+LOVE 21基金會,0,19,301,0.2558139534883721
+Yayasan LOVE 21,0,1,15,0
+มูลนิธิเลิฟ 21,0,1,5,0
+
+#  
+# 開始日期：20260703
+# 結束日期：20260730
+最初招攬到使用者的來源/媒介,活躍使用者
+(direct) / (none),1064
+google / organic,630
+volunteer.handsonhongkong.org / referral,52
+bing / organic,31
+linkedin.com / referral,23
+hk.search.yahoo.com / referral,14
+m.facebook.com / referral,9
+facebook.com / referral,7
+ig / social,6
+ecosia.org / organic,4
+l.instagram.com / referral,4
+cn.bing.com / referral,2
+commchest.org / referral,2
+ca.search.yahoo.com / referral,1
+chatgpt.com / ai-assistant,1
+coccoc.com / referral,1
+fb / paid,1
+gemini.google.com / ai-assistant,1
+safe.menlosecurity.com / referral,1
+serveathonhk.org.hk / referral,1
+statics.teams.cdn.office.net / referral,1
+teams.public.onecdn.static.microsoft / referral,1
+us7.campaign-archive.com / referral,1
+weixin110.qq.com / referral,1
+yandex / organic,1
+zeyao.net / referral,1
+
+#  
+# 開始日期：20260703
+# 結束日期：20260730
+工作階段來源/媒介,工作階段
+(direct) / (none),2847
+google / organic,1519
+volunteer.handsonhongkong.org / referral,52
+bing / organic,49
+hk.search.yahoo.com / referral,43
+linkedin.com / referral,29
+m.facebook.com / referral,12
+ecosia.org / organic,9
+facebook.com / referral,7
+ig / social,7
+l.instagram.com / referral,4
+lm.facebook.com / referral,3
+cn.bing.com / referral,2
+commchest.org / referral,2
+l.facebook.com / referral,2
+serveathonhk.org.hk / referral,2
+weixin110.qq.com / referral,2
+youtube.com / referral,2
+127.0.0.1:5500 / referral,1
+app.titan.email / referral,1
+ca.search.yahoo.com / referral,1
+chatgpt.com / ai-assistant,1
+coccoc.com / referral,1
+gemini.google.com / ai-assistant,1
+lnkd.in / referral,1
+safe.menlosecurity.com / referral,1
+statics.teams.cdn.office.net / referral,1
+teams.public.onecdn.static.microsoft / referral,1
+us7.campaign-archive.com / referral,1
+yandex / organic,1
+zeyao.net / referral,1
+
+#  
+# 開始日期：20260703
+# 結束日期：20260730
+第 N 天,returning,new
+0000,56,61
+0001,60,54
+0002,53,51
+0003,66,69
+0004,56,49
+0005,57,62
+0006,64,62
+0007,58,49
+0008,49,41
+0009,55,32
+0010,63,44
+0011,53,69
+0012,65,63
+0013,73,48
+0014,58,37
+0015,50,35
+0016,53,34
+0017,43,44
+0018,70,51
+0019,68,51
+0020,69,51
+0021,56,52
+0022,37,45
+0023,28,30
+0024,59,47
+0025,50,82
+0026,62,75
+0027,93,154
+
+# 各個平台的活動成果如何？
+# 開始日期：20260703
+# 結束日期：20260730
+平台,重要活動
+
+
+#  
+# 開始日期：20260703
+# 結束日期：20260730
+城市,活躍使用者
+Hong Kong,928
+Singapore,223
+Tehran,143
+Flint Hill,81
+Urumqi,51
+Council Bluffs,25
+Ashburn,18
+Bissen,16
+Sandefjord,15
+Glenview,14
+London,14
+Moses Lake,14
+Nuremberg,14
+Dublin,13
+New York,11
+Amsterdam,8
+Dronten,8
+Frankfurt am Main,8
+Paris,8
+Guangzhou,7
+Jakarta,7
+Los Angeles,7
+Vancouver,7
+Des Moines,6
+Suzhou,6
+Isfahan,5
+Xinyi District,5
+Boardman,4
+Hangzhou,4
+Lille,4
+Prineville,4
+Shiraz,4
+Beijing,3
+Changzhou,3
+East District,3
+Forest City,3
+Haarlem,3
+Indianapolis,3
+Nanjing,3
+Phoenix,3
+Santa Clara,3
+Seattle,3
+Wuxi,3
+Alexandria,2
+Balatonederics,2
+Bandung,2
+Boston,2
+Chicago,2
+Chongqing,2
+Clifton,2
+Douglas,2
+Edison,2
+Flower Mound,2
+Houston,2
+Kuala Lumpur,2
+La Mesa,2
+Lijiang,2
+Lulea,2
+Malacca,2
+Medan,2
+Miami,2
+Moscow,2
+Richmond Hill,2
+San Francisco,2
+San Jose,2
+Seoul,2
+Shanghai,2
+Shenzhen,2
+Shibuya,2
+Sochi,2
+Stoke Gifford,2
+Tianjin,2
+Washington,2
+Wuhan,2
+Xiamen,2
+Zhuhai,2
+Altoona,1
+Amman,1
+Antipolo,1
+Asheville,1
+Aspen,1
+Atlanta,1
+Babol,1
+Bandar Abbas,1
+Bangkok,1
+Basud,1
+Batam,1
+Bath,1
+Berlin,1
+Berthoud,1
+Brasilia,1
+Bridgeport,1
+Budapest,1
+Buffalo,1
+Butterworth,1
+Calgary,1
+Caloocan,1
+Cardiff,1
+Chennai,1
+Chenzhou,1
+Chiang Mai,1
+Chiyoda City,1
+Chuzhou,1
+Danville,1
+Daqing,1
+Davao City,1
+Decatur,1
+Deyang,1
+Dhaka,1
+Donggongon,1
+Dongguan,1
+Edinburgh,1
+El Paso,1
+Enschede,1
+Eppingen,1
+Essen,1
+Friant,1
+Friedrichshafen,1
+Fuzhou,1
+Gallarate,1
+Gallatin,1
+Garden Grove,1
+General Trias,1
+Guanyin District,1
+Hamedan,1
+Hanoi,1
+Helsinki,1
+Heze,1
+Hialeah Gardens,1
+Ho Chi Minh City,1
+Ibipora,1
+Incheon,1
+Istanbul,1
+Istres,1
+Jinan,1
+Jinzhou,1
+Kansas City,1
+Karachi,1
+Karaj,1
+Kashgar Prefecture,1
+Katsuura,1
+Kelowna,1
+Kerman,1
+Kingston,1
+Kota Kinabalu,1
+Kunming,1
+La Mure,1
+Las Vegas Valley,1
+Leeds,1
+Les Sables-d'Olonne,1
+Lewes,1
+Linyi,1
+Lipa City,1
+Lucerne,1
+Malvinas Argentinas,1
+Marsta,1
+Memphis,1
+Milan,1
+Minneapolis,1
+Minoh,1
+Mombasa,1
+Monterey Park,1
+Naaldwijk,1
+Nakatsugawa,1
+Nanning,1
+Nantong,1
+Ningbo,1
+North Fair Oaks,1
+Northwich,1
+Norwich,1
+Osaka,1
+Osoyoos,1
+Ota City,1
+Oxford,1
+Oyonnax,1
+Parthenay,1
+Pasir Gudang,1
+Pekanbaru,1
+Perth,1
+Portland,1
+Qiannan Buyei and Miao Autonomous Prefecture,1
+Qingdao,1
+Rasht,1
+Rochester,1
+Rome,1
+San Diego,1
+Sangli Miraj Kupwad,1
+Sanmin District,1
+Sao Paulo,1
+Senai,1
+Shaoxing,1
+Sheffield,1
+Shenyang,1
+Shijiazhuang,1
+Shinagawa City,1
+Shinjuku City,1
+Sivas,1
+Slough,1
+Songshan District,1
+South Tangerang,1
+Southern Shops,1
+St. Cloud,1
+Suginami City,1
+Sukabumi,1
+Sumida City,1
+Surabaya,1
+Sydney,1
+Taito City,1
+Taiyuan,1
+The Meadows,1
+Turin,1
+Varginha,1
+Varna,1
+Vechelde,1
+Vierzon,1
+Vladivostok,1
+Wakasa,1
+Wanhua District,1
+Williams Lake,1
+Wingrave,1
+Wolverhampton,1
+Yongkang District,1
+Zhangjiajie,1
+Zhongzheng District,1
+Zibo,1
+Zuoying District,1
+Zurich,1
+
+#  
+# 開始日期：20260703
+# 結束日期：20260730
+目標對象名稱,活躍使用者
+All Users,1861

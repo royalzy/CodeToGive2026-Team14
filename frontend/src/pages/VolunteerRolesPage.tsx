@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { PageHero } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerRoleCard } from "../components/volunteer/VolunteerRoleCard";
@@ -53,12 +52,6 @@ export function VolunteerRolesPage() {
 
   return (
     <>
-      <PageHero
-        eyebrow="All volunteer roles"
-        title="Explore without being boxed in."
-        body="Compare every first-step role across Love 21's programmes. You do not need a recommendation to choose what feels right for you."
-        tone="yellow"
-      />
       <section className="section volunteer-role-preview-section">
         <div className="shell">
           <div className="volunteer-filter-bar">
@@ -116,9 +109,9 @@ export function VolunteerRolesPage() {
             <div key={filterKey} className="volunteer-filtered-results">
               {filteredByProgram.map(({ program, roles }) => (
                 <div key={program.slug} className="volunteer-program-group">
-                  <h3 className={`volunteer-program-group-heading accent-${program.accent}`}>
+                  <h2 className={`volunteer-program-group-heading accent-${program.accent}`}>
                     {program.title}
-                  </h3>
+                  </h2>
                   <div className="volunteer-role-grid">
                     {roles.map((role) => (
                       <VolunteerRoleCard key={role.id} role={role} />
@@ -129,7 +122,7 @@ export function VolunteerRolesPage() {
             </div>
           ) : (
             <div className="volunteer-filter-empty">
-              <h3>No roles match those filters yet.</h3>
+              <h2>No roles match those filters yet.</h2>
               <p>Try clearing a filter, or subscribe below to hear about new roles.</p>
               <button
                 type="button"

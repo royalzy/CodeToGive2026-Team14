@@ -1,13 +1,25 @@
-.PHONY: setup dev test test-e2e lint api-types
+.PHONY: setup backend-preflight dev demo test test-e2e lint api-types
 
 setup:
 	UV_CACHE_DIR=$(CURDIR)/.uv-cache uv sync --directory backend
 	pnpm --dir frontend install
 
-dev:
-	@trap 'kill 0' INT TERM EXIT; \
-	(cd backend && UV_CACHE_DIR=$(CURDIR)/.uv-cache uv run uvicorn app.main:app --reload --port 8000) & \
-	(cd frontend && pnpm dev)
+backend-preflight:
+	@cd backend && .venv/bin/python -m scripts.dev_backend_preflight
+
+dev: backend-preflight
+	@set -eu; \
+	(cd backend && exec .venv/bin/python -m uvicorn app.main:app --reload --port 8000) & \
+	backend_pid=$$!; \
+	trap 'kill -TERM "$$backend_pid" 2>/dev/null || true; wait "$$backend_pid" 2>/dev/null || true' INT TERM EXIT; \
+	cd frontend && pnpm dev
+
+demo: backend-preflight
+	@set -eu; \
+	(cd backend && exec .venv/bin/python -m uvicorn app.main:app --port 8000) & \
+	backend_pid=$$!; \
+	trap 'kill -TERM "$$backend_pid" 2>/dev/null || true; wait "$$backend_pid" 2>/dev/null || true' INT TERM EXIT; \
+	cd frontend && pnpm dev
 
 test:
 	cd backend && UV_CACHE_DIR=$(CURDIR)/.uv-cache uv run python -m pytest

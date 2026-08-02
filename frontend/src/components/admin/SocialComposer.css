@@ -1,0 +1,47 @@
+/* Styles for the admin "Social media / Create a post" section.
+ *
+ * Everything is scoped to `.admin-social` (the section wrapper) or
+ * `.social-composer` (the form itself), so nothing here leaks into other
+ * pages that share SectionHeading or the global form styles.
+ *
+ * These live in CSS rather than Tailwind classes because styles.css rules are
+ * unlayered, and unlayered CSS beats Tailwind's `@layer utilities` regardless
+ * of specificity — utilities silently lose against them.
+ */
+
+/* --- Section heading ---------------------------------------------------- */
+
+/* `.section-heading` caps itself at 760px and `.section-heading > p:last-child`
+ * caps the subtitle at 660px, which splits it across two lines and strands
+ * "at once." on its own. The paragraph can never exceed its parent, so BOTH
+ * caps have to be lifted — raising only one does nothing.
+ *
+ * The `> p:last-child` shape is deliberate: the rule in styles.css is
+ * `.section-heading > p:last-child` (specificity 0,2,1). A plain
+ * `.admin-social .section-heading p` is also 0,2,1, so source order decides
+ * and styles.css wins. Repeating the child + :last-child parts takes this to
+ * 0,3,1 so it reliably wins instead.
+ *
+ * `none` rather than a pixel value because the natural width depends on
+ * whether the Inter webfont has loaded; any fixed number is wrong in one of
+ * those cases. The sentence is short, so it takes its natural width and is
+ * still bounded by `.shell` on narrow screens. */
+.admin-social .section-heading,
+.admin-social .section-heading > p:last-child {
+  max-width: none;
+}
+
+/* --- Composer form ------------------------------------------------------ */
+
+/* The global focus ring is a 4px yellow outline, which is very heavy on a
+ * large textarea you sit and type in. Replaced, not removed — keyboard users
+ * still get a clear ring. Matches `.field input:focus` in styles.css.
+ *
+ * `:focus` (not `:focus-visible`) so this also wins while the global
+ * `:focus-visible` rule is active; both are unlayered and this selector has
+ * the higher specificity. */
+.social-composer :is(textarea, input[type="text"]):focus {
+  border-color: var(--blue);
+  outline: 3px solid rgb(20 85 192 / 20%);
+  outline-offset: 0;
+}

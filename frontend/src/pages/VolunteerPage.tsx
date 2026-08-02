@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
-import { PageHero, SectionHeading } from "../components/Cards";
+import { SectionHeading } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerProgramAccordion } from "../components/volunteer/VolunteerProgramAccordion";
@@ -16,13 +16,6 @@ export function VolunteerPage() {
 
   return (
     <>
-      <PageHero
-        eyebrow="Volunteer with Love 21"
-        title="Your first step can be a small one."
-        body="Find a role, see what your first visit could feel like and explore one supported experience without a long-term commitment."
-        tone="blue"
-      />
-
       <section className="section volunteer-entry-section">
         <div className="shell">
           <SectionHeading

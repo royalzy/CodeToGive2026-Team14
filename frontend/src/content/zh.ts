@@ -4,6 +4,14 @@
 // are reviewed.
 
 import type {
+  Audience,
+  Need,
+  StartStyle,
+  SupportOption,
+  SupportPathway,
+  SupportQuestion,
+} from "./support";
+import type {
   AllocationShare,
   Badge,
   BookableEvent,
@@ -20,20 +28,18 @@ import type {
 
 export const navigation = [
   { label: "影響力", href: "/impact" },
+  { label: "支持者社群", href: "/community" },
   { label: "義工服務", href: "/volunteer" },
   { label: "捐款", href: "/donate" },
-  { label: "會員", href: "/members" },
-  { label: "企業夥伴", href: "/partners" },
   { label: "支援", href: "/help" },
-  { label: "學習資源", href: "/resources" },
+  { label: "了解更多", href: "/neuro-strengths" },
 ];
 
 export const personas = [
   { icon: "❤️", label: "我想當義工", description: "付出時間與心力，支持這個社群。", href: "/volunteer" },
   { icon: "💰", label: "我想捐款", description: "清楚了解您的捐款支持了甚麼。", href: "/donate" },
   { icon: "👨‍👩‍👦", label: "我是會員或家人", description: "登入瀏覽課程並報名活動。", href: "/login" },
-  { icon: "🏢", label: "我是企業夥伴", description: "了解贊助及企業社會責任機會。", href: "/partners" },
-  { icon: "🌍", label: "我想了解更多", description: "認識神經多樣性、共融及如何協助。", href: "/resources" },
+  { icon: "🌍", label: "我想了解更多", description: "認識神經多樣性、共融及如何協助。", href: "/neuro-strengths" },
 ];
 
 export const metrics: Metric[] = [
@@ -229,3 +235,108 @@ export const demoFamilies: FamilyAccount[] = [
   { id: "fam-1", name: "Sarah 的家庭", memberSlugs: ["crystal", "ka-wai"] },
   { id: "fam-2", name: "陳先生一家", memberSlugs: ["mei-ling"] },
 ];
+
+// --- Help page support finder ---------------------------------------------
+// Mirrors ./support.ts. Values (audience/need/start ids) must stay identical
+// to the English version — only the display text is translated.
+
+export const audienceOptions: SupportOption<Audience>[] = [
+  { value: "self", label: "為我自己", hint: "你正在為自己的狀況尋找支援。" },
+  { value: "carer", label: "為我照顧的人", hint: "子女、家人、伴侶或朋友。" },
+  {
+    value: "professional",
+    label: "我在工作上支援他人",
+    hint: "教師、治療師、社工或支援人員。",
+  },
+  { value: "exploring", label: "我想多了解一些", hint: "沒有特定情況，只是想了解。" },
+  { value: "unspecified", label: "不想透露", hint: "你仍然會看到所有選項。" },
+];
+
+export const needOptions: SupportOption<Need>[] = [
+  { value: "talk", label: "有人傾談", hint: "與明白你的人談一談。" },
+  { value: "community", label: "認識明白你的人", hint: "有相似經歷的家庭和會員。" },
+  { value: "practical", label: "實用指引", hint: "日常規律、溝通、轉變與生活安排。" },
+  {
+    value: "discrimination",
+    label: "面對排斥或不公平對待",
+    hint: "在學校、職場或社區中。",
+  },
+  {
+    value: "carer_rest",
+    label: "我感到疲累，自己也需要支援",
+    hint: "照顧並不容易，你也值得被支援。",
+    audiences: ["carer", "professional", "unspecified"],
+  },
+  { value: "activities", label: "尋找可以參加的活動", hint: "運動、舞蹈、營養及社區活動。" },
+  { value: "unsure", label: "我還未確定", hint: "這是完全合理的起點。" },
+];
+
+export const startOptions: SupportOption<StartStyle>[] = [
+  { value: "conversation", label: "與團隊傾談", hint: "Love 21 會有人與你聯絡。" },
+  { value: "read", label: "先自己看看資料", hint: "慢慢來，不需要聯絡。" },
+  { value: "group", label: "參加小組聚會", hint: "課堂及社區活動。" },
+  { value: "action", label: "實際參與", hint: "參與、幫忙、投入其中。" },
+];
+
+export const supportPathways: SupportPathway[] = [
+  {
+    id: "conversation",
+    title: "預約支援傾談",
+    body: "告訴我們你的需要，Love 21 團隊會安排時間與你詳談。",
+    href: "#support-request",
+    actionLabel: "預約傾談",
+    audienceTags: ["self", "carer", "professional", "unspecified"],
+    needTags: ["talk", "discrimination", "carer_rest", "practical", "unsure"],
+    startTags: ["conversation"],
+  },
+  {
+    id: "carer_support",
+    title: "需要支援的是你，不只是他們",
+    body: "照顧者同樣需要照顧。與我們談談喘息空間、同路人支援，以及甚麼才真正幫到你。",
+    href: "#support-request",
+    actionLabel: "與我們傾談",
+    audienceTags: ["carer", "professional"],
+    needTags: ["carer_rest", "talk", "discrimination"],
+    startTags: ["conversation", "group", "read"],
+  },
+  {
+    id: "programmes",
+    title: "探索我們的活動",
+    body: "了解我們在運動、舞蹈及營養方面的健康活動。",
+    href: "/impact",
+    actionLabel: "看看有甚麼活動",
+    audienceTags: ["self", "carer", "exploring", "professional", "unspecified"],
+    needTags: ["activities", "practical", "community"],
+    startTags: ["group", "action", "read"],
+  },
+  {
+    id: "volunteer",
+    title: "參與其中",
+    body: "與其他人一起做點事，本身也是一種支援。",
+    href: "/volunteer",
+    actionLabel: "了解義工服務",
+    audienceTags: ["exploring", "professional", "self", "unspecified"],
+    needTags: ["community", "activities"],
+    startTags: ["action"],
+  },
+];
+
+export const supportQuestions: SupportQuestion[] = [
+  { id: "audience", legend: "你想為誰尋找支援？", help: "", options: audienceOptions },
+  {
+    id: "need",
+    legend: "現在甚麼對你最有幫助？",
+    help: "選擇最貼近你今天感受的一項。",
+    options: needOptions,
+  },
+  {
+    id: "start",
+    legend: "你想怎樣開始？",
+    help: "沒有錯的答案，你隨時可以改變主意。",
+    options: startOptions,
+  },
+];
+
+// Landing page content — Chinese mirror. Short copy is translated; long-form
+// descriptions and facts stay in English for accuracy. Extend as reviewed.
+export { landingContent } from "./landing";

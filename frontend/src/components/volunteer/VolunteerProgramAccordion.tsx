@@ -14,6 +14,7 @@ export function VolunteerProgramAccordion() {
         if (!roles.length) return null;
         const isOpen = openSlug === program.slug;
         const panelId = `volunteer-accordion-panel-${program.slug}`;
+        const triggerId = `volunteer-accordion-trigger-${program.slug}`;
 
         return (
           <div
@@ -23,6 +24,7 @@ export function VolunteerProgramAccordion() {
             }`}
           >
             <button
+              id={triggerId}
               type="button"
               className="volunteer-accordion-trigger"
               aria-expanded={isOpen}
@@ -42,7 +44,12 @@ export function VolunteerProgramAccordion() {
                 </span>
               </span>
             </button>
-            <div className="volunteer-accordion-panel" id={panelId} role="region">
+            <div
+              className="volunteer-accordion-panel"
+              id={panelId}
+              role="region"
+              aria-labelledby={triggerId}
+            >
               <div className="volunteer-accordion-panel-inner">
                 <p className="volunteer-accordion-description">{program.description}</p>
                 <div className="volunteer-role-grid">
