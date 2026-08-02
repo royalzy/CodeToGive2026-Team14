@@ -1,17 +1,28 @@
 import type { ReactNode } from "react";
 import type { CauseId } from "../../api/client";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
 
 export type CauseChoice = {
   causeId: CauseId;
   label: string;
 };
 
-const causeDescriptions: Record<CauseId, string> = {
-  where_needed_most: "We direct it to the most urgent verified need.",
-  sports: "Coaching, equipment, accessible venues and movement.",
-  dance: "Creative training, performance and confidence-building.",
-  nutrition: "Dietitian-led support and practical healthy habits.",
-  family_support: "Resources, transport and care for the whole family.",
+const causeDescriptionsCopy: Record<"en" | "zh", Record<CauseId, string>> = {
+  en: {
+    where_needed_most: "We direct it to the most urgent verified need.",
+    sports: "Coaching, equipment, accessible venues and movement.",
+    dance: "Creative training, performance and confidence-building.",
+    nutrition: "Dietitian-led support and practical healthy habits.",
+    family_support: "Resources, transport and care for the whole family.",
+  },
+  zh: {
+    where_needed_most: "我們會將其投放到最迫切、已核實的需要上。",
+    sports: "教練指導、器材、無障礙場地及體能活動。",
+    dance: "創意訓練、表演及建立自信。",
+    nutrition: "由營養師帶領的支援及實用健康習慣。",
+    family_support: "資源、交通及對整個家庭的照顧。",
+  },
 };
 
 const causeIcons: Record<CauseId, ReactNode> = {
@@ -73,6 +84,8 @@ export function CauseSelector({
   value: CauseId;
   onChange: (causeId: CauseId) => void;
 }) {
+  const { lang } = useLanguage();
+  const causeDescriptions = localizeDeep(causeDescriptionsCopy[lang === "en" ? "en" : "zh"], lang);
   return (
     <fieldset className="fieldset">
       <div className="cause-grid">

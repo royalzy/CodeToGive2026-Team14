@@ -9,6 +9,8 @@
  */
 
 import mediaPosts from "../../content/media-posts.json";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
 
 interface MediaPostRecord {
   published_at: string;
@@ -19,7 +21,8 @@ const posts = mediaPosts as MediaPostRecord[];
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 interface PeriodSpec {
-  label: string;
+  labelEn: string;
+  labelZh: string;
   changeLabel: string;
   /** Length of the window, used for both the current and previous period. */
   windowMs: number;
@@ -29,10 +32,10 @@ interface PeriodSpec {
 }
 
 const PERIODS: PeriodSpec[] = [
-  { label: "Today", changeLabel: "DoD", windowMs: DAY_MS, instagram: [1, 2], facebook: [1, 1] },
-  { label: "This week", changeLabel: "WoW", windowMs: 7 * DAY_MS, instagram: [7, 6], facebook: [6, 5] },
-  { label: "This month", changeLabel: "MoM", windowMs: 30 * DAY_MS, instagram: [26, 31], facebook: [22, 24] },
-  { label: "This year", changeLabel: "YoY", windowMs: 365 * DAY_MS, instagram: [218, 150], facebook: [184, 126] },
+  { labelEn: "Today", labelZh: "今日", changeLabel: "DoD", windowMs: DAY_MS, instagram: [1, 2], facebook: [1, 1] },
+  { labelEn: "This week", labelZh: "本週", changeLabel: "WoW", windowMs: 7 * DAY_MS, instagram: [7, 6], facebook: [6, 5] },
+  { labelEn: "This month", labelZh: "本月", changeLabel: "MoM", windowMs: 30 * DAY_MS, instagram: [26, 31], facebook: [22, 24] },
+  { labelEn: "This year", labelZh: "本年", changeLabel: "YoY", windowMs: 365 * DAY_MS, instagram: [218, 150], facebook: [184, 126] },
 ];
 
 /** Website posts whose timestamp falls in [now - windowMs*offset, now - windowMs*(offset-1)). */
@@ -45,7 +48,15 @@ function countWebsite(windowMs: number, offset: number, now: number): number {
   }).length;
 }
 
-function Change({ current, previous, label }: { current: number; previous: number; label: string }) {
+function Change({
+  current,
+  previous,
+  label,
+}: {
+  current: number;
+  previous: number;
+  label: string;
+}) {
   // No baseline to compare against, so show nothing rather than a fake 100%.
   if (previous === 0) {
     return (
@@ -67,6 +78,7 @@ function Change({ current, previous, label }: { current: number; previous: numbe
 }
 
 export function PostAnalytics() {
+  const { lang } = useLanguage();
   const now = Date.now();
 
   return (
@@ -79,15 +91,18 @@ export function PostAnalytics() {
           const total = website + period.instagram[0] + period.facebook[0];
           const totalPrev = websitePrev + period.instagram[1] + period.facebook[1];
 
+          const label =
+            lang === "en" ? period.labelEn : localizeDeep(period.labelZh, lang);
+
           return (
-            <article key={period.label} className="post-analytics-card">
-              <p className="post-analytics-label">{period.label}</p>
+            <article key={period.labelEn} className="post-analytics-card">
+              <p className="post-analytics-label">{label}</p>
               <strong className="post-analytics-total">{total}</strong>
               <Change current={total} previous={totalPrev} label={period.changeLabel} />
 
               <dl className="post-analytics-breakdown">
                 <div>
-                  <dt>Website</dt>
+                  <dt>{lang === "en" ? "Website" : localizeDeep("網站", lang)}</dt>
                   <dd>{website}</dd>
                 </div>
                 <div>

@@ -13,6 +13,8 @@ import {
   quizResults,
   tallyQuizAnswers,
 } from "../content/volunteerQuiz";
+import { useLanguage } from "../hooks/useLanguage";
+import { localizeDeep } from "../lib/zhConvert";
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
 
 const QUIZ_LETTERS: QuizLetter[] = ["A", "B", "C", "D"];
@@ -21,7 +23,52 @@ function isQuizLetter(value: string | null): value is QuizLetter {
   return !!value && (QUIZ_LETTERS as string[]).includes(value);
 }
 
+const quizCopy = {
+  en: {
+    introEyebrow: "Before you start",
+    introTitle: "Five quick questions, one fun result.",
+    introDisclaimer:
+      "This quiz is just for fun, it might not be fully accurate and can't capture every part of your personality in five questions. Treat your result as a friendly starting point for exploring volunteer roles, not a fixed label. You are always welcome to browse every role yourself, whatever your result says.",
+    introStart: "Start the quiz",
+    back: "Back to previous question",
+    skip: "Skip to result",
+    sharedBanner: "A friend shared their result with you — take the quiz to find yours!",
+    yourResult: "Your result",
+    shareResult: "Share my result",
+    whatMakesYouSpecial: "What makes you special",
+    perfectMatch: "Your perfect volunteer match",
+    exploreMore: "Explore more related roles",
+    retake: "Retake the quiz",
+    newsletterTitle: "Prefer to hear from us by email?",
+  },
+  zh: {
+    introEyebrow: "開始之前",
+    introTitle: "五條簡單問題，一個有趣結果。",
+    introDisclaimer:
+      "這個小測驗純粹好玩，未必完全準確，也無法在五條問題內捕捉你性格的全部。請把結果當作探索義工角色的友善起點，而非固定標籤。無論結果如何，你都歡迎親自瀏覽所有角色。",
+    introStart: "開始測驗",
+    back: "返回上一題",
+    skip: "跳至結果",
+    sharedBanner: "朋友與你分享了他們的結果——來做測驗，找出屬於你的結果！",
+    yourResult: "你的結果",
+    shareResult: "分享我的結果",
+    whatMakesYouSpecial: "你的特別之處",
+    perfectMatch: "最適合你的義工配對",
+    exploreMore: "探索更多相關角色",
+    retake: "重新做測驗",
+    newsletterTitle: "想透過電郵收到我們的消息嗎？",
+  },
+} as const;
+
+function questionOfTotal(index: number, total: number, lang: ReturnType<typeof useLanguage>["lang"]) {
+  return lang === "en"
+    ? `Question ${index + 1} of ${total}`
+    : localizeDeep(`第 ${index + 1} 題，共 ${total} 題`, lang);
+}
+
 export function VolunteerMatchPage() {
+  const { lang } = useLanguage();
+  const copy = localizeDeep(quizCopy[lang === "en" ? "en" : "zh"], lang);
   const [searchParams, setSearchParams] = useSearchParams();
   const [arrivedViaSharedLink] = useState(() => isQuizLetter(searchParams.get("result")));
   const [started, setStarted] = useState(() => isQuizLetter(searchParams.get("result")));
@@ -132,7 +179,7 @@ export function VolunteerMatchPage() {
             <div className="shell">
               <VolunteerNewsletterSignup
                 source="volunteer_quiz_results"
-                title="Prefer to hear from us by email?"
+                title={copy.newsletterTitle}
               />
             </div>
           </section>
@@ -143,6 +190,8 @@ export function VolunteerMatchPage() {
 }
 
 function QuizIntroView({ onStart }: { onStart: () => void }) {
+  const { lang } = useLanguage();
+  const copy = localizeDeep(quizCopy[lang === "en" ? "en" : "zh"], lang);
   return (
     <div className="volunteer-quiz-card volunteer-quiz-intro volunteer-quiz-card-enter">
       <img
@@ -156,16 +205,11 @@ function QuizIntroView({ onStart }: { onStart: () => void }) {
         }}
       />
       <div className="volunteer-quiz-card-body">
-        <p className="eyebrow">Before you start</p>
-        <h2 className="volunteer-quiz-prompt">Five quick questions, one fun result.</h2>
-        <p className="volunteer-quiz-disclaimer">
-          This quiz is just for fun, it might not be fully accurate and can&apos;t capture
-          every part of your personality in five questions. Treat your result as a friendly
-          starting point for exploring volunteer roles, not a fixed label. You are always
-          welcome to browse every role yourself, whatever your result says.
-        </p>
+        <p className="eyebrow">{copy.introEyebrow}</p>
+        <h2 className="volunteer-quiz-prompt">{copy.introTitle}</h2>
+        <p className="volunteer-quiz-disclaimer">{copy.introDisclaimer}</p>
         <button type="button" className="button button-dark" onClick={onStart}>
-          Start the quiz
+          {copy.introStart}
         </button>
       </div>
     </div>
@@ -193,6 +237,8 @@ function QuizQuestionView({
   onBack: () => void;
   onSkip: () => void;
 }) {
+  const { lang } = useLanguage();
+  const copy = localizeDeep(quizCopy[lang === "en" ? "en" : "zh"], lang);
   const [selected, setSelected] = useState<QuizLetter | null>(null);
 
   function handleSelect(letter: QuizLetter) {
@@ -220,14 +266,12 @@ function QuizQuestionView({
           aria-valuenow={progress}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={`Question ${index + 1} of ${total}`}
+          aria-label={questionOfTotal(index, total, lang)}
         >
           <div className="volunteer-quiz-progress-fill" style={{ width: `${progress}%` }} />
         </div>
         <div className="volunteer-quiz-question-enter">
-          <p className="volunteer-quiz-step">
-            Question {index + 1} of {total}
-          </p>
+          <p className="volunteer-quiz-step">{questionOfTotal(index, total, lang)}</p>
           <h2 className="volunteer-quiz-prompt">{question.prompt}</h2>
           <div
             className={`volunteer-quiz-options${selected ? " volunteer-quiz-options-locked" : ""}`}
@@ -262,7 +306,7 @@ function QuizQuestionView({
               onClick={onBack}
               disabled={Boolean(selected)}
             >
-              <span aria-hidden="true">←</span> Back to previous question
+              <span aria-hidden="true">←</span> {copy.back}
             </button>
           )}
         </div>
@@ -274,7 +318,7 @@ function QuizQuestionView({
           onClick={onSkip}
           disabled={Boolean(selected)}
         >
-          Skip to result <span aria-hidden="true">→</span>
+          {copy.skip} <span aria-hidden="true">→</span>
         </button>
       )}
     </div>
@@ -290,6 +334,8 @@ function QuizResultView({
   arrivedViaSharedLink: boolean;
   onRetake: () => void;
 }) {
+  const { lang } = useLanguage();
+  const copy = localizeDeep(quizCopy[lang === "en" ? "en" : "zh"], lang);
   const result = quizResults[letter];
   const [isShareOpen, setIsShareOpen] = useState(false);
 
@@ -310,9 +356,7 @@ function QuizResultView({
           <span />
         </span>
         {arrivedViaSharedLink && (
-          <p className="volunteer-quiz-shared-banner">
-            A friend shared their result with you — take the quiz to find yours!
-          </p>
+          <p className="volunteer-quiz-shared-banner">{copy.sharedBanner}</p>
         )}
         <img
           className="volunteer-quiz-result-image"
@@ -324,26 +368,34 @@ function QuizResultView({
             event.currentTarget.style.display = "none";
           }}
         />
-        <p className="eyebrow">Your result</p>
+        <p className="eyebrow">{copy.yourResult}</p>
         <h2 className="volunteer-quiz-archetype">{result.archetype}</h2>
-        <p className="volunteer-quiz-title-tag">You are a &ldquo;{result.title}&rdquo;</p>
+        <p className="volunteer-quiz-title-tag">
+          {lang === "en" ? (
+            <>You are a &ldquo;{result.title}&rdquo;</>
+          ) : (
+            <>
+              {localizeDeep("你是", lang)}「{result.title}」
+            </>
+          )}
+        </p>
         <p className="volunteer-quiz-personality">{result.personality}</p>
         <button
           type="button"
           className="button button-outline volunteer-quiz-share-button"
           onClick={() => setIsShareOpen(true)}
         >
-          <span aria-hidden="true">↗</span> Share my result
+          <span aria-hidden="true">↗</span> {copy.shareResult}
         </button>
       </div>
 
       <div className="volunteer-quiz-result-body">
         <div className="volunteer-quiz-special">
-          <p className="eyebrow">What makes you special</p>
+          <p className="eyebrow">{copy.whatMakesYouSpecial}</p>
           <p>{result.whatMakesYouSpecial}</p>
         </div>
 
-        <h3>Your perfect volunteer match</h3>
+        <h3>{copy.perfectMatch}</h3>
         <div className="volunteer-quiz-match-grid">
           {result.matches.map((match, matchIndex) => {
             const role = getVolunteerRole(match.roleId);
@@ -366,10 +418,10 @@ function QuizResultView({
             className="button button-dark"
             to={`/volunteer/roles${relatedPrograms.length ? `?program=${relatedPrograms.join(",")}` : ""}`}
           >
-            Explore more related roles
+            {copy.exploreMore}
           </Link>
           <button type="button" className="text-link" onClick={onRetake}>
-            Retake the quiz
+            {copy.retake}
           </button>
         </div>
       </div>

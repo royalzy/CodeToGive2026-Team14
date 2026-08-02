@@ -526,6 +526,70 @@ h3 {
   border-color: var(--yellow);
 }
 
+.lang-dropdown {
+  position: relative;
+  margin-left: 0.75rem;
+}
+
+.lang-dropdown > .lang-toggle {
+  margin-left: 0;
+}
+
+.lang-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.lang-dropdown summary::after {
+  content: "▾";
+  margin-left: 0.35rem;
+  font-size: 0.7rem;
+}
+
+.lang-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 20;
+  display: flex;
+  width: 9rem;
+  flex-direction: column;
+  padding: 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow);
+}
+
+.lang-dropdown-option {
+  padding: 0.5rem 0.6rem;
+  background: none;
+  border: none;
+  border-radius: 0.35rem;
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lang-dropdown-option:hover {
+  background: var(--yellow);
+}
+
+.lang-dropdown-option.active {
+  background: var(--ink);
+  color: white;
+}
+
+.mobile-lang-options {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-nav-button.active {
+  color: var(--blue);
+}
+
 .header-actions {
   display: flex;
   gap: 0.5rem;

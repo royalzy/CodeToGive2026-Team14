@@ -1,6 +1,11 @@
-import type { Archetype } from "./data";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
+import { localizeArchetype, type Archetype } from "./data";
 
-export function NarrativeStory({ archetype }: { archetype: Archetype }) {
+export function NarrativeStory({ archetype: rawArchetype }: { archetype: Archetype }) {
+  const { lang } = useLanguage();
+  const archetype = localizeDeep(localizeArchetype(rawArchetype, lang), lang);
+
   return (
     <div className="neuro-narrative animate-fade-in motion-reduce:animate-none flex flex-col items-center rounded-3xl border border-love-blue/15 bg-white/70 text-center shadow-sm sm:flex-row sm:items-start sm:text-left">
       <img
@@ -10,7 +15,7 @@ export function NarrativeStory({ archetype }: { archetype: Archetype }) {
       />
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-love-blue/70">
-          Meet the archetype
+          {lang === "en" ? "Meet the archetype" : localizeDeep("認識這個原型", lang)}
         </p>
         <h3 className="mt-1 text-2xl font-bold text-love-ink">{archetype.name}</h3>
         <p className="mt-3 leading-relaxed text-love-ink/80">{archetype.story}</p>

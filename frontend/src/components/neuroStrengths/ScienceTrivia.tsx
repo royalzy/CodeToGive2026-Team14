@@ -1,8 +1,12 @@
 import { useEffect, useRef } from "react";
 
-import { TRIVIA } from "./data";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
+import { localizeTrivia, TRIVIA } from "./data";
 
-function TriviaCardEl({ card }: { card: (typeof TRIVIA)[number] }) {
+function TriviaCardEl({ card, lang }: { card: (typeof TRIVIA)[number]; lang: ReturnType<typeof useLanguage>["lang"] }) {
+  const copy = localizeDeep(localizeTrivia(card, lang), lang);
+
   return (
     <div className="group w-80 shrink-0 snap-start [perspective:1200px]">
       <div
@@ -12,14 +16,18 @@ function TriviaCardEl({ card }: { card: (typeof TRIVIA)[number] }) {
         <div className="absolute inset-0 rounded-2xl [transform-style:preserve-3d] transition-transform duration-700 ease-out group-hover:[transform:rotateY(180deg)] group-focus-visible:[transform:rotateY(180deg)]">
           <div className="absolute inset-0 flex flex-col justify-between rounded-2xl border border-love-blue/15 bg-white/80 p-5 shadow-sm [backface-visibility:hidden]">
             <p className="text-xs font-semibold uppercase tracking-wide text-love-blue/70">
-              Trivia
+              {lang === "en" ? "Trivia" : localizeDeep("小知識", lang)}
             </p>
-            <p className="text-lg font-semibold text-love-ink">{card.question}</p>
-            <p className="text-xs text-love-ink/50">Hover or focus to reveal the answer</p>
+            <p className="text-lg font-semibold text-love-ink">{copy.question}</p>
+            <p className="text-xs text-love-ink/50">
+              {lang === "en"
+                ? "Hover or focus to reveal the answer"
+                : localizeDeep("移到卡片上或聚焦以查看答案", lang)}
+            </p>
           </div>
 
           <div className="absolute inset-0 flex items-center rounded-2xl border border-love-blue/20 bg-love-ink p-5 text-love-cream shadow-sm [backface-visibility:hidden] [transform:rotateY(180deg)]">
-            <p className="text-sm">{card.answer}</p>
+            <p className="text-sm">{copy.answer}</p>
           </div>
         </div>
       </div>
@@ -28,6 +36,7 @@ function TriviaCardEl({ card }: { card: (typeof TRIVIA)[number] }) {
 }
 
 export function ScienceTrivia() {
+  const { lang } = useLanguage();
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,7 +73,9 @@ export function ScienceTrivia() {
         className="no-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2"
       >
         {[0, 1, 2].map((copyIndex) =>
-          TRIVIA.map((card) => <TriviaCardEl key={`${card.id}-${copyIndex}`} card={card} />),
+          TRIVIA.map((card) => (
+            <TriviaCardEl key={`${card.id}-${copyIndex}`} card={card} lang={lang} />
+          )),
         )}
       </div>
     </div>

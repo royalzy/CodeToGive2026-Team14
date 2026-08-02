@@ -7,11 +7,19 @@ import {
   type ShareImageOrientation,
 } from "../../lib/donationShareImage";
 import { trackDonationEvent } from "../../analytics";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
 
-const orientationOptions: { value: ShareImageOrientation; label: string }[] = [
-  { value: "vertical", label: "Vertical" },
-  { value: "horizontal", label: "Horizontal" },
-];
+const orientationOptionsCopy = {
+  en: [
+    { value: "vertical" as ShareImageOrientation, label: "Vertical" },
+    { value: "horizontal" as ShareImageOrientation, label: "Horizontal" },
+  ],
+  zh: [
+    { value: "vertical" as ShareImageOrientation, label: "直向" },
+    { value: "horizontal" as ShareImageOrientation, label: "橫向" },
+  ],
+} as const;
 
 interface SocialTarget {
   key: string;
@@ -19,6 +27,7 @@ interface SocialTarget {
   buildUrl: (shareUrl: string, shareText: string) => string;
 }
 
+// Social platform names are proper nouns/brand names — left untranslated.
 const socialTargets: SocialTarget[] = [
   {
     key: "whatsapp",
@@ -46,6 +55,51 @@ const socialTargets: SocialTarget[] = [
   },
 ];
 
+const copyByLang = {
+  en: {
+    modalAria: "Share your donation impact",
+    close: "Close",
+    heading: "Share your impact",
+    subtitle: "Save the image, copy the link, or post it straight to your favourite app.",
+    orientationGroupAria: "Image orientation",
+    preparingCard: "Preparing your impact card…",
+    shareEllipsis: "Share…",
+    saveImage: "Save image",
+    copyImage: "Copy image",
+    copyLink: "Copy link",
+    imageDownloaded: "Image downloaded",
+    imageCopied: "Image copied to clipboard",
+    copyImageUnsupported: "Copying images isn't supported here — try downloading instead",
+    linkCopied: "Link copied to clipboard",
+    linkCopyFailed: "Couldn't copy the link",
+    shareSheetFailed: "Couldn't open the share sheet",
+    shareText: (amount: string, headline: string) =>
+      `I just gave HK$${amount} to Love 21 — ${headline}`,
+    previewAlt: (headline: string, amount: string) => `${headline} — HK$${amount} donation card`,
+  },
+  zh: {
+    modalAria: "分享你的捐款成效",
+    close: "關閉",
+    heading: "分享你的成效",
+    subtitle: "儲存圖片、複製連結，或直接分享到你喜愛的應用程式。",
+    orientationGroupAria: "圖片方向",
+    preparingCard: "正在準備你的成效卡片…",
+    shareEllipsis: "分享…",
+    saveImage: "儲存圖片",
+    copyImage: "複製圖片",
+    copyLink: "複製連結",
+    imageDownloaded: "圖片已下載",
+    imageCopied: "圖片已複製到剪貼簿",
+    copyImageUnsupported: "此裝置不支援複製圖片 — 請嘗試下載圖片",
+    linkCopied: "連結已複製到剪貼簿",
+    linkCopyFailed: "未能複製連結",
+    shareSheetFailed: "未能開啟分享面板",
+    shareText: (amount: string, headline: string) =>
+      `我剛捐出 HK$${amount} 給 Love 21 — ${headline}`,
+    previewAlt: (headline: string, amount: string) => `${headline} — HK$${amount} 捐款卡片`,
+  },
+} as const;
+
 export function DonationShareModal({
   data,
   onClose,
@@ -53,13 +107,19 @@ export function DonationShareModal({
   data: DonationShareData;
   onClose: () => void;
 }) {
+  const { lang } = useLanguage();
+  const copy = localizeDeep(copyByLang[lang === "en" ? "en" : "zh"], lang);
+  const orientationOptions = localizeDeep(
+    orientationOptionsCopy[lang === "en" ? "en" : "zh"],
+    lang,
+  );
   const [orientation, setOrientation] = useState<ShareImageOrientation>("vertical");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const shareUrl = new URL("/donate", window.location.origin).toString();
-  const shareText = `I just gave HK$${data.amountHkd.toLocaleString("en-HK")} to Love 21 — ${data.headline}`;
+  const shareText = copy.shareText(data.amountHkd.toLocaleString("en-HK"), data.headline);
   const supportsNativeShare =
     typeof navigator !== "undefined" && typeof navigator.share === "function";
 
@@ -99,7 +159,7 @@ export function DonationShareModal({
     link.download = `love21-donation-${orientation}.png`;
     link.click();
     trackShare();
-    flash("Image downloaded");
+    flash(copy.imageDownloaded);
   }
 
   async function handleCopyImage() {
@@ -107,18 +167,18 @@ export function DonationShareModal({
     try {
       const blob = dataUrlToBlob(imageUrl);
       await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-      flash("Image copied to clipboard");
+      flash(copy.imageCopied);
     } catch {
-      flash("Copying images isn't supported here — try downloading instead");
+      flash(copy.copyImageUnsupported);
     }
   }
 
   async function handleCopyLink() {
     try {
       await navigator.clipboard.writeText(shareUrl);
-      flash("Link copied to clipboard");
+      flash(copy.linkCopied);
     } catch {
-      flash("Couldn't copy the link");
+      flash(copy.linkCopyFailed);
     }
   }
 
@@ -128,7 +188,7 @@ export function DonationShareModal({
       await navigator.share({ title: shareText, text: shareText, url: shareUrl });
     } catch (error) {
       if (!(error instanceof DOMException && error.name === "AbortError")) {
-        flash("Couldn't open the share sheet");
+        flash(copy.shareSheetFailed);
       }
     }
     trackShare();
@@ -150,19 +210,19 @@ export function DonationShareModal({
         className="quiz-share-panel"
         role="dialog"
         aria-modal="true"
-        aria-label="Share your donation impact"
+        aria-label={copy.modalAria}
         tabIndex={-1}
         ref={panelRef}
       >
-        <button type="button" className="quiz-share-close" aria-label="Close" onClick={onClose}>
+        <button type="button" className="quiz-share-close" aria-label={copy.close} onClick={onClose}>
           <span aria-hidden="true">×</span>
         </button>
-        <h3>Share your impact</h3>
+        <h3>{copy.heading}</h3>
         <p className="quiz-share-subtitle">
-          Save the image, copy the link, or post it straight to your favourite app.
+          {copy.subtitle}
         </p>
 
-        <div className="quiz-share-orientation" role="group" aria-label="Image orientation">
+        <div className="quiz-share-orientation" role="group" aria-label={copy.orientationGroupAria}>
           {orientationOptions.map((option) => (
             <button
               key={option.value}
@@ -180,9 +240,9 @@ export function DonationShareModal({
 
         <div className={`quiz-share-preview quiz-share-preview-${orientation}`}>
           {imageUrl ? (
-            <img src={imageUrl} alt={`${data.headline} — HK$${data.amountHkd.toLocaleString("en-HK")} donation card`} />
+            <img src={imageUrl} alt={copy.previewAlt(data.headline, data.amountHkd.toLocaleString("en-HK"))} />
           ) : (
-            <div className="quiz-share-preview-loading">Preparing your impact card…</div>
+            <div className="quiz-share-preview-loading">{copy.preparingCard}</div>
           )}
         </div>
 
@@ -195,17 +255,17 @@ export function DonationShareModal({
         <div className="quiz-share-actions">
           {supportsNativeShare && (
             <button type="button" className="button button-dark" onClick={handleNativeShare}>
-              Share…
+              {copy.shareEllipsis}
             </button>
           )}
           <button type="button" className="button button-outline" onClick={handleDownload}>
-            Save image
+            {copy.saveImage}
           </button>
           <button type="button" className="button button-outline" onClick={handleCopyImage}>
-            Copy image
+            {copy.copyImage}
           </button>
           <button type="button" className="button button-outline" onClick={handleCopyLink}>
-            Copy link
+            {copy.copyLink}
           </button>
         </div>
 

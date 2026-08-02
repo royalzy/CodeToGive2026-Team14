@@ -4,6 +4,9 @@ import { useSearchParams } from "react-router-dom";
 import { PageHero } from "../components/Cards";
 import { deleteMediaPost, type MediaPost } from "../api/client";
 import mediaPosts from "../content/media-posts.json";
+import { useLanguage } from "../hooks/useLanguage";
+import { localizeDeep } from "../lib/zhConvert";
+import type { Lang } from "../content/languageContextValue";
 import "./MediaPage.css";
 
 // Written by the admin composer (backend/app/services/media_store.py), newest
@@ -25,11 +28,13 @@ function MediaEntry({
   manage,
   onDelete,
   busy,
+  lang,
 }: {
   post: MediaPost;
   manage: boolean;
   onDelete: (id: string) => void;
   busy: boolean;
+  lang: Lang;
 }) {
   const [cover, ...rest] = post.images;
 
@@ -56,7 +61,13 @@ function MediaEntry({
               onClick={() => onDelete(post.id)}
               disabled={busy}
             >
-              {busy ? "Deleting…" : "Delete post"}
+              {busy
+                ? lang === "en"
+                  ? "Deleting…"
+                  : localizeDeep("刪除中…", lang)
+                : lang === "en"
+                  ? "Delete post"
+                  : localizeDeep("刪除貼文", lang)}
             </button>
           ) : null}
         </div>
@@ -66,6 +77,7 @@ function MediaEntry({
 }
 
 export function MediaPage() {
+  const { lang } = useLanguage();
   const [searchParams] = useSearchParams();
   // Delete controls only appear when the admin arrives via the dashboard link.
   const manage = searchParams.get("manage") === "1";
@@ -83,7 +95,13 @@ export function MediaPage() {
       // otherwise linger until the dev server reloads the JSON.
       setPosts((current) => current.filter((post) => post.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not delete the post.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : lang === "en"
+            ? "Could not delete the post."
+            : localizeDeep("無法刪除此貼文。", lang),
+      );
     } finally {
       setDeleting(null);
     }
@@ -93,9 +111,13 @@ export function MediaPage() {
     <>
       <div className="media-hero">
         <PageHero
-          eyebrow="Media"
-          title="Moments from the community"
-          body="Photos and updates from Love 21 programmes, published as they happen."
+          eyebrow={lang === "en" ? "Media" : localizeDeep("媒體", lang)}
+          title={lang === "en" ? "Moments from the community" : localizeDeep("社群中的美好時刻", lang)}
+          body={
+            lang === "en"
+              ? "Photos and updates from Love 21 programmes, published as they happen."
+              : localizeDeep("Love 21 各項目的照片與最新消息，隨時發佈。", lang)
+          }
           tone="blue"
         />
       </div>
@@ -104,8 +126,9 @@ export function MediaPage() {
         <div className="shell">
           {manage ? (
             <p className="media-manage-note">
-              Managing posts. Deleting removes the image and its entry from the
-              site.
+              {lang === "en"
+                ? "Managing posts. Deleting removes the image and its entry from the site."
+                : localizeDeep("正在管理貼文。刪除會同時移除圖片及其在網站上的紀錄。", lang)}
             </p>
           ) : null}
 
@@ -124,11 +147,12 @@ export function MediaPage() {
                   manage={manage}
                   onDelete={handleDelete}
                   busy={deleting === post.id}
+                  lang={lang}
                 />
               ))}
             </div>
           ) : (
-            <p className="media-empty">No posts yet.</p>
+            <p className="media-empty">{lang === "en" ? "No posts yet." : localizeDeep("暫無貼文。", lang)}</p>
           )}
         </div>
       </section>

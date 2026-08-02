@@ -16,6 +16,7 @@ import type {
   Badge,
   BookableEvent,
   FamilyAccount,
+  LandingContent,
   Level,
   Member,
   Metric,
@@ -358,6 +359,77 @@ export const supportQuestions: SupportQuestion[] = [
   },
 ];
 
-// Landing page content — Chinese mirror. Short copy is translated; long-form
-// descriptions and facts stay in English for accuracy. Extend as reviewed.
-export { landingContent } from "./landing";
+// Landing page content — Chinese mirror. Hero, support-model pillars, and the
+// mission description are translated; the deeper learn/quiz/CTA sections stay
+// in English for accuracy until reviewed.
+import { landingContent as enLandingContent } from "./landing";
+
+export const landingContent: LandingContent = {
+  ...enLandingContent,
+  hero: {
+    ...enLandingContent.hero,
+    tagline: "Love 21 基金會・香港・成立於 2014 年",
+    titleLine1: "Love 21 建構更豐盛的人生",
+    titleAccent: "圍繞每一種能力。",
+    subtitle:
+      "我們支持香港的唐氏綜合症及自閉症社群動起來、成長、表達自己並找到歸屬——同時陪伴他們身邊的家庭。",
+    ctaPrimary: "認識社群",
+    ctaSecondary: "與我們做義工",
+    stats: [
+      { value: "200+", label: "社群成員" },
+      { value: "10+", label: "香港服務年資" },
+      { value: "52", label: "年度活動數目" },
+    ],
+    images: [
+      { src: "/images/sports-session.jpg", alt: "Love 21 社區運動課堂" },
+      { src: "/images/community-performance.jpg", alt: "社區表演" },
+      { src: "/images/crystal-performing.jpg", alt: "Crystal 表演" },
+    ],
+  },
+  whatWeDo: {
+    ...enLandingContent.whatWeDo,
+    eyebrow: "我們的支援模式",
+    title: "全人支援",
+    description: "五層互相連結的支援，助每位會員及家庭隨時間成長、連繫及茁壯發展。",
+    pillars: [
+      {
+        ...enLandingContent.whatWeDo.pillars[0],
+        title: "體育及運動",
+        description:
+          "我們每週舉辦多元運動課堂——游泳、籃球、足球及舞蹈——適合不同能力人士參加。運動能建立自信、協調能力及一生的友誼。",
+      },
+      {
+        ...enLandingContent.whatWeDo.pillars[1],
+        title: "營養及身心健康",
+        description:
+          "我們的營養計劃教導家庭及會員，因應唐氏綜合症及自閉症人士的獨特需要建立健康飲食習慣。",
+      },
+      {
+        ...enLandingContent.whatWeDo.pillars[2],
+        title: "藝術及表演",
+        description:
+          "從戲劇、音樂到視覺藝術，我們的創意課程釋放自我表達，幫助會員溝通、成長並在舞台上發光發亮。",
+      },
+      {
+        ...enLandingContent.whatWeDo.pillars[3],
+        title: "社群及歸屬感",
+        description:
+          "同路人支援小組、家庭工作坊及社交活動建立一個讓沒有人感到孤單的網絡。我們在香港的社群每月都在成長。",
+      },
+      {
+        ...enLandingContent.whatWeDo.pillars[4],
+        title: "全人發展",
+        description:
+          "我們與治療師、教育工作者及醫護專業人員合作，在人生每個階段支援完整的個人——身、心、靈。",
+      },
+    ],
+  },
+  impact: {
+    ...enLandingContent.impact,
+    mission: {
+      ...enLandingContent.impact.mission,
+      description:
+        "我們的方式將體能活動、營養、創意表達、家庭支援及社群連繫起來。這些層面共同幫助每一位唐氏綜合症或自閉症人士建立自信、身心健康、人際關係及更豐盛的人生。",
+    },
+  },
+};

@@ -560,10 +560,11 @@ export function getQuizStats(signal?: AbortSignal): Promise<QuizStats> {
   );
 }
 
-export function getHeroRound(signal?: AbortSignal): Promise<HeroRound> {
-  return getJson<unknown>("/api/v1/quiz/rounds/hero", signal).then((result) =>
-    heroRoundSchema.parse(result),
-  );
+export function getHeroRound(lang = "en", signal?: AbortSignal): Promise<HeroRound> {
+  return getJson<unknown>(
+    `/api/v1/quiz/rounds/hero?lang=${encodeURIComponent(lang)}`,
+    signal,
+  ).then((result) => heroRoundSchema.parse(result));
 }
 
 export function answerHeroRound(payload: {

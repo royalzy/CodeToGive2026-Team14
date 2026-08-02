@@ -1,4 +1,29 @@
 import type { DonationImpactMessage } from "../../content/donations";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
+
+const copyByLang = {
+  en: {
+    amountLabel: "Donation amount",
+    directionLabel: "Support direction",
+    impactLabel: "Estimated impact",
+    donorLabel: "Donor",
+    anonymousDonor: "Completely anonymous",
+    signedInDonor: "Signed-in donor profile",
+    anonymousNote: "No email, nickname, profile or supporter-wall tile will be attached.",
+    privateNote: "Gift amount stays private on the supporter wall.",
+  },
+  zh: {
+    amountLabel: "捐款金額",
+    directionLabel: "支持方向",
+    impactLabel: "預計成效",
+    donorLabel: "捐款人",
+    anonymousDonor: "完全匿名",
+    signedInDonor: "已登入的捐款人帳戶",
+    anonymousNote: "不會附上電郵、暱稱、帳戶或支持者牆頭像。",
+    privateNote: "捐款金額不會在支持者牆上公開。",
+  },
+} as const;
 
 export function DonationReview({
   amountHkd,
@@ -13,28 +38,28 @@ export function DonationReview({
   anonymous: boolean;
   impactMessage: DonationImpactMessage;
 }) {
+  const { lang } = useLanguage();
+  const copy = localizeDeep(copyByLang[lang === "en" ? "en" : "zh"], lang);
   return (
     <dl className="donation-review">
       <div>
-        <dt>Donation amount</dt>
+        <dt>{copy.amountLabel}</dt>
         <dd>HK${amountHkd.toLocaleString("en-HK")}</dd>
       </div>
       <div>
-        <dt>Support direction</dt>
+        <dt>{copy.directionLabel}</dt>
         <dd>{causeLabel}</dd>
       </div>
       <div>
-        <dt>Estimated impact</dt>
+        <dt>{copy.impactLabel}</dt>
         <dd>{impactMessage.detail}</dd>
       </div>
       <div>
-        <dt>Donor</dt>
+        <dt>{copy.donorLabel}</dt>
         <dd>
-          {anonymous ? "Completely anonymous" : donorName.trim() || "Signed-in donor profile"}
+          {anonymous ? copy.anonymousDonor : donorName.trim() || copy.signedInDonor}
           <span className="donor-acknowledgement">
-            {anonymous
-              ? "No email, nickname, profile or supporter-wall tile will be attached."
-              : "Gift amount stays private on the supporter wall."}
+            {anonymous ? copy.anonymousNote : copy.privateNote}
           </span>
         </dd>
       </div>

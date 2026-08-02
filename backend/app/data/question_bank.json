@@ -4,39 +4,69 @@
     {
       "id": "rw-001",
       "theme": "stigma",
-      "kick": "One of these is actually a MYTH. Can you spot it?",
+      "kick": {
+        "en": "One of these is actually a MYTH. Can you spot it?",
+        "zh": "以下其中一項其實是迷思，你能找出來嗎？"
+      },
       "twist": "all_myths",
       "statements": [
         {
           "id": "st-001a",
-          "text": "Australian rower Chris Morgan won three Olympic medals before being diagnosed with autism, which is why his condition never affected his career.",
+          "text": {
+            "en": "Australian rower Chris Morgan won three Olympic medals before being diagnosed with autism, which is why his condition never affected his career.",
+            "zh": "澳洲划艇運動員 Chris Morgan 在確診自閉症之前已贏得三面奧運獎牌，所以他的自閉症從未影響他的運動生涯。"
+          },
           "is_myth": true,
           "status": "verified",
-          "reveal": "Chris Morgan is a three-time Olympian and won bronze at London 2012 — but he says his autism helped him succeed: \"Autism made me successful.\"",
+          "reveal": {
+            "en": "Chris Morgan is a three-time Olympian and won bronze at London 2012 — but he says his autism helped him succeed: \"Autism made me successful.\"",
+            "zh": "Chris Morgan 三度參與奧運，並在 2012 年倫敦奧運贏得銅牌——但他表示，是自閉症幫助他成功：「自閉症令我成功。」"
+          },
           "source": {
-            "label": "ABC News (2021), Olympedia #118026",
+            "label": {
+              "en": "ABC News (2021), Olympedia #118026",
+              "zh": "ABC 新聞（2021）、Olympedia #118026"
+            },
             "url": "https://www.abc.net.au/news/2021-04-29/chris-morgan-autism-struggle-olympics-rowing-neurodiversity/100103374"
           }
         },
         {
           "id": "st-001b",
-          "text": "Love 21 spent just 15% of its budget on administrative overhead last year.",
+          "text": {
+            "en": "Love 21 spent just 15% of its budget on administrative overhead last year.",
+            "zh": "Love 21 去年只將 15% 的預算用於行政開支。"
+          },
           "is_myth": true,
           "status": "verified",
-          "reveal": "The real figure is 6% — Love 21 directs the rest of every dollar to its programmes for members and families.",
+          "reveal": {
+            "en": "The real figure is 6% — Love 21 directs the rest of every dollar to its programmes for members and families.",
+            "zh": "實際數字是 6%——Love 21 將餘下每一分善款都投放於會員及家庭的服務項目上。"
+          },
           "source": {
-            "label": "Love 21 Foundation financials (FY2025)",
+            "label": {
+              "en": "Love 21 Foundation financials (FY2025)",
+              "zh": "Love 21 基金會財務報告（2025 財政年度）"
+            },
             "url": "https://love21foundation.com/"
           }
         },
         {
           "id": "st-001c",
-          "text": "Vaccines cause autism.",
+          "text": {
+            "en": "Vaccines cause autism.",
+            "zh": "疫苗會導致自閉症。"
+          },
           "is_myth": true,
           "status": "verified",
-          "reveal": "This has been thoroughly debunked. There is no link between vaccines and autism.",
+          "reveal": {
+            "en": "This has been thoroughly debunked. There is no link between vaccines and autism.",
+            "zh": "此說法早已被徹底推翻。疫苗與自閉症之間並無任何關聯。"
+          },
           "source": {
-            "label": "World Health Organization",
+            "label": {
+              "en": "World Health Organization",
+              "zh": "世界衞生組織"
+            },
             "url": "https://www.who.int/news-room/feature-stories/detail/measles-immunization"
           }
         }

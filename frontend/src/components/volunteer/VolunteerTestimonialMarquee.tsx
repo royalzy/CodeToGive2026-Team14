@@ -1,8 +1,15 @@
 import { type PointerEvent, useEffect, useRef, useState } from "react";
 
 import type { VolunteerTestimonial } from "../../content/volunteer";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
 
 const AUTO_SCROLL_PX_PER_SECOND = 32;
+
+const ariaLabelCopy = {
+  en: "Volunteer testimonials — drag or scroll to browse",
+  zh: "義工分享 — 拖曳或滾動瀏覽",
+} as const;
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -23,6 +30,8 @@ export function VolunteerTestimonialMarquee({
   const dragOrigin = useRef({ pointerX: 0, scrollLeft: 0 });
   const lastTimestamp = useRef<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const { lang } = useLanguage();
+  const ariaLabel = localizeDeep(ariaLabelCopy[lang === "en" ? "en" : "zh"], lang);
 
   const loopedTestimonials = [...testimonials, ...testimonials];
 
@@ -102,7 +111,7 @@ export function VolunteerTestimonialMarquee({
   return (
     <div
       className={`volunteer-testimonial-marquee ${isDragging ? "is-dragging" : ""}`}
-      aria-label="Volunteer testimonials — drag or scroll to browse"
+      aria-label={ariaLabel}
     >
       <div
         className="volunteer-testimonial-track"

@@ -10,6 +10,9 @@ import {
   type PlatformId,
   type SocialPostResult,
 } from "../../api/client";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
+import type { Lang } from "../../content/languageContextValue";
 import "./SocialComposer.css";
 
 const CAPTION_LIMITS: Record<PlatformId, number> = {
@@ -24,17 +27,35 @@ const NEEDS_IMAGE: PlatformId[] = ["website", "instagram"];
 // For demo runs: one click loads a real photo, caption and platform instead
 // of walking through the form by hand.
 const DEMO_IMAGE_URL = "/images/demo-yoga-family.png";
-const DEMO_CAPTION =
+const DEMO_CAPTION_EN =
   "Deep breaths and steady stretches, side by side. Members and their " +
   "families move through a seated yoga session together, finding calm " +
   "and connection on the studio floor.";
+const DEMO_CAPTION_ZH =
+  "並肩深呼吸、緩緩伸展。會員和家人一起參與坐式瑜伽課，" +
+  "在練習室的地板上找到平靜與連繫。";
+
+function demoCaption(lang: Lang): string {
+  return lang === "en" ? DEMO_CAPTION_EN : localizeDeep(DEMO_CAPTION_ZH, lang);
+}
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const IMAGE_REQUIREMENTS =
-  `JPEG, PNG or WebP, up to 10MB each and ${MAX_IMAGES} images per post. ` +
-  "Large photos are resized automatically. Two or more become an Instagram " +
-  "carousel and a Facebook multi-photo post.";
+
+function imageRequirements(lang: Lang): string {
+  if (lang === "en") {
+    return (
+      `JPEG, PNG or WebP, up to 10MB each and ${MAX_IMAGES} images per post. ` +
+      "Large photos are resized automatically. Two or more become an Instagram " +
+      "carousel and a Facebook multi-photo post."
+    );
+  }
+  return localizeDeep(
+    `JPEG、PNG 或 WebP 格式，每張最多 10MB，每則貼文最多 ${MAX_IMAGES} 張圖片。` +
+      "大圖片會自動調整大小。兩張或以上會變成 Instagram 輪播貼文和 Facebook 多圖貼文。",
+    lang,
+  );
+}
 
 function InstagramIcon({ className = "" }: { className?: string }) {
   return (
@@ -87,6 +108,13 @@ const PLATFORM_LABEL: Record<PlatformId, string> = {
   facebook: "Facebook",
 };
 
+/** Display label for a platform, localized. Instagram and Facebook are brand
+ *  names and stay unchanged; "Website" is a generic word and is translated. */
+function platformLabel(id: PlatformId, lang: Lang): string {
+  if (id === "website") return lang === "en" ? "Website" : localizeDeep("網站", lang);
+  return PLATFORM_LABEL[id];
+}
+
 /** Shared pill styling so "View post" and "Copy link" read as one control pair.
  *
  * Note: styles.css sets `button { font-size: inherit }` outside any cascade
@@ -100,6 +128,7 @@ const PILL_BUTTON =
 const PILL_ROW = "mt-3 flex flex-wrap items-center gap-2 text-sm";
 
 function CopyLinkButton({ url }: { url: string }) {
+  const { lang } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -119,12 +148,19 @@ function CopyLinkButton({ url }: { url: string }) {
 
   return (
     <button type="button" onClick={copy} className={PILL_BUTTON}>
-      {copied ? "Copied ✓" : "Copy link"}
+      {copied
+        ? lang === "en"
+          ? "Copied ✓"
+          : localizeDeep("已複製 ✓", lang)
+        : lang === "en"
+          ? "Copy link"
+          : localizeDeep("複製連結", lang)}
     </button>
   );
 }
 
 function ResultCard({ result }: { result: SocialPostResult }) {
+  const { lang } = useLanguage();
   const platform = PLATFORMS.find((p) => p.id === result.platform);
   const published = result.status === "published";
   const Icon = platform?.Icon;
@@ -137,20 +173,26 @@ function ResultCard({ result }: { result: SocialPostResult }) {
     >
       <div className="flex items-center gap-2">
         {Icon ? <Icon className={`h-5 w-5 ${platform?.brand}`} /> : null}
-        <strong>{platform?.label}</strong>
+        <strong>{platform ? platformLabel(platform.id, lang) : null}</strong>
         <span
           className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${
             published ? "bg-love-teal text-white" : "bg-love-red text-white"
           }`}
         >
-          {published ? "Published" : "Failed"}
+          {published
+            ? lang === "en"
+              ? "Published"
+              : localizeDeep("已發佈", lang)
+            : lang === "en"
+              ? "Failed"
+              : localizeDeep("失敗", lang)}
         </span>
       </div>
 
       {published && result.permalink ? (
         <div className={PILL_ROW}>
           <a href={result.permalink} target="_blank" rel="noreferrer noopener" className={PILL_BUTTON}>
-            View post
+            {lang === "en" ? "View post" : localizeDeep("查看貼文", lang)}
           </a>
           <CopyLinkButton url={result.permalink} />
         </div>
@@ -189,6 +231,7 @@ interface SocialComposerProps {
 }
 
 export function SocialComposer({ onScheduled }: SocialComposerProps) {
+  const { lang } = useLanguage();
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [caption, setCaption] = useState("");
@@ -243,14 +286,27 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
     setFiles((current) => {
       const room = MAX_IMAGES - current.length;
       if (room <= 0) {
-        setError(`You can attach up to ${MAX_IMAGES} images.`);
+        setError(
+          lang === "en"
+            ? `You can attach up to ${MAX_IMAGES} images.`
+            : localizeDeep(`最多只可附加 ${MAX_IMAGES} 張圖片。`, lang),
+        );
         return current;
       }
       if (accepted.length > room) {
-        setError(`Only the first ${room} of those fit; the limit is ${MAX_IMAGES} images.`);
+        setError(
+          lang === "en"
+            ? `Only the first ${room} of those fit; the limit is ${MAX_IMAGES} images.`
+            : localizeDeep(`只能加入其中 ${room} 張，上限為 ${MAX_IMAGES} 張圖片。`, lang),
+        );
       } else if (rejected.length > 0) {
         setError(
-          `Skipped ${rejected.length} file(s): use JPEG, PNG or WebP under 10MB.`,
+          lang === "en"
+            ? `Skipped ${rejected.length} file(s): use JPEG, PNG or WebP under 10MB.`
+            : localizeDeep(
+                `已略過 ${rejected.length} 個檔案：請使用 10MB 以下的 JPEG、PNG 或 WebP 格式。`,
+                lang,
+              ),
         );
       }
       // Attaching an image only enables the image-only platforms; it does not
@@ -282,10 +338,14 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
       const blob = await response.blob();
       const file = new File([blob], "demo-yoga-family.png", { type: "image/png" });
       setFiles([file]);
-      setCaption(DEMO_CAPTION);
+      setCaption(demoCaption(lang));
       setSelected(["website"]);
     } catch {
-      setError("Could not load the demo image. Please try again.");
+      setError(
+        lang === "en"
+          ? "Could not load the demo image. Please try again."
+          : localizeDeep("無法載入示範圖片，請再試一次。", lang),
+      );
     }
   }
 
@@ -311,14 +371,21 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
    *  captions, or null when something is missing (error already set). */
   function validate(): { textFor: (p: PlatformId) => string } | null {
     if (selected.length === 0) {
-      setError("Choose at least one platform.");
+      setError(
+        lang === "en" ? "Choose at least one platform." : localizeDeep("請至少選擇一個平台。", lang),
+      );
       return null;
     }
     const imageless = selected.filter((p) => NEEDS_IMAGE.includes(p));
     if (files.length === 0 && imageless.length > 0) {
+      const names = imageless.map((p) => platformLabel(p, lang));
       setError(
-        `${imageless.map((p) => PLATFORM_LABEL[p]).join(" and ")} ` +
-          "needs an image. Add one, or post to Facebook only.",
+        lang === "en"
+          ? `${names.join(" and ")} needs an image. Add one, or post to Facebook only.`
+          : localizeDeep(
+              `${names.join("和")}需要圖片。請新增圖片，或只發佈到 Facebook。`,
+              lang,
+            ),
       );
       return null;
     }
@@ -329,8 +396,15 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
     if (missing.length > 0) {
       setError(
         splitCaptions
-          ? `Write a caption for ${missing.map((p) => PLATFORM_LABEL[p]).join(" and ")}.`
-          : "Write a caption before posting.",
+          ? lang === "en"
+            ? `Write a caption for ${missing.map((p) => platformLabel(p, lang)).join(" and ")}.`
+            : localizeDeep(
+                `請為${missing.map((p) => platformLabel(p, lang)).join("和")}撰寫說明。`,
+                lang,
+              )
+          : lang === "en"
+            ? "Write a caption before posting."
+            : localizeDeep("發佈前請撰寫說明。", lang),
       );
       return null;
     }
@@ -359,7 +433,13 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
       });
       setResults(response.results);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : lang === "en"
+            ? "Something went wrong. Please try again."
+            : localizeDeep("發生錯誤，請再試一次。", lang),
+      );
     } finally {
       setBusy(false);
     }
@@ -374,7 +454,11 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
     const { textFor } = valid;
 
     if (!scheduledFor) {
-      setError("Choose a date and time for the post.");
+      setError(
+        lang === "en"
+          ? "Choose a date and time for the post."
+          : localizeDeep("請選擇貼文的日期和時間。", lang),
+      );
       return;
     }
 
@@ -389,17 +473,24 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
         platforms: selected,
         scheduledFor,
       });
+      const when = new Date(scheduledFor).toLocaleString("en-GB", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
       setScheduledNotice(
-        `Scheduled for ${new Date(scheduledFor).toLocaleString("en-GB", {
-          dateStyle: "medium",
-          timeStyle: "short",
-        })}.`,
+        lang === "en" ? `Scheduled for ${when}.` : localizeDeep(`已排程於 ${when}。`, lang),
       );
       reset();
       setScheduling(false);
       onScheduled?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not schedule the post.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : lang === "en"
+            ? "Could not schedule the post."
+            : localizeDeep("無法排程該貼文。", lang),
+      );
     } finally {
       setBusy(false);
     }
@@ -421,13 +512,25 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
         <div className="rounded-2xl border border-love-ink/10 bg-white p-6">
           <h3 className="text-xl font-semibold">
             {publishedCount === results.length
-              ? "Posted successfully"
+              ? lang === "en"
+                ? "Posted successfully"
+                : localizeDeep("發佈成功", lang)
               : publishedCount > 0
-                ? "Posted with some issues"
-                : "Nothing was posted"}
+                ? lang === "en"
+                  ? "Posted with some issues"
+                  : localizeDeep("部分發佈成功", lang)
+                : lang === "en"
+                  ? "Nothing was posted"
+                  : localizeDeep("未有發佈任何內容", lang)}
           </h3>
           <p className="mt-1 text-sm text-love-ink/70">
-            {publishedCount} of {results.length} platform{results.length === 1 ? "" : "s"} published.
+            {lang === "en" ? (
+              <>
+                {publishedCount} of {results.length} platform{results.length === 1 ? "" : "s"} published.
+              </>
+            ) : (
+              localizeDeep(`${results.length} 個平台中，${publishedCount} 個已發佈。`, lang)
+            )}
           </p>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -441,7 +544,7 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
             onClick={reset}
             className="mt-5 rounded-full bg-love-ink px-5 py-2 font-semibold text-white"
           >
-            Create another post
+            {lang === "en" ? "Create another post" : localizeDeep("建立另一則貼文", lang)}
           </button>
         </div>
       ) : (
@@ -461,12 +564,14 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
             onClick={fillDemoPost}
             className="mb-4 rounded-full border border-dashed border-love-ink/30 px-4 py-1.5 text-sm font-semibold text-love-ink/70 transition-colors hover:border-love-ink hover:text-love-ink"
           >
-            Fill demo post
+            {lang === "en" ? "Fill demo post" : localizeDeep("填入示範貼文", lang)}
           </button>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold">Images</span>
-            <InfoTooltip text={IMAGE_REQUIREMENTS} />
+            <span className="text-sm font-semibold">
+              {lang === "en" ? "Images" : localizeDeep("圖片", lang)}
+            </span>
+            <InfoTooltip text={imageRequirements(lang)} />
             {files.length > 0 ? (
               <span className="ml-auto text-xs text-love-ink/60">
                 {files.length} / {MAX_IMAGES}
@@ -493,7 +598,13 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
                   : "cursor-pointer hover:bg-love-ink hover:text-white"
               }`}
             >
-              {files.length > 0 ? "Add more" : "Choose images"}
+              {files.length > 0
+                ? lang === "en"
+                  ? "Add more"
+                  : localizeDeep("新增更多", lang)
+                : lang === "en"
+                  ? "Choose images"
+                  : localizeDeep("選擇圖片", lang)}
             </label>
 
             {files.length > 0 ? (
@@ -502,14 +613,14 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
                 onClick={clearFiles}
                 className="text-xs text-love-ink/50 underline underline-offset-2 hover:text-love-ink"
               >
-                Remove all
+                {lang === "en" ? "Remove all" : localizeDeep("全部移除", lang)}
               </button>
             ) : (
               <span className="flex items-center gap-1 text-xs text-love-ink/50">
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="h-3.5 w-3.5">
                   <path d="M12 2 1 21h22L12 2zm0 5 7.5 13h-15L12 7zm-1 4v4h2v-4h-2zm0 6v2h2v-2h-2z" />
                 </svg>
-                No file chosen — text-only post
+                {lang === "en" ? "No file chosen — text-only post" : localizeDeep("未選擇檔案 — 純文字貼文", lang)}
               </span>
             )}
           </div>
@@ -520,13 +631,21 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
                 <li key={url} className="group relative">
                   <img
                     src={url}
-                    alt={`Selected image ${index + 1}: ${files[index]?.name ?? ""}`}
+                    alt={
+                      lang === "en"
+                        ? `Selected image ${index + 1}: ${files[index]?.name ?? ""}`
+                        : localizeDeep(`已選圖片 ${index + 1}：${files[index]?.name ?? ""}`, lang)
+                    }
                     className="aspect-square w-full rounded-lg object-cover"
                   />
                   <button
                     type="button"
                     onClick={() => removeFileAt(index)}
-                    aria-label={`Remove image ${index + 1}`}
+                    aria-label={
+                      lang === "en"
+                        ? `Remove image ${index + 1}`
+                        : localizeDeep(`移除圖片 ${index + 1}`, lang)
+                    }
                     className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-love-ink/80 text-sm leading-none text-white opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
                   >
                     ×
@@ -542,12 +661,16 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
           ) : null}
           {files.length > 1 ? (
             <p className="mt-2 text-xs text-love-ink/60">
-              Posts as an Instagram carousel and a single Facebook photo post.
+              {lang === "en"
+                ? "Posts as an Instagram carousel and a single Facebook photo post."
+                : localizeDeep("將發佈為 Instagram 輪播貼文和單一 Facebook 相片貼文。", lang)}
             </p>
           ) : null}
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-sm font-semibold">Caption</span>
+            <span className="text-sm font-semibold">
+              {lang === "en" ? "Caption" : localizeDeep("說明文字", lang)}
+            </span>
             {/* Only meaningful when posting to more than one place at once. */}
             {multipleSelected ? (
               <label className="flex cursor-pointer items-center gap-2 text-xs text-love-ink/70">
@@ -569,7 +692,9 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
                     }
                   }}
                 />
-                Write a different caption for each platform
+                {lang === "en"
+                  ? "Write a different caption for each platform"
+                  : localizeDeep("為每個平台撰寫不同的說明", lang)}
               </label>
             ) : null}
           </div>
@@ -587,7 +712,7 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
                       htmlFor={`social-caption-${platform.id}`}
                     >
                       <platform.Icon className={`h-3.5 w-3.5 ${platform.brand}`} />
-                      {platform.label}
+                      {platformLabel(platform.id, lang)}
                     </label>
                     <textarea
                       id={`social-caption-${platform.id}`}
@@ -601,7 +726,7 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
                           [platform.id]: e.target.value,
                         }));
                       }}
-                      placeholder="Share a moment..."
+                      placeholder={lang === "en" ? "Share a moment..." : localizeDeep("分享此刻⋯⋯", lang)}
                       className="mt-1 w-full rounded-lg border border-love-ink/20 p-3"
                     />
                     <p className="mt-1 text-right text-xs text-love-ink/60">
@@ -614,7 +739,7 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
           ) : (
             <>
               <label className="sr-only" htmlFor="social-caption">
-                Caption
+                {lang === "en" ? "Caption" : localizeDeep("說明文字", lang)}
               </label>
               <textarea
                 id="social-caption"
@@ -625,7 +750,7 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
                   setScheduledNotice(null);
                   setCaption(e.target.value);
                 }}
-                placeholder="Share a moment..."
+                placeholder={lang === "en" ? "Share a moment..." : localizeDeep("分享此刻⋯⋯", lang)}
                 className="mt-2 w-full rounded-lg border border-love-ink/20 p-3"
               />
               <p className="mt-1 text-right text-xs text-love-ink/60">
@@ -635,9 +760,11 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
           )}
 
           <fieldset className="mt-4">
-            <legend className="text-sm font-semibold">Post to</legend>
+            <legend className="text-sm font-semibold">
+              {lang === "en" ? "Post to" : localizeDeep("發佈至", lang)}
+            </legend>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              {PLATFORMS.map(({ id, label, Icon, brand }) => {
+              {PLATFORMS.map(({ id, Icon, brand }) => {
                 // Website and Instagram cannot post without media; Facebook can.
                 const blocked = NEEDS_IMAGE.includes(id) && files.length === 0;
                 return (
@@ -659,11 +786,11 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
                     />
                     <span className="flex items-center gap-1.5 font-semibold">
                       <Icon className={`h-4 w-4 ${brand}`} />
-                      {label}
+                      {platformLabel(id, lang)}
                     </span>
                     {blocked ? (
                       <span className="ml-auto text-xs font-normal text-love-ink/50">
-                        Needs an image
+                        {lang === "en" ? "Needs an image" : localizeDeep("需要圖片", lang)}
                       </span>
                     ) : null}
                   </label>
@@ -684,7 +811,13 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
               disabled={busy}
               className="flex-1 rounded-full bg-love-ink px-5 py-3 font-semibold text-white disabled:opacity-60"
             >
-              {busy ? "Posting…" : "Post now"}
+              {busy
+                ? lang === "en"
+                  ? "Posting…"
+                  : localizeDeep("發佈中…", lang)
+                : lang === "en"
+                  ? "Post now"
+                  : localizeDeep("立即發佈", lang)}
             </button>
             <button
               type="button"
@@ -693,14 +826,14 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
               aria-expanded={scheduling}
               className="flex-1 rounded-full border border-love-ink px-5 py-3 font-semibold text-love-ink disabled:opacity-60"
             >
-              Schedule post
+              {lang === "en" ? "Schedule post" : localizeDeep("排程貼文", lang)}
             </button>
           </div>
 
           {scheduling ? (
             <div className="mt-4 rounded-xl border border-love-ink/15 p-4">
               <label className="block text-sm font-semibold" htmlFor="schedule-when">
-                Date and time
+                {lang === "en" ? "Date and time" : localizeDeep("日期和時間", lang)}
               </label>
               <input
                 id="schedule-when"
@@ -710,8 +843,12 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
                 className="mt-1 w-full rounded-lg border border-love-ink/20 p-3"
               />
               <p className="mt-2 text-xs text-love-ink/60">
-                The post is saved and listed below. Nothing sends automatically —
-                publish it from the pending list when you are ready.
+                {lang === "en"
+                  ? "The post is saved and listed below. Nothing sends automatically — publish it from the pending list when you are ready."
+                  : localizeDeep(
+                      "貼文將會被儲存並列在下方。系統不會自動發送，準備好後請在待發佈列表中發佈。",
+                      lang,
+                    )}
               </p>
               <button
                 type="button"
@@ -719,12 +856,18 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
                 onClick={onSchedule}
                 className="mt-3 rounded-full bg-love-ink px-5 py-2 font-semibold text-white disabled:opacity-60"
               >
-                {busy ? "Saving…" : "Save to schedule"}
+                {busy
+                  ? lang === "en"
+                    ? "Saving…"
+                    : localizeDeep("儲存中…", lang)
+                  : lang === "en"
+                    ? "Save to schedule"
+                    : localizeDeep("儲存排程", lang)}
               </button>
             </div>
           ) : null}
           <p aria-live="polite" className="sr-only">
-            {busy ? "Posting your update" : ""}
+            {busy ? (lang === "en" ? "Posting your update" : localizeDeep("正在發佈您的更新", lang)) : ""}
           </p>
         </form>
       )}

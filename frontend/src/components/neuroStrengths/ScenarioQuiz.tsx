@@ -1,9 +1,12 @@
 import { useState } from "react";
 
-import { QUIZ_SCENARIOS } from "./data";
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
+import { localizeQuizScenario, QUIZ_SCENARIOS } from "./data";
 import { ScenarioIllustration } from "./ScenarioIllustration";
 
 export function ScenarioQuiz() {
+  const { lang } = useLanguage();
   const [index, setIndex] = useState(0);
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
 
@@ -11,11 +14,17 @@ export function ScenarioQuiz() {
     return (
       <div className="mx-auto max-w-xl rounded-3xl border border-love-teal/20 bg-white p-8 text-center shadow-xl">
         <p className="text-2xl font-bold text-love-ink">
-          You&apos;ve completed all {QUIZ_SCENARIOS.length} scenarios!
+          {lang === "en"
+            ? `You've completed all ${QUIZ_SCENARIOS.length} scenarios!`
+            : localizeDeep(`你已完成全部 ${QUIZ_SCENARIOS.length} 個情境！`, lang)}
         </p>
         <p className="mt-2 text-love-ink/70">
-          Every one of these everyday moments reveals a neurodivergent strength hiding behind a
-          common misconception.
+          {lang === "en"
+            ? "Every one of these everyday moments reveals a neurodivergent strength hiding behind a common misconception."
+            : localizeDeep(
+                "這些日常生活中的每一個時刻，都揭示了隱藏在常見誤解背後的一種神經多樣性強項。",
+                lang,
+              )}
         </p>
         <button
           type="button"
@@ -25,13 +34,13 @@ export function ScenarioQuiz() {
           }}
           className="mt-6 rounded-full bg-love-blue px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-love-blue/90"
         >
-          Restart
+          {lang === "en" ? "Restart" : localizeDeep("重新開始", lang)}
         </button>
       </div>
     );
   }
 
-  const scenario = QUIZ_SCENARIOS[index];
+  const scenario = localizeDeep(localizeQuizScenario(QUIZ_SCENARIOS[index], lang), lang);
   const selectedOption = scenario.options.find((option) => option.label === selectedLabel);
   const hasAnswered = selectedOption !== undefined;
   const isLastScenario = index === QUIZ_SCENARIOS.length - 1;
@@ -40,7 +49,9 @@ export function ScenarioQuiz() {
     <div className="mx-auto flex w-full min-h-[500px] max-w-6xl flex-col overflow-hidden rounded-3xl border border-love-blue/15 bg-white shadow-xl lg:flex-row">
       <div className="flex-1 p-6 sm:p-8 lg:p-10">
         <p className="text-xs font-semibold uppercase tracking-wide text-love-blue/70">
-          Scenario {index + 1} of {QUIZ_SCENARIOS.length}
+          {lang === "en"
+            ? `Scenario ${index + 1} of ${QUIZ_SCENARIOS.length}`
+            : localizeDeep(`情境 ${index + 1} / ${QUIZ_SCENARIOS.length}`, lang)}
         </p>
         <p className="mt-2 text-lg font-semibold text-love-ink">{scenario.question}</p>
 
@@ -88,7 +99,13 @@ export function ScenarioQuiz() {
                 selectedOption.isCorrect ? "text-love-teal" : "text-love-yellow"
               }`}
             >
-              {selectedOption.isCorrect ? "Correct!" : "Not quite."}
+              {selectedOption.isCorrect
+                ? lang === "en"
+                  ? "Correct!"
+                  : localizeDeep("答對了！", lang)
+                : lang === "en"
+                  ? "Not quite."
+                  : localizeDeep("不太對。", lang)}
             </p>
             <p className="mt-1 text-sm">{scenario.fact}</p>
           </div>
@@ -104,7 +121,13 @@ export function ScenarioQuiz() {
               }}
               className="rounded-full bg-love-blue px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-love-blue/90"
             >
-              {isLastScenario ? "See Results" : "Next Scenario"}
+              {isLastScenario
+                ? lang === "en"
+                  ? "See Results"
+                  : localizeDeep("查看結果", lang)
+                : lang === "en"
+                  ? "Next Scenario"
+                  : localizeDeep("下一個情境", lang)}
             </button>
           </div>
         )}

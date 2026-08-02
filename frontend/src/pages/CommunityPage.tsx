@@ -22,6 +22,7 @@ import {
 } from "../api/client";
 import { useLanguage } from "../hooks/useLanguage";
 import { usePretextLayout } from "../lib/usePretextLayout";
+import { localizeDeep } from "../lib/zhConvert";
 
 const BUBBLE_REPEL_RADIUS = 120;
 const BUBBLE_REPEL_MAX_PUSH = 40;
@@ -35,7 +36,7 @@ function formatWallTime(iso: string): string {
 
 export function CommunityPage() {
   const { lang } = useLanguage();
-  const copy = donorCommunityCopy[lang];
+  const copy = localizeDeep(donorCommunityCopy[lang === "en" ? "en" : "zh"], lang);
   const titleText = `${copy.heroLead} ${copy.heroEmphasis}`;
   const titleRef = usePretextLayout<HTMLHeadingElement>(titleText);
   const bodyRef = usePretextLayout<HTMLParagraphElement>(copy.heroBody);
@@ -118,9 +119,9 @@ export function CommunityPage() {
               {copy.heroBody}
             </p>
             <dl className="donor-community-counts">
-              <div><dt>1,284</dt><dd>{lang === "zh" ? "位支持者" : "supporters"}</dd></div>
-              <div><dt>10</dt><dd>{lang === "zh" ? "家合作機構" : "partner organisations"}</dd></div>
-              <div><dt>6</dt><dd>{lang === "zh" ? "持續同行" : "yrs of showing up"}</dd></div>
+              <div><dt>1,284</dt><dd>{lang === "en" ? "supporters" : localizeDeep("位支持者", lang)}</dd></div>
+              <div><dt>10</dt><dd>{lang === "en" ? "partner organisations" : localizeDeep("家合作機構", lang)}</dd></div>
+              <div><dt>6</dt><dd>{lang === "en" ? "yrs of showing up" : localizeDeep("持續同行", lang)}</dd></div>
             </dl>
             <blockquote>{copy.heroQuote}</blockquote>
             <div className="donor-community-actions">
@@ -200,7 +201,7 @@ export function CommunityPage() {
             {privatePosts.map((post) => (
               <article className="pending" key={post.id}>
                 <span className="donor-community-post-avatar" aria-hidden="true">{post.nickname.slice(0, 2)}</span>
-                <div><strong>{post.nickname} {lang === "zh" ? "加入了大家庭" : "joined the family"}</strong>{post.message && <p>“{post.message}”</p>}</div>
+                <div><strong>{post.nickname} {lang === "en" ? "joined the family" : localizeDeep("加入了大家庭", lang)}</strong>{post.message && <p>“{post.message}”</p>}</div>
                 <div className="donor-community-post-meta"><time>Just now</time><span>{copy.pending}</span></div>
               </article>
             ))}
@@ -220,7 +221,7 @@ export function CommunityPage() {
             ).map((post) => (
               <article key={post.key}>
                 <span className="donor-community-post-avatar" aria-hidden="true">{post.name.slice(0, 2)}</span>
-                <div><strong>{post.name} {lang === "zh" ? "加入了大家庭" : "joined the family"}</strong><p>“{post.message}”</p></div>
+                <div><strong>{post.name} {lang === "en" ? "joined the family" : localizeDeep("加入了大家庭", lang)}</strong><p>“{post.message}”</p></div>
                 <div className="donor-community-post-meta"><time>{post.time}</time></div>
               </article>
             ))}

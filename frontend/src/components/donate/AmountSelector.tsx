@@ -1,3 +1,19 @@
+import { useLanguage } from "../../hooks/useLanguage";
+import { localizeDeep } from "../../lib/zhConvert";
+
+const copyByLang = {
+  en: {
+    chooseAmount: "Choose an amount",
+    orEnterAnother: "Or enter another HKD amount",
+    customAmountAria: "Custom donation amount",
+  },
+  zh: {
+    chooseAmount: "選擇捐款金額",
+    orEnterAnother: "或輸入其他港元金額",
+    customAmountAria: "自訂捐款金額",
+  },
+} as const;
+
 export function AmountSelector({
   presets,
   amount,
@@ -13,12 +29,14 @@ export function AmountSelector({
   onChange: (amount: string) => void;
   onCustomAmountConfirmed: () => void;
 }) {
+  const { lang } = useLanguage();
+  const copy = localizeDeep(copyByLang[lang === "en" ? "en" : "zh"], lang);
   const numericAmount = Number(amount);
 
   return (
     <>
       <fieldset className="fieldset">
-        <legend>Choose an amount</legend>
+        <legend>{copy.chooseAmount}</legend>
         <div className="amount-grid donation-amount-grid">
           {presets.map((preset) => (
             <button
@@ -35,11 +53,11 @@ export function AmountSelector({
       </fieldset>
 
       <label className={`field ${error ? "field-error" : ""}`}>
-        <span className="field-label">Or enter another HKD amount</span>
+        <span className="field-label">{copy.orEnterAnother}</span>
         <div className="currency-input">
           <span aria-hidden="true">HK$</span>
           <input
-            aria-label="Custom donation amount"
+            aria-label={copy.customAmountAria}
             type="number"
             inputMode="numeric"
             min="10"

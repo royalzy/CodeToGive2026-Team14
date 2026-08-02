@@ -9,9 +9,54 @@ import { VolunteerProgramBento } from "../components/volunteer/VolunteerProgramB
 import { VolunteerTestimonialMarquee } from "../components/volunteer/VolunteerTestimonialMarquee";
 import { programs } from "../content/programs";
 import { volunteerTestimonials } from "../content/volunteer";
+import { useLanguage } from "../hooks/useLanguage";
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
+import { localizeDeep } from "../lib/zhConvert";
 
 const PROGRAMME_TITLES = programs.map((program) => program.title);
+
+const volunteerPageCopy = {
+  en: {
+    entryEyebrow: "Choose your way in",
+    entryTitle: "Not sure where to start?",
+    entryBody:
+      "Take the quiz for a fun, personalised starting point, or skip straight to browsing every role yourself.",
+    quizTitle: "Find out which type of volunteer you are",
+    quizBody: "Take our 1 minute quiz and discover the role that was made for you.",
+    findOut: "Find out",
+    browseAllRoles: "Browse all roles",
+    programmeEyebrow: "Five programmes, endless ways to help",
+    programmeTitle: "Find the programme that fits you.",
+    programmeBody:
+      "Every programme welcomes assistants, leaders and event helpers. Pick the one that speaks to you to see its roles in full.",
+    testimonialEyebrow: "From our volunteers",
+    testimonialTitle: "Why they keep coming back",
+    closingEyebrow: "Still deciding between roles?",
+    closingTitle: "Try the guided match, or explore every role.",
+    guidedMatchLink: "Answer a few questions for a suggestion",
+    compareRolesLink: "Compare every role side by side",
+    newsletterTitle: "Prefer to hear from us by email?",
+  },
+  zh: {
+    entryEyebrow: "選擇你的入門方式",
+    entryTitle: "不確定從何開始？",
+    entryBody: "做個小測驗，找到有趣又個人化的起點；或直接瀏覽所有角色。",
+    quizTitle: "了解你適合哪種義工類型",
+    quizBody: "花一分鐘做小測驗，找到專屬於你的角色。",
+    findOut: "立即了解",
+    browseAllRoles: "瀏覽所有角色",
+    programmeEyebrow: "五個計劃，無數參與方式",
+    programmeTitle: "找到適合你的計劃。",
+    programmeBody: "每個計劃都歡迎助理、領隊和活動幫手。選擇你感興趣的計劃，看看完整的角色。",
+    testimonialEyebrow: "來自義工的心聲",
+    testimonialTitle: "他們為何一再回來",
+    closingEyebrow: "還在角色之間猶豫？",
+    closingTitle: "試試導引配對，或瀏覽所有角色。",
+    guidedMatchLink: "回答幾條問題獲得建議",
+    compareRolesLink: "並排比較所有角色",
+    newsletterTitle: "想透過電郵收到我們的消息？",
+  },
+} as const;
 
 function VolunteerProgramMarquee() {
   return (
@@ -29,6 +74,9 @@ function VolunteerProgramMarquee() {
 }
 
 export function VolunteerPage() {
+  const { lang } = useLanguage();
+  const copy = localizeDeep(volunteerPageCopy[lang === "en" ? "en" : "zh"], lang);
+
   useEffect(() => {
     trackVolunteerEvent("volunteer_page_viewed");
   }, []);
@@ -44,9 +92,9 @@ export function VolunteerPage() {
       >
         <div className="shell">
           <SectionHeading
-            eyebrow="Choose your way in"
-            title="Not sure where to start?"
-            body="Take the quiz for a fun, personalised starting point, or skip straight to browsing every role yourself."
+            eyebrow={copy.entryEyebrow}
+            title={copy.entryTitle}
+            body={copy.entryBody}
           />
           <div className="volunteer-path-grid volunteer-path-grid-single">
             <article className="volunteer-path-card volunteer-path-quiz">
@@ -58,18 +106,16 @@ export function VolunteerPage() {
                 loading="lazy"
               />
               <div className="volunteer-path-quiz-content">
-                <h2>Find out which type of volunteer you are</h2>
+                <h2>{copy.quizTitle}</h2>
                 <br></br>
-                <p>
-                  Take our 1 minute quiz and discover the role that was made for you.
-                </p>
+                <p>{copy.quizBody}</p>
                 <div className="volunteer-inline-actions">
                   <Link className="button button-quiz-highlight" to="/volunteer/match">
-                    Find out{" "}
+                    {copy.findOut}{" "}
                     <span aria-hidden="true">→</span>
                   </Link>
                   <Link className="button button-outline" to="/volunteer/roles">
-                    Browse all roles
+                    {copy.browseAllRoles}
                   </Link>
                 </div>
               </div>
@@ -81,9 +127,9 @@ export function VolunteerPage() {
       <section className="section volunteer-programme-fit-section">
         <div className="shell">
           <SectionHeading
-            eyebrow="Five programmes, endless ways to help"
-            title="Find the programme that fits you."
-            body="Every programme welcomes assistants, leaders and event helpers. Pick the one that speaks to you to see its roles in full."
+            eyebrow={copy.programmeEyebrow}
+            title={copy.programmeTitle}
+            body={copy.programmeBody}
           />
           <VolunteerProgramBento />
         </div>
@@ -92,8 +138,8 @@ export function VolunteerPage() {
       <section className="section volunteer-testimonial-section">
         <div className="shell">
           <SectionHeading
-            eyebrow="From our volunteers"
-            title="Why they keep coming back"
+            eyebrow={copy.testimonialEyebrow}
+            title={copy.testimonialTitle}
           />
           <VolunteerTestimonialMarquee testimonials={volunteerTestimonials} />
         </div>
@@ -108,20 +154,20 @@ export function VolunteerPage() {
       <section className="section volunteer-closing-section">
         <div className="shell volunteer-alternatives-panel">
           <div>
-            <p className="eyebrow">Still deciding between roles?</p>
-            <h3>Try the guided match, or explore every role.</h3>
+            <p className="eyebrow">{copy.closingEyebrow}</p>
+            <h3>{copy.closingTitle}</h3>
             <div className="volunteer-alternative-links">
               <Link className="text-link" to="/volunteer/match">
-                Answer a few questions for a suggestion <span aria-hidden="true">→</span>
+                {copy.guidedMatchLink} <span aria-hidden="true">→</span>
               </Link>
               <Link className="text-link" to="/volunteer/roles">
-                Compare every role side by side <span aria-hidden="true">→</span>
+                {copy.compareRolesLink} <span aria-hidden="true">→</span>
               </Link>
             </div>
           </div>
           <VolunteerNewsletterSignup
             source="volunteer_landing"
-            title="Prefer to hear from us by email?"
+            title={copy.newsletterTitle}
           />
         </div>
       </section>

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { useLanguage } from "../hooks/useLanguage";
 import { usePretextLayout } from "../lib/usePretextLayout";
+import { localizeDeep } from "../lib/zhConvert";
 import "./ImpactPage.css";
 
 type StoryFrame = {
@@ -260,7 +261,7 @@ function StoryStats({ frame }: { frame: StoryFrame }) {
 
 export function ImpactPage() {
   const { lang } = useLanguage();
-  const copy = storyCopy[lang];
+  const copy = localizeDeep(storyCopy[lang === "en" ? "en" : "zh"], lang);
   const frames = copy.frames as readonly StoryFrame[];
   const [activeFrame, setActiveFrame] = useState(0);
   const heroTitleRef = usePretextLayout<HTMLHeadingElement>(copy.heroTitle);
@@ -329,7 +330,7 @@ export function ImpactPage() {
 
       <nav
         className="impact-story-tools"
-        aria-label={lang === "zh" ? "故事片段" : "Story frames"}
+        aria-label={lang === "en" ? "Story frames" : localizeDeep("故事片段", lang)}
       >
         <div className="shell impact-story-tools-inner">
           <p className="impact-story-progress-label" aria-live="polite">
@@ -381,7 +382,7 @@ export function ImpactPage() {
 
                 <StoryStats frame={frame} />
                 <p className="impact-story-director-note">
-                  <span>{lang === "zh" ? "畫外音" : "Voice-over"}</span>
+                  <span>{lang === "en" ? "Voice-over" : localizeDeep("畫外音", lang)}</span>
                   {frame.note}
                 </p>
               </div>
