@@ -180,3 +180,28 @@ def test_wall_post_is_private_owned_and_limited_to_one_per_donation() -> None:
         json={"message": "x" * 181},
     )
     assert too_long.status_code == 422
+
+
+def test_public_wall_exposes_nickname_message_time_without_identity() -> None:
+    donor = TestClient(app)
+    register(donor, email="pubwall@example.com", nickname="Public Wall Donor")
+    donation_id = donate(donor, 600)
+    created = donor.post(
+        f"/api/v1/donation-intents/{donation_id}/wall-posts",
+        json={"message": "Proud to support this work."},
+    )
+    assert created.status_code == 201
+
+    anonymous_visitor = TestClient(app)
+    feed = anonymous_visitor.get("/api/v1/donor-wall/public")
+    assert feed.status_code == 200
+    posts = feed.json()
+    assert any(
+        post["nickname"] == "Public Wall Donor"
+        and post["message"] == "Proud to support this work."
+        for post in posts
+    )
+    exposed = {post["nickname"] for post in posts if post["nickname"] == "Public Wall Donor"}
+    assert len(exposed) == 1
+    sample = next(post for post in posts if post["nickname"] == "Public Wall Donor")
+    assert set(sample) == {"id", "nickname", "message", "created_at"}

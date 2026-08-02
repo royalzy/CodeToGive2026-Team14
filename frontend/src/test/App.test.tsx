@@ -113,16 +113,31 @@ describe("learn more story invitation", () => {
 
 describe("donor community experience", () => {
   it("centres participation and keeps a new wall message private while moderated", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify([{
-        id: "WALL-PRIVATE",
-        donation_intent_id: "DON-PRIVATE",
-        nickname: "Private Donor",
-        message: "Only I can see this preview.",
-        status: "pending",
-        created_at: "2026-08-02T02:05:00+00:00",
-      }]), { status: 200, headers: { "Content-Type": "application/json" } }),
-    );
+    const wallPost = {
+      id: "WALL-PRIVATE",
+      donation_intent_id: "DON-PRIVATE",
+      nickname: "Private Donor",
+      message: "Only I can see this preview.",
+      status: "pending",
+      created_at: "2026-08-02T02:05:00+00:00",
+    };
+    // A fresh Response per call: the community page reads both the private
+    // wall (`/donor-wall/me`) and the public feed (`/donor-wall/public`).
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      const body = url.endsWith("/donor-wall/public")
+        ? [{
+            id: "WALL-PUBLIC",
+            nickname: "Public Donor",
+            message: "Open to everyone.",
+            created_at: "2026-08-02T02:06:00+00:00",
+          }]
+        : [wallPost];
+      return new Response(JSON.stringify(body), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
     renderRoute("/supporter");
 
     expect(screen.getAllByText("1,284").length).toBeGreaterThan(0);

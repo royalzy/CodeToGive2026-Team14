@@ -16,13 +16,22 @@ import {
 import {
   ApiError,
   getMyDonorWallPosts,
+  getPublicWallPosts,
   type DonorWallPost,
+  type PublicWallPost,
 } from "../api/client";
 import { useLanguage } from "../hooks/useLanguage";
 import { usePretextLayout } from "../lib/usePretextLayout";
 
 const BUBBLE_REPEL_RADIUS = 120;
 const BUBBLE_REPEL_MAX_PUSH = 40;
+
+function formatWallTime(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime())
+    ? iso
+    : date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
 
 export function CommunityPage() {
   const { lang } = useLanguage();
@@ -31,7 +40,16 @@ export function CommunityPage() {
   const titleRef = usePretextLayout<HTMLHeadingElement>(titleText);
   const bodyRef = usePretextLayout<HTMLParagraphElement>(copy.heroBody);
   const [privatePosts, setPrivatePosts] = useState<DonorWallPost[]>([]);
+  const [publicPosts, setPublicPosts] = useState<PublicWallPost[]>([]);
   const [wallNotice, setWallNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    getPublicWallPosts()
+      .then((posts) => setPublicPosts(posts))
+      .catch(() => {
+        // The public feed is optional; keep the static wall as a fallback.
+      });
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -186,8 +204,21 @@ export function CommunityPage() {
                 <div className="donor-community-post-meta"><time>Just now</time><span>{copy.pending}</span></div>
               </article>
             ))}
-            {donorWallPosts.map((post) => (
-              <article key={`${post.name}-${post.time}`}>
+            {(publicPosts.length > 0
+              ? publicPosts.map((post) => ({
+                  key: post.id,
+                  name: post.nickname,
+                  message: post.message,
+                  time: formatWallTime(post.created_at),
+                }))
+              : donorWallPosts.map((post) => ({
+                  key: `${post.name}-${post.time}`,
+                  name: post.name,
+                  message: post.message,
+                  time: post.time,
+                }))
+            ).map((post) => (
+              <article key={post.key}>
                 <span className="donor-community-post-avatar" aria-hidden="true">{post.name.slice(0, 2)}</span>
                 <div><strong>{post.name} {lang === "zh" ? "加入了大家庭" : "joined the family"}</strong><p>“{post.message}”</p></div>
                 <div className="donor-community-post-meta"><time>{post.time}</time></div>

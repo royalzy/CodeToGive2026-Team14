@@ -82,3 +82,10 @@ class WallPostResponse(StrictModel):
     message: str | None
     status: Literal["pending"]
     created_at: datetime
+
+
+class PublicWallPost(StrictModel):
+    id: str
+    nickname: str
+    message: str | None
+    created_at: datetime
