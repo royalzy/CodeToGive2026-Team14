@@ -35,6 +35,9 @@ function PendingRow({
   // enough to identify which post it is.
   const [open, setOpen] = useState(false);
   const overdue = new Date(post.scheduled_for).getTime() < Date.now();
+  // The backend only auto-publishes website-only posts; anything touching
+  // Meta waits for a person. Say so rather than leaving it a hidden rule.
+  const autoPublishes = post.platforms.length === 1 && post.platforms[0] === "website";
   const firstCaption =
     post.captions[post.platforms[0]] ?? Object.values(post.captions)[0] ?? "";
 
@@ -50,13 +53,16 @@ function PendingRow({
           <span aria-hidden="true">{open ? "▾" : "▸"}</span>
           <span className="pending-when">
             {formatWhen(post.scheduled_for)}
-            {overdue ? <em className="pending-overdue"> · due</em> : null}
+            {overdue && !autoPublishes ? <em className="pending-overdue"> · due</em> : null}
           </span>
           <span className="pending-preview">{firstCaption.slice(0, 48)}</span>
         </button>
 
         <span className="pending-platforms">
           {post.platforms.map((p) => PLATFORM_LABEL[p]).join(" · ")}
+          <span className={autoPublishes ? "pending-auto" : "pending-manual"}>
+            {autoPublishes ? "posts automatically" : "needs you"}
+          </span>
         </span>
       </div>
 
@@ -118,6 +124,10 @@ export function PendingPosts({ refreshKey }: { refreshKey: number }) {
 
   useEffect(() => {
     void load();
+    // The backend publishes due website posts on its own, so refresh
+    // periodically or the queue would show posts that have already gone out.
+    const timer = window.setInterval(() => void load(), 30_000);
+    return () => window.clearInterval(timer);
   }, [load, refreshKey]);
 
   async function handlePublish(id: string) {
