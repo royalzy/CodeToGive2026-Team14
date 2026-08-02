@@ -8466,17 +8466,27 @@ textarea:focus,
 }
 
 .donor-community-hero-section,
-.donor-profile-header,
 .donate-a-transparency {
   color: white;
   background: var(--ink);
 }
 
+/* Unlike the donor-community and donate pages, the profile header sits
+ * directly on the page's cream background rather than in its own hero
+ * band — keep it on the same cream instead of a jarring dark strip. */
+.donor-profile-header {
+  color: var(--ink);
+  background: var(--cream);
+}
+
 .donor-community-hero p,
-.donor-profile-header p,
 .donate-a-transparency p,
 .donor-community-mosaic-band p {
   color: rgb(255 255 255 / 82%);
+}
+
+.donor-profile-header p {
+  color: var(--muted);
 }
 
 .donor-community-hero-copy blockquote {
@@ -8487,7 +8497,7 @@ textarea:focus,
 .donor-community-wall,
 .donor-community-partner-grid > *,
 .donor-profile-achievement,
-.donor-profile-grid > *,
+.donor-profile-grid article,
 .donor-profile-login-card,
 .donate-a-flow-card,
 .donate-a-evidence,
