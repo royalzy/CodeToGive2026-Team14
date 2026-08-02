@@ -6477,14 +6477,18 @@ h3 {
 
 .donate-a-content {
   display: grid;
-  grid-template-columns: minmax(0, 1.28fr) minmax(280px, 0.72fr);
-  gap: clamp(1.5rem, 4vw, 2.2rem);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
 }
 
 .donate-a-main {
   display: grid;
-  gap: 1.5rem;
+  gap: clamp(2.5rem, 5vw, 4rem);
+}
+
+.donate-a-top-row {
+  position: relative;
+  padding-right: clamp(2.5rem, 6vw, 4.5rem);
 }
 
 .donate-a-transparency,
@@ -6494,9 +6498,18 @@ h3 {
 }
 
 .donate-a-transparency {
+  position: relative;
+  z-index: 2;
   padding: clamp(1.7rem, 4vw, 2.7rem);
   color: white;
   background: #2e2c2d;
+  transform: translateX(0);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.donate-a-top-row:has(.donate-a-photos:hover) .donate-a-transparency,
+.donate-a-top-row:has(.donate-a-photos:focus-within) .donate-a-transparency {
+  transform: translateX(-140px);
 }
 
 .donate-a-transparency .donor-community-eyebrow {
@@ -6574,6 +6587,100 @@ h3 {
   text-underline-offset: 0.18em;
 }
 
+.donate-a-photos {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  z-index: 1;
+  width: clamp(200px, 24vw, 280px);
+  height: calc(100% - 3rem);
+  transform: translateY(-50%);
+}
+
+.donate-a-photo-stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+}
+
+.donate-a-photo-stack-item {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background: var(--donor-paper);
+  box-shadow: 0 18px 40px rgba(46, 44, 45, 0.22);
+  cursor: pointer;
+  transform: rotate(var(--rotate, 0deg)) translate(var(--offset, 0px), 0);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease;
+}
+
+.donate-a-photo-stack-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.donate-a-photo-stack-item:hover,
+.donate-a-photo-stack-item:focus-visible {
+  transform: rotate(var(--rotate, 0deg))
+    translate(var(--offset, 0px), -16px);
+  box-shadow: 0 26px 54px rgba(46, 44, 45, 0.32);
+  z-index: 10 !important;
+}
+
+.donate-a-photo-stack-item:focus-visible {
+  outline: 2px solid var(--donor-apricot);
+  outline-offset: 3px;
+}
+
+.donate-a-photo-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 0;
+  border-radius: 50%;
+  background: white;
+  color: var(--donor-ink);
+  font-size: 1.4rem;
+  line-height: 1;
+  box-shadow: 0 10px 24px rgba(46, 44, 45, 0.28);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.donate-a-photos:hover .donate-a-photo-nav,
+.donate-a-photos:focus-within .donate-a-photo-nav {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.donate-a-photo-nav:hover {
+  transform: translateY(-50%) scale(1.08);
+}
+
+.donate-a-photo-nav-prev {
+  left: -1.3rem;
+}
+
+.donate-a-photo-nav-next {
+  right: -1.3rem;
+}
+
 .donate-a-promise {
   position: sticky;
   top: 7rem;
@@ -6639,6 +6746,43 @@ h3 {
   gap: 1.5rem;
   align-items: center;
   margin-bottom: 1.2rem;
+}
+
+.donate-a-gift-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.82fr);
+  gap: clamp(1.5rem, 3vw, 2.2rem);
+  align-items: start;
+  margin-top: 0.5rem;
+}
+
+.donate-a-gift-impact {
+  position: sticky;
+  top: 1.5rem;
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.donate-a-gift-impact img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 1.25rem;
+}
+
+.donate-a-gift-impact .donate-a-impact-preview {
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .donate-a-gift-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .donate-a-gift-impact {
+    position: static;
+  }
 }
 
 .donate-a-flow-topline .donor-community-eyebrow {
@@ -6914,6 +7058,28 @@ h3 {
     position: static;
   }
 
+  .donate-a-top-row {
+    padding-right: 0;
+  }
+
+  .donate-a-photos {
+    position: static;
+    width: auto;
+    height: auto;
+    max-width: 320px;
+    margin: 1.5rem auto 0;
+    transform: none;
+  }
+
+  .donate-a-photo-stack {
+    aspect-ratio: 4 / 5;
+  }
+
+  .donate-a-top-row:has(.donate-a-photos:hover) .donate-a-transparency,
+  .donate-a-top-row:has(.donate-a-photos:focus-within) .donate-a-transparency {
+    transform: none;
+  }
+
   .supporter-quick-actions-donate {
     display: flex;
   }
@@ -7075,6 +7241,122 @@ h3 {
 }
 
 /* Detailed post-donation impact record */
+.donation-impact-hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  margin: 1.5rem 0;
+  text-align: center;
+  color: white;
+  background: #223969;
+  border-radius: 1.35rem;
+}
+
+.donation-impact-hero .eyebrow {
+  color: var(--yellow);
+}
+
+.donation-impact-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.donation-impact-confetti span {
+  position: absolute;
+  top: -10px;
+  width: 8px;
+  height: 8px;
+  background: var(--yellow);
+  border-radius: 2px;
+  animation: quizConfettiFall 2.4s ease-in infinite;
+}
+
+.donation-impact-confetti span:nth-child(1) {
+  left: 8%;
+  background: var(--yellow);
+  animation-delay: 0s;
+}
+
+.donation-impact-confetti span:nth-child(2) {
+  left: 24%;
+  background: var(--red);
+  animation-delay: 0.3s;
+}
+
+.donation-impact-confetti span:nth-child(3) {
+  left: 42%;
+  background: white;
+  animation-delay: 0.15s;
+}
+
+.donation-impact-confetti span:nth-child(4) {
+  left: 63%;
+  background: var(--yellow);
+  animation-delay: 0.45s;
+}
+
+.donation-impact-confetti span:nth-child(5) {
+  left: 80%;
+  background: var(--red);
+  animation-delay: 0.2s;
+}
+
+.donation-impact-confetti span:nth-child(6) {
+  left: 92%;
+  background: white;
+  animation-delay: 0.5s;
+}
+
+.donation-impact-headline {
+  position: relative;
+  margin: 0.5rem 0 0.35rem;
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", ui-rounded, system-ui, sans-serif;
+  font-size: clamp(1.6rem, 3.4vw, 2.1rem);
+}
+
+.donation-impact-amount {
+  position: relative;
+  margin-bottom: 0.9rem;
+  color: var(--yellow);
+  font-weight: 800;
+}
+
+.donation-impact-detail {
+  position: relative;
+  max-width: 42rem;
+  margin: 0 auto 1.5rem;
+  color: rgb(255 255 255 / 85%);
+  line-height: 1.6;
+}
+
+.donation-impact-share-button {
+  position: relative;
+  color: white;
+  border-color: rgb(255 255 255 / 55%);
+}
+
+.donation-impact-share-button:hover {
+  border-color: white;
+}
+
+.donation-receipt {
+  margin-top: 1.5rem;
+  padding: clamp(1.1rem, 2.5vw, 1.6rem);
+  border: 1px solid rgba(108, 31, 42, 0.2);
+  border-radius: 1.1rem;
+  background: #fff;
+}
+
+.donation-receipt .button-row {
+  margin-top: 1rem;
+}
+
+.donation-receipt .donation-email-note {
+  margin-top: 1rem;
+}
+
 .donation-outcome-record {
   margin-top: 1.5rem;
   padding: clamp(1.25rem, 3vw, 2rem);

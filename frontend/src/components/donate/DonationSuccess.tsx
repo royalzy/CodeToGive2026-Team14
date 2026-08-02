@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 
 import type { DonationIntentResult } from "../../api/client";
 import { getDonationImpactMessage } from "../../content/donations";
+import { DonationReceipt } from "./DonationReceipt";
+import { DonationShareModal } from "./DonationShareModal";
 
 const programmeDetails = {
   where_needed_most: {
@@ -50,17 +52,20 @@ export function DonationSuccess({
   donorName,
   donorEmail,
   anonymous,
+  causeLabel,
   onStayInvolved,
 }: {
   result: DonationIntentResult;
   donorName: string;
   donorEmail: string;
   anonymous: boolean;
+  causeLabel: string;
   onStayInvolved: () => void;
 }) {
   const [showOnWall, setShowOnWall] = useState(true);
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const greeting =
     !anonymous && donorName.trim() ? `Thank you, ${donorName.trim()}.` : "Thank you.";
   const impactMessage = getDonationImpactMessage(result.impact);
@@ -75,17 +80,39 @@ export function DonationSuccess({
       </span>
       <p className="eyebrow">Prototype donation confirmed</p>
       <h2>{greeting}</h2>
-      <p>
-        Your possible impact has been recalculated and confirmed by the demonstration service. After delivery, verified records and photos will appear in your donor profile.
-      </p>
+
+      <div className="donation-impact-hero">
+        <span className="donation-impact-confetti" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+          <span />
+          <span />
+          <span />
+        </span>
+        <p className="eyebrow">You just made this possible</p>
+        <p className="donation-impact-headline">{impactMessage.headline}</p>
+        <p className="donation-impact-amount">{amountLabel} given to {causeLabel}</p>
+        <p className="donation-impact-detail">{impactMessage.detail}</p>
+        <button
+          type="button"
+          className="button button-outline donation-impact-share-button"
+          onClick={() => setIsShareOpen(true)}
+        >
+          <span aria-hidden="true">↗</span> Share my impact
+        </button>
+      </div>
+
       <p className="reference">
         Demo reference: <strong>{result.donation_intent_id}</strong>
       </p>
-      <div className="simulation-confirmation">
-        Simulation complete — no money was charged and no personal information
-        was stored.
-      </div>
-      {!anonymous && donorEmail && <p className="donation-email-note">A prototype confirmation, receipt and thank-you note would be sent to <strong>{donorEmail}</strong>.</p>}
+      <DonationReceipt
+        result={result}
+        donorName={donorName}
+        donorEmail={donorEmail}
+        anonymous={anonymous}
+        causeLabel={causeLabel}
+      />
 
       <section className="donation-outcome-record" aria-labelledby="donation-outcome-title">
         <p className="eyebrow">Backend-calculated expected impact</p>
@@ -124,6 +151,18 @@ export function DonationSuccess({
         <Link className="button button-dark" to="/community" onClick={onStayInvolved}>Visit our community</Link>
         {!anonymous && <Link className="button button-outline" to="/donor-profile">View my donor profile</Link>}
       </div>
+
+      {isShareOpen && (
+        <DonationShareModal
+          data={{
+            causeId: result.impact.cause_id,
+            amountHkd: result.impact.amount_hkd,
+            headline: impactMessage.headline,
+            donorDisplayName: donorName,
+          }}
+          onClose={() => setIsShareOpen(false)}
+        />
+      )}
     </div>
   );
 }

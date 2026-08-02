@@ -24,7 +24,6 @@ export function CauseSelector({
 }) {
   return (
     <fieldset className="fieldset">
-      <legend>Choose where it helps</legend>
       <div className="cause-grid">
         {choices.map((choice) => (
           <label className="cause-card" key={choice.causeId}>
