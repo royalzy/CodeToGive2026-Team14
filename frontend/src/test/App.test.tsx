@@ -26,9 +26,9 @@ afterEach(() => {
 
 describe("route backbone", () => {
   it.each([
-    ["/", "Every Life is", 1],
-    ["/impact", "Crystal steps forward.", 1],
-    ["/community", "People making this possible.", 1],
+    ["/", "Love 21 builds fuller lives around every ability.", 1],
+    ["/story", "Crystal steps forward.", 1],
+    ["/supporter", "People making this possible.", 1],
     ["/volunteer", "Volunteer with Love 21", 1],
     ["/donate", "received", 1],
     ["/donor-profile", "Your impact, kept honest.", 1],
@@ -56,19 +56,58 @@ describe("route backbone", () => {
       ).toBeInTheDocument();
     },
   );
+
+  it("places Supporter immediately after Donate in the toolbar", () => {
+    renderRoute("/");
+
+    const toolbar = screen.getByRole("navigation", { name: "Main navigation" });
+    const labels = within(toolbar)
+      .getAllByRole("link")
+      .map((link) => link.textContent);
+
+    expect(labels.slice(0, 4)).toEqual(["Story", "Volunteer", "Donate", "Supporter"]);
+  });
+
+  it("links from donation transparency to the Supporter page", () => {
+    renderRoute("/donate");
+
+    expect(
+      screen.getByRole("link", { name: "Meet our supporters →" }),
+    ).toHaveAttribute("href", "/supporter");
+  });
 });
 
 describe("impact story", () => {
-  it("keeps Crystal and Love 21 support together while retaining service data", () => {
-    renderRoute("/impact");
+  it("tells Crystal's journey as a continuous story with a motivating next step", () => {
+    renderRoute("/story");
 
-    expect(screen.getByText("She worked through the movement.")).toBeInTheDocument();
-    expect(screen.getByText("Structured sessions, hands-on support.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "No spotlight. Just somewhere to begin." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Confidence found a rhythm." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /following the warm-up began leading it/i })).toBeInTheDocument();
+    expect(screen.getByText("500+")).toBeInTheDocument();
+    expect(screen.getByText("20")).toBeInTheDocument();
+    const volunteerAction = screen
+      .getAllByRole("link", { name: /^Volunteer/i })
+      .find((link) => link.classList.contains("impact-story-closing-primary"));
+    const donateAction = screen
+      .getAllByRole("link", { name: /^Donate/i })
+      .find((link) => link.classList.contains("impact-story-closing-secondary"));
+    expect(volunteerAction).toHaveAttribute("href", "/volunteer");
+    expect(donateAction).toHaveAttribute("href", "/donate");
+  });
+});
+
+describe("learn more story invitation", () => {
+  it("invites visitors to continue to Crystal's real story", () => {
+    renderRoute("/neuro-strengths");
+
     expect(
-      screen.getByText(/90\+ activity types and 500\+ volunteer hours/i),
+      screen.getByRole("heading", { name: "See what possibility looks like in motion." }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Wider service" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /read crystal's story/i })).toHaveAttribute(
+      "href",
+      "/story",
+    );
   });
 });
 
@@ -84,7 +123,7 @@ describe("donor community experience", () => {
         created_at: "2026-08-02T02:05:00+00:00",
       }]), { status: 200, headers: { "Content-Type": "application/json" } }),
     );
-    renderRoute("/community");
+    renderRoute("/supporter");
 
     expect(screen.getAllByText("1,284").length).toBeGreaterThan(0);
     expect(screen.getByText("People making this possible")).toBeInTheDocument();

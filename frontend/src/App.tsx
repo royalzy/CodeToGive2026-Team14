@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import { Layout } from "./components/Layout";
 import { AdminPage } from "./pages/AdminPage";
@@ -27,8 +27,10 @@ export function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
-        <Route path="impact" element={<ImpactPage />} />
-        <Route path="community" element={<CommunityPage />} />
+        <Route path="story" element={<ImpactPage />} />
+        <Route path="supporter" element={<CommunityPage />} />
+        <Route path="impact" element={<Navigate to="/story" replace />} />
+        <Route path="community" element={<Navigate to="/supporter" replace />} />
         <Route path="volunteer" element={<VolunteerPage />} />
         <Route path="volunteer/match" element={<VolunteerMatchPage />} />
         <Route path="volunteer/roles" element={<VolunteerRolesPage />} />

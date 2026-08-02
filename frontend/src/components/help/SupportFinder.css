@@ -17,23 +17,6 @@
   max-width: none;
 }
 
-/* --- Page banner ---------------------------------------------------------
- *
- * The theme pads the hero twice: `.page-hero` gets clamp(6rem, 10vw, 10rem)
- * and `.page-hero-inner` a further clamp(4.25rem, 8vw, 7.5rem). At 1440px
- * that is 518px of padding around ~317px of text, giving an 835px banner.
- *
- * This affects every page, but is trimmed here only — fixing `.page-hero`
- * globally would resize every other page's banner too, which is the team's
- * call rather than ours. */
-.help-hero .page-hero {
-  padding-block: clamp(3rem, 6vw, 5.5rem);
-}
-
-.help-hero .page-hero-inner {
-  padding-block: 0;
-}
-
 /* --- Request support form ------------------------------------------------ */
 
 /* `.form-aside` is named in the theme's card rule, so it renders as a white

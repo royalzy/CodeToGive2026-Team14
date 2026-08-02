@@ -2,11 +2,11 @@ import type { LandingContent } from "./types";
 
 export const landingContent: LandingContent = {
     hero: {
-        tagline: "Hong Kong · Est. 2014",
-        titleLine1: "Every Life is",
-        titleAccent: "Full of Potential",
+        tagline: "Love 21 Foundation · Hong Kong · Since 2014",
+        titleLine1: "Love 21 builds fuller lives",
+        titleAccent: "around every ability.",
         subtitle:
-            "Love 21 Foundation empowers the Down syndrome and autistic community in Hong Kong through sport, nutrition, arts, and holistic support.",
+            "We support Hong Kong's Down syndrome and autistic communities to move, grow, express themselves, and belong — with families supported alongside them.",
         ctaPrimary: "Meet the Community",
         ctaSecondary: "Volunteer With Us",
         stats: [
@@ -22,10 +22,10 @@ export const landingContent: LandingContent = {
     },
 
     whatWeDo: {
-        eyebrow: "Our Community",
-        title: "What We Do",
+        eyebrow: "Our Support Model",
+        title: "Whole-Person Support",
         description:
-            "Five pillars of support designed to help every member of our community grow, connect, and thrive.",
+            "Five connected layers of support designed to help every member and family grow, connect, and thrive over time.",
         pillars: [
             {
                 id: "sports",
@@ -327,7 +327,7 @@ export const landingContent: LandingContent = {
             eyebrow: "Our Mission",
             title: "Building an Inclusive Hong Kong, One Life at a Time.",
             description:
-                "We believe sport has the power to transform lives. Our approach combines physical activity, nutrition education, and holistic community support to unlock the potential of every person with Down syndrome or autism in Hong Kong.",
+                "Our approach connects physical activity, nutrition, creative expression, family support, and community. Together, these layers help every person with Down syndrome or autism build confidence, wellbeing, relationships, and a fuller life.",
             pillars: [
                 { icon: "Medal", title: "Sport", description: "Building confidence and coordination" },
                 { icon: "Apple", title: "Nutrition", description: "Healthy habits for the whole family" },

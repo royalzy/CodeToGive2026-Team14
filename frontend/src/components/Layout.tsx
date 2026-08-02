@@ -227,17 +227,17 @@ function Footer() {
 
 function SupporterQuickActions({ pathname }: { pathname: string }) {
   const { lang } = useLanguage();
-  if (pathname !== "/community" && pathname !== "/donate") return null;
+  if (pathname !== "/supporter" && pathname !== "/donate") return null;
 
   return (
     <aside className={`supporter-quick-actions supporter-quick-actions-${pathname.slice(1)}`} aria-label="Supporter quick actions">
-      {pathname === "/community" ? (
+      {pathname === "/supporter" ? (
         <Link className="supporter-quick-action supporter-quick-action-primary" to="/donate">
           {lang === "zh" ? "立即捐款" : "Make a donation"}
         </Link>
       ) : (
-        <Link className="supporter-quick-action supporter-quick-action-primary" to="/community">
-          {lang === "zh" ? "支持者社群" : "Our community"}
+        <Link className="supporter-quick-action supporter-quick-action-primary" to="/supporter">
+          {lang === "zh" ? "支持者" : "Supporters"}
         </Link>
       )}
       <Link className="supporter-quick-action" to="/donor-profile">
