@@ -278,6 +278,49 @@ export function getMyDonorWallPosts(): Promise<DonorWallPost[]> {
     .then((result) => z.array(wallPostSchema).parse(result));
 }
 
+const publicWallPostSchema = z.object({
+  id: z.string(),
+  nickname: z.string(),
+  message: z.string().nullable(),
+  created_at: z.string(),
+});
+export type PublicWallPost = z.infer<typeof publicWallPostSchema>;
+
+export function getPublicWallPosts(): Promise<PublicWallPost[]> {
+  return getJson<unknown>("/api/v1/donor-wall/public")
+    .then((result) => z.array(publicWallPostSchema).parse(result));
+}
+
+const analyticsSummarySchema = z.object({
+  generated_at: z.string(),
+  questionnaire_submissions: z.number(),
+  quizzes: z.object({
+    attempts: z.number(),
+    languages: z.record(z.string(), z.number()),
+    rounds: z.array(
+      z.object({ round_id: z.string(), attempts: z.number() }),
+    ),
+  }),
+  donations: z.object({
+    intents: z.number(),
+    total_hkd: z.number(),
+    anonymous_count: z.number(),
+    programs: z.array(
+      z.object({ program: z.string(), intents: z.number(), amount_hkd: z.number() }),
+    ),
+  }),
+  donors: z.object({
+    profiles: z.number(),
+    wall_posts: z.number(),
+  }),
+});
+export type AnalyticsSummary = z.infer<typeof analyticsSummarySchema>;
+
+export function getAnalyticsSummary(): Promise<AnalyticsSummary> {
+  return getJson<unknown>("/api/v1/analytics/summary")
+    .then((result) => analyticsSummarySchema.parse(result));
+}
+
 export interface BookingPayload {
   member_slug: string;
   event_id: string;

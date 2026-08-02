@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { PageHero, SectionHeading } from "../components/Cards";
 import { analyticsDashboardUrl } from "../analytics/umami";
+import { LiveMetrics } from "../components/admin/LiveMetrics";
 import { PendingPosts } from "../components/admin/PendingPosts";
 import { PostAnalytics } from "../components/admin/PostAnalytics";
 import { SocialComposer } from "../components/admin/SocialComposer";
@@ -54,6 +55,17 @@ export function AdminPage() {
             body="Posts created in each period, and how that compares with the one before."
           />
           <PostAnalytics />
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Platform activity"
+            title="Live backend metrics"
+            body="Counts straight from the API: myth-check answers, donation intents, donor wall messages and help enquiries."
+          />
+          <LiveMetrics />
         </div>
       </section>
 
