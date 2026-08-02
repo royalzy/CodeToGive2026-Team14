@@ -1,0 +1,18 @@
+[
+  {
+    "id": "6e20d7cf72d7",
+    "caption": "Poetry workshop",
+    "images": [
+      "/media/6e20d7cf72d7-1.jpg"
+    ],
+    "published_at": "2026-08-02T07:54:34+00:00"
+  },
+  {
+    "id": "3e0d647f0953",
+    "caption": "Cooking together",
+    "images": [
+      "/media/3e0d647f0953-1.jpg"
+    ],
+    "published_at": "2026-08-02T07:52:18+00:00"
+  }
+]

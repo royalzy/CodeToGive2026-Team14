@@ -49,8 +49,6 @@ const otherWays: OtherWayItem[] = [
     eyebrow: "Partner",
     title: "Bring your company on board",
     body: "Ask your employer about a CSR day, an in-kind donation or a sponsorship, a good fit if a single day works better than an ongoing role.",
-    linkTo: "/partners",
-    linkLabel: "Explore corporate partnership",
     accent: "teal",
   },
 ];

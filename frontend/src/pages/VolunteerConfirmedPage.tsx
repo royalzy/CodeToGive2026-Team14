@@ -75,7 +75,7 @@ export function VolunteerConfirmedPage() {
               <Link className="button button-dark" to="/volunteer">
                 Return to volunteering
               </Link>
-              <Link className="text-link" to="/impact">
+              <Link className="text-link" to="/story">
                 Explore Love 21's impact <span aria-hidden="true">→</span>
               </Link>
             </div>

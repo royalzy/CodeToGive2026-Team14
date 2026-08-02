@@ -49,7 +49,7 @@ anonymized events go to Umami.**
 |---|---|---|
 | Pageviews, referrers, devices, geo (aggregate) | Umami | Automatic via the ~2KB script; cookieless |
 | Conversions: donation intent, volunteer signup, booking, questionnaire completion | Umami (custom events) | Sent client-side, **no PII** in event names/props |
-| Donation intents (anonymized subset) | SQLite (existing) | Already implemented |
+| Donation intents + separate donor profile links | SQLite (existing) | Already implemented |
 | Questionnaire answers with personal info (name, contact, needs) | SQLite via FastAPI (new endpoint) | System of record; never sent to Umami |
 | Member profiles, gamification | SQLite (existing) | Already in the prototype |
 

@@ -17,15 +17,36 @@
   max-width: none;
 }
 
-/* The "Request support" heading sits tight against the paragraph below it.
- * Scoped by the section id so no other page's form aside is affected. */
+/* --- Request support form ------------------------------------------------ */
+
+/* `.form-aside` is named in the theme's card rule, so it renders as a white
+ * card, but it has no padding of its own — the heading and copy sit flush
+ * against the rounded edge. The `.form-card` beside it uses
+ * clamp(1.5rem, 5vw, 3.5rem); this is the narrower-column equivalent. */
+#support-request .form-aside {
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+/* The "Request support" heading sits tight against the paragraph below it. */
 #support-request .form-aside h2 {
   margin-bottom: 0.85rem;
 }
 
+/* styles.css opts `.support-finder` into the theme's card treatment (white
+ * background, radius, shadow). This component was written to *be* the
+ * container, so it carried no padding of its own and the content sat flush
+ * against the card edge. Padding here rather than editing the shared theme
+ * block, which several other components depend on. */
 .support-finder {
   max-width: 720px;
   margin-inline: auto;
+  padding: 2rem;
+}
+
+@media (max-width: 640px) {
+  .support-finder {
+    padding: 1.25rem;
+  }
 }
 
 .support-finder-step {
@@ -85,13 +106,15 @@
   margin-top: 1.5rem;
 }
 
+/* Tinted rather than white: the surrounding card is now white, so a white
+ * option button disappears into it. */
 .support-finder-option {
   display: block;
   width: 100%;
   padding: 1rem 1.15rem;
-  border: 1px solid rgb(23 22 37 / 15%);
+  border: 1px solid rgb(23 49 59 / 10%);
   border-radius: 14px;
-  background: var(--surface, #fff);
+  background: rgb(23 49 59 / 3%);
   cursor: pointer;
   text-align: left;
   transition:
@@ -124,9 +147,10 @@
 
 .support-finder-primary {
   padding: 1.5rem;
-  border: 1px solid rgb(23 22 37 / 12%);
+  border: 1px solid rgb(23 49 59 / 10%);
   border-radius: 18px;
-  background: var(--surface, #fff);
+  /* Tinted for the same reason as the options: the card behind it is white. */
+  background: rgb(23 49 59 / 3%);
 }
 
 .support-finder-primary h3 {
@@ -151,18 +175,26 @@
   gap: 0.75rem;
 }
 
-.support-finder-alt {
+/* Also named in the theme's card rule, so it arrives white with a shadow.
+ * Overridden here so it does not float as a card-on-a-card.
+ *
+ * Scoped under `.support-finder` deliberately: `:is(...)` takes the
+ * specificity of its most specific argument, so the theme rule is (0,1,0) —
+ * the same as a plain `.support-finder-alt`, and styles.css loads later and
+ * would win the tie. This selector is (0,2,0). */
+.support-finder .support-finder-alt {
   display: block;
   padding: 1rem 1.15rem;
-  border: 1px solid rgb(23 22 37 / 12%);
+  border: 1px solid rgb(23 49 59 / 10%);
   border-radius: 14px;
-  background: var(--surface, #fff);
+  background: rgb(23 49 59 / 3%);
+  box-shadow: none;
   color: inherit;
   text-decoration: none;
   transition: border-color 150ms ease;
 }
 
-.support-finder-alt:hover {
+.support-finder .support-finder-alt:hover {
   border-color: var(--ink);
 }
 

@@ -1,486 +1,273 @@
-﻿import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Apple,
-  Ban,
-  Calendar,
-  Dna,
+  ArrowDown,
+  ArrowUpRight,
   Drama,
-  Globe,
   Handshake,
-  Heart,
-  HeartHandshake,
-  Lightbulb,
   Medal,
-  Palette,
-  Puzzle,
-  Rocket,
-  Sparkles,
   Sprout,
-  Star,
-  Stethoscope,
-  Trophy,
   type LucideIcon,
 } from "lucide-react";
 import { useLanguage } from "../hooks/useLanguage";
-import type { Accent, AutismFact, DSFact } from "../content/types";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Apple,
-  Ban,
-  Calendar,
-  Dna,
   Drama,
-  Globe,
   Handshake,
-  Heart,
-  HeartHandshake,
-  Lightbulb,
   Medal,
-  Palette,
-  Puzzle,
-  Rocket,
-  Sparkles,
   Sprout,
-  Star,
-  Stethoscope,
-  Trophy,
 };
 
-function Icon({ name, className, size = 24, style }: { name: string; className?: string; size?: number; style?: React.CSSProperties }) {
+const BARRIERS = [
+  {
+    number: "01",
+    title: "Support can feel fragmented.",
+    description:
+      "Families may have to coordinate health, learning, activity, and social support across separate systems.",
+  },
+  {
+    number: "02",
+    title: "Opportunity is still uneven.",
+    description:
+      "Inaccessible spaces and low expectations can limit chances to participate, build skills, and be seen.",
+  },
+  {
+    number: "03",
+    title: "Belonging takes more than access.",
+    description:
+      "Members need consistent relationships, trusted routines, and a community that grows with them over time.",
+  },
+] as const;
+
+const SUPPORT_DEPTH = [
+  {
+    marker: "Every week",
+    title: "Consistency builds confidence.",
+    description:
+      "Regular sessions create trusted routines, meaningful relationships, and space for skills to develop.",
+  },
+  {
+    marker: "Across needs",
+    title: "The whole person is supported.",
+    description:
+      "Movement, nutrition, expression, wellbeing, family, and friendship are treated as connected parts of life.",
+  },
+  {
+    marker: "Through life",
+    title: "Support grows with the member.",
+    description:
+      "Our community stays alongside members and families as goals, abilities, and life stages change.",
+  },
+] as const;
+
+const QUICK_LINKS = [
+  { label: "Learn More", to: "/neuro-strengths", featured: false },
+  { label: "Story", to: "/story", featured: false },
+  { label: "Volunteer", to: "/volunteer", featured: false },
+  { label: "Donate", to: "/donate", featured: true },
+] as const;
+
+function Icon({ name, size = 24 }: { name: string; size?: number }) {
   const Comp = ICON_MAP[name];
-  if (!Comp) return <span className={className}>{name}</span>;
-  return <Comp className={className} size={size} strokeWidth={1.75} style={style} />;
+  return Comp ? <Comp size={size} strokeWidth={1.75} /> : null;
 }
-
-const TOPIC_STYLE: Record<string, React.CSSProperties> = {
-  "Down Syndrome": { background: "#fff0e5", color: "#984000" },
-  Autism: { background: "#e7f0ff", color: "#245a9a" },
-  Both: { background: "#e4f3f0", color: "#276f67" },
-};
 
 export function HomePage() {
   const { t } = useLanguage();
   const c = t.landingContent;
+
   return (
     <>
       <Hero c={c} />
-      <WhatWeDo c={c} />
-      <Impact c={c} />
-      <LearnSection c={c} />
-      <Quiz c={c} />
-      <CallToAction c={c} />
+      <Barriers />
+      <SupportMarquee />
+      <SupportModel c={c} />
+      <SupportDepth c={c} />
+      <QuickLinks />
+      <Link to="/help" className="landing-help-button">
+        <span className="landing-help-button-icon" aria-hidden="true">?</span>
+        <span>Need help?</span>
+      </Link>
     </>
   );
 }
 
-// ── Hero ─────────────────────────────────────────────────────────────────
-
 function Hero({ c }: { c: typeof import("../content/en").landingContent }) {
-  const [imgIdx, setImgIdx] = useState(0);
-  const images = c.hero.images;
-
-  useEffect(() => {
-    const t = setInterval(() => setImgIdx((i) => (i + 1) % images.length), 4000);
-    return () => clearInterval(t);
-  }, [images.length]);
+  const heroImage = c.hero.images[0];
 
   return (
-    <section className="landing-hero">
-      <div className="landing-hero-bg" aria-hidden="true">
-        {images.map((img, i) => (
-          <img key={img.src} src={img.src} alt="" className="landing-hero-img"
-            style={{ opacity: imgIdx === i ? 1 : 0 }} />
+    <section className="home-hero">
+      <img className="home-hero-image" src={heroImage.src} alt={heroImage.alt} />
+      <div className="home-hero-shade" aria-hidden="true" />
+      <div className="home-hero-orbits" aria-hidden="true">
+        <span />
+        <span />
+      </div>
+
+      <div className="shell home-hero-inner">
+        <p className="home-kicker home-kicker-light">{c.hero.tagline}</p>
+        <h1>
+          {c.hero.titleLine1}
+          <em>{c.hero.titleAccent}</em>
+        </h1>
+        <p className="home-hero-lede">{c.hero.subtitle}</p>
+        <div className="home-hero-actions">
+          <a href="#support-model" className="home-button home-button-yellow">
+            See our support model <ArrowDown size={18} aria-hidden="true" />
+          </a>
+          <Link to="/story" className="home-button home-button-ghost">
+            Our story <ArrowUpRight size={18} aria-hidden="true" />
+          </Link>
+        </div>
+        <aside className="home-hero-note" aria-label="Our promise">
+          <span>Our promise</span>
+          <strong>Whole-person support. Whole-family community.</strong>
+        </aside>
+      </div>
+
+      <div className="home-hero-stats" aria-label="Love 21 at a glance">
+        {c.hero.stats.map((stat) => (
+          <div key={stat.label}>
+            <strong>{stat.value}</strong>
+            <span>{stat.label}</span>
+          </div>
         ))}
-        <div className="landing-hero-overlay" />
-      </div>
-      <div className="landing-hero-content">
-        <p className="landing-hero-tagline">{c.hero.tagline}</p>
-        <h1>{c.hero.titleLine1}<br /><em>{c.hero.titleAccent}</em></h1>
-        <p className="landing-hero-lede">{c.hero.subtitle}</p>
-        <div className="landing-hero-ctas">
-          <a href="#community" className="landing-hero-cta-primary" data-cta="community-hero">{c.hero.ctaPrimary} ↓</a>
-          <Link to="/volunteer" className="landing-hero-cta-secondary" data-cta="volunteer-hero">{c.hero.ctaSecondary}</Link>
-        </div>
-        <div className="landing-hero-dots" role="tablist" aria-label="Hero images">
-          {images.map((img, i) => (
-            <button key={img.src} role="tab" aria-selected={imgIdx === i}
-              aria-label={`View image ${i + 1}`}
-              className={`landing-hero-dot ${imgIdx === i ? "active" : ""}`}
-              onClick={() => setImgIdx(i)} />
-          ))}
-        </div>
-        <div className="landing-hero-stats">
-          {c.hero.stats.map((s) => (
-            <div key={s.label} className="landing-hero-stat">
-              <strong>{s.value}</strong><span>{s.label}</span>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
 }
 
-// ── What We Do ───────────────────────────────────────────────────────────
-
-function WhatWeDo({ c }: { c: typeof import("../content/en").landingContent }) {
-  const [active, setActive] = useState(0);
-  const pillars = c.whatWeDo.pillars;
-  const p = pillars[active];
-
+function Barriers() {
   return (
-    <section id="community" className="landing-section">
+    <section className="home-reality">
       <div className="shell">
-        <p className="landing-eyebrow">{c.whatWeDo.eyebrow}</p>
-        <div className="landing-whatwedo-header">
-          <h2 className="landing-title" style={{ marginBottom: 0 }}>{c.whatWeDo.title}</h2>
-          <p className="landing-whatwedo-desc">{c.whatWeDo.description}</p>
-        </div>
-        <div className="landing-pillar-tabs" role="tablist" aria-label="Programme pillars">
-          {pillars.map((pillar, i) => (
-            <button key={pillar.id} role="tab" aria-selected={active === i}
-              className={`landing-pillar-tab ${active === i ? "active" : ""}`}
-              onClick={() => setActive(i)}>
-              <Icon name={pillar.icon} size={16} /> {pillar.title}
-            </button>
-          ))}
-        </div>
-        <div className="landing-pillar-detail">
-          <div className="landing-pillar-info">
-            <div className="landing-pillar-number" aria-hidden="true">
-              {String(active + 1).padStart(2, "0")}
-            </div>
-            <h3><Icon name={p.icon} size={22} style={{ marginRight: "0.5rem" }} />{p.title}</h3>
-            <p>{p.description}</p>
-            <Link to="/impact" className="landing-pillar-link">Learn more →</Link>
-          </div>
-          <div className="landing-pillar-image-wrap">
-            <img src={p.image} alt={p.title} />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── Learn (Autism + Down Syndrome, TOC) ─────────────────────────────────
-
-function LearnSection({ c }: { c: typeof import("../content/en").landingContent }) {
-  const [topic, setTopic] = useState<"autism" | "ds">("autism");
-  const [active, setActive] = useState(0);
-  const isAutism = topic === "autism";
-  const facts = (isAutism ? c.autismSection.facts : c.dsSection.facts) as (AutismFact | DSFact)[];
-  const f = facts[active];
-  const accentBg = (a: Accent): string =>
-    `rgb(${a === "red" ? "233 0 63" : a === "blue" ? "20 85 192" : a === "teal" ? "73 169 157" : "244 119 33"})`;
-
-  const selectTopic = (t: "autism" | "ds") => {
-    if (t !== topic) {
-      setTopic(t);
-      setActive(0);
-    }
-  };
-
-  const topicName = isAutism ? "Autism" : "Down syndrome";
-
-  return (
-    <section id="learn" className="landing-section landing-section-alt">
-      <div className="shell">
-        <p className="landing-eyebrow">{c.learn.eyebrow}</p>
-        <h2 className="landing-title">{c.learn.title}</h2>
-        <p className="landing-desc">{c.learn.description}</p>
-
-        <div className="landing-learn-toc" role="tablist" aria-label="Choose a topic">
-          {c.learn.topics.map((t) => (
-            <button key={t.id} role="tab" aria-selected={topic === t.id}
-              className={`landing-learn-toc-btn ${topic === t.id ? "active" : ""}`}
-              onClick={() => selectTopic(t.id)}>
-              <Icon name={t.icon} size={20} />
-              <span>{t.title}</span>
-            </button>
-          ))}
+        <div className="home-section-intro">
+          <p className="home-kicker">The reality</p>
+          <h2>Potential is everywhere. Support is not.</h2>
+          <p>
+            People with Down syndrome and autism have strengths, ambitions, and full lives.
+            The challenge is finding support that sees the whole person and stays for the
+            long term.
+          </p>
         </div>
 
-        <p className="landing-desc" style={{ marginTop: "2rem" }}>
-          {isAutism ? c.autismSection.description : c.dsSection.description}
-        </p>
-
-        <div className="landing-fact-cards" role="tablist" aria-label={`${topicName} facts`}>
-          {facts.map((fact, i) => (
-            <button key={fact.title} role="tab" aria-selected={active === i}
-              className={`landing-fact-card ${active === i ? "active" : ""}`}
-              style={active === i ? { borderColor: `var(--${fact.accent})`, background: `${accentBg(fact.accent)} / 12%)` } : undefined}
-              onClick={() => setActive(i)}>
-              <div className="fact-icon" aria-hidden="true"><Icon name={fact.icon} size={32} /></div>
-              <div className="fact-title">{fact.title}</div>
-              <div className="fact-short">{fact.short}</div>
-              {active === i && <div className="fact-dot" style={{ background: `var(--${fact.accent})` }} aria-hidden="true" />}
-            </button>
-          ))}
-        </div>
-
-        <div className="landing-fact-detail">
-          <div className="landing-fact-body">
-            <div className="fact-icon" aria-hidden="true"><Icon name={f.icon} size={32} /></div>
-            <h3>{f.title}</h3>
-            <p className="fact-accent" style={{ color: `var(--${f.accent})` }}>{f.short}</p>
-            <p className="fact-desc">{f.detail}</p>
-            {isAutism && (f as AutismFact).note && (
-              <p className="fact-note" style={{ background: `${accentBg(f.accent)} / 8%)`, border: `1px solid ${accentBg(f.accent)} / 12%)` }}>
-                {(f as AutismFact).note}
-              </p>
-            )}
-          </div>
-          <div className="landing-fact-stats" style={{ background: `${accentBg(f.accent)} / 4%)`, borderLeftColor: `${accentBg(f.accent)} / 12%)` }}>
-            {isAutism ? (
-              <>
-                <p className="landing-fact-stats-label">Key Facts</p>
-                {(f as AutismFact).stats.map((stat) => (
-                  <div key={stat.label} className="landing-fact-stat">
-                    <div className="stat-label">{stat.label}</div>
-                    <div className="stat-value">{stat.value}</div>
-                  </div>
-                ))}
-              </>
-            ) : (
-              <>
-                <p className="landing-fact-stats-label">Key Points</p>
-                <ol className="landing-ds-stats">
-                  {(f as DSFact).stats.map((stat, j) => (
-                    <li key={stat} className="landing-ds-stat">
-                      <span className="ds-stat-num" style={{ background: `var(--${f.accent})`, color: f.accent === "yellow" ? "var(--ink)" : "white" }}>
-                        {j + 1}
-                      </span>
-                      <span>{stat}</span>
-                    </li>
-                  ))}
-                </ol>
-              </>
-            )}
-          </div>
-        </div>
-
-        {isAutism ? (
-          <div className="landing-myth-bust">
-            <span className="myth-icon" aria-hidden="true"><Icon name="Ban" size={22} /></span>
-            <div><strong>{c.autismSection.mythBust.title}</strong>
-              <p>{c.autismSection.mythBust.body}</p></div>
-          </div>
-        ) : (
-          <div className="landing-why21">
-            <div className="why21-number" aria-hidden="true">21</div>
-            <h3>{c.dsSection.why21.title}</h3>
-            <p>{c.dsSection.why21.body}</p>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// ── Quiz ─────────────────────────────────────────────────────────────────
-
-function Quiz({ c }: { c: typeof import("../content/en").landingContent }) {
-  const [qi, setQi] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
-  const [answered, setAnswered] = useState(false);
-  const questions = c.quiz.questions;
-  const q = questions[qi];
-
-  const choose = useCallback((i: number) => {
-    if (answered) return;
-    setSelected(i); setAnswered(true);
-    if (i === q.answer) setScore((s) => s + 1);
-  }, [answered, q.answer]);
-
-  const next = useCallback(() => {
-    if (qi < questions.length - 1) { setQi((p) => p + 1); setSelected(null); setAnswered(false); }
-    else setDone(true);
-  }, [qi, questions.length]);
-
-  const restart = useCallback(() => {
-    setQi(0); setSelected(null); setScore(0); setDone(false); setAnswered(false);
-  }, []);
-
-  const result = c.quiz.results.find((r) => score >= r.threshold) ?? c.quiz.results[c.quiz.results.length - 1];
-
-  return (
-    <section id="quiz" className="landing-section landing-section-soft">
-      <div className="shell">
-        <p className="landing-eyebrow">{c.quiz.eyebrow}</p>
-        <h2 className="landing-title">{c.quiz.title}</h2>
-        <p className="landing-desc">{c.quiz.description}</p>
-        <div className="landing-quiz">
-          <div className="landing-quiz-card">
-            {done ? (
-              <div className="landing-quiz-result">
-                <div className="result-score" aria-hidden="true">{score}/{questions.length}</div>
-                <p className="result-title"><Icon name={result.icon} size={28} style={{ marginRight: "0.4rem", verticalAlign: "middle" }} />{result.title}</p>
-                <p className="result-msg">{result.message}</p>
-                <div className="landing-quiz-result-ctas">
-                  <Link to="/volunteer" className="landing-cta-btn landing-cta-btn-teal landing-cta-inline">Volunteer With Us</Link>
-                  <Link to="/donate" className="landing-cta-btn landing-cta-btn-red landing-cta-inline">Make a Donation</Link>
-                </div>
-                <button type="button" className="landing-quiz-retry" onClick={restart}>Try Again</button>
-              </div>
-            ) : (
-              <>
-                <div
-                  className="landing-quiz-progress"
-                  role="progressbar"
-                  aria-label="Quiz progress"
-                  aria-valuemin={1}
-                  aria-valuemax={questions.length}
-                  aria-valuenow={qi + 1}
-                  aria-valuetext={`Question ${qi + 1} of ${questions.length}`}
-                >
-                  {questions.map((_, i) => {
-                    let cls = ""; if (i < qi) cls = "done"; else if (i === qi) cls = "current";
-                    return <div key={i} className={`landing-quiz-bar ${cls}`} />;
-                  })}
-                </div>
-                <div className="landing-quiz-meta">
-                  <span className="landing-quiz-num">Q{qi + 1} of {questions.length}</span>
-                  <span className="landing-quiz-topic"
-                    style={TOPIC_STYLE[q.topic] ?? TOPIC_STYLE["Down Syndrome"]}>
-                    {q.topic}
-                  </span>
-                </div>
-                <p className="landing-quiz-question">{q.question}</p>
-                <div className="landing-quiz-options">
-                  {q.options.map((opt, i) => {
-                    let cls = "";
-                    if (answered && i === q.answer) cls = "correct";
-                    else if (answered && i === selected && i !== q.answer) cls = "wrong";
-                    return (
-                      <button key={opt} type="button" className={`landing-quiz-option ${cls}`}
-                        onClick={() => choose(i)} disabled={answered}>
-                        <span className="opt-letter" aria-hidden="true">{String.fromCharCode(65 + i)}</span>
-                        <span>{opt}</span>
-                        {answered && i === q.answer && <span style={{ marginLeft: "auto", color: "var(--teal)" }} aria-label="Correct">✓</span>}
-                      </button>
-                    );
-                  })}
-                </div>
-                {answered && (
-                  <div className="landing-quiz-fact">
-                    <p className="landing-quiz-fact-label"><Icon name="Lightbulb" size={14} style={{ marginRight: "0.35rem" }} />Did You Know?</p>
-                    <p>{q.fact}</p>
-                  </div>
-                )}
-                <div className="landing-quiz-nav">
-                  <span className="landing-quiz-score">Score: <strong>{score}</strong></span>
-                  {answered && (
-                    <button type="button" className="landing-quiz-next" onClick={next}>
-                      {qi < questions.length - 1 ? "Next Question →" : "See My Results"}
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── Impact ───────────────────────────────────────────────────────────────
-
-function Impact({ c }: { c: typeof import("../content/en").landingContent }) {
-  return (
-    <section className="landing-section landing-section-warm">
-      <div className="shell">
-        <p className="landing-eyebrow">{c.impact.eyebrow}</p>
-        <h2 className="landing-title">{c.impact.title}</h2>
-        <div className="landing-impact-grid">
-          {c.impact.stats.map((s) => (
-            <article key={s.label} className="landing-impact-card">
-              <span className="impact-icon" aria-hidden="true"><Icon name={s.icon} size={36} /></span>
-              <strong>{s.value}</strong><span>{s.label}</span>
+        <div className="home-barrier-grid">
+          {BARRIERS.map((barrier) => (
+            <article key={barrier.number} className="home-barrier-card">
+              <span className="home-card-number" aria-hidden="true">{barrier.number}</span>
+              <h3>{barrier.title}</h3>
+              <p>{barrier.description}</p>
             </article>
           ))}
         </div>
-        <div className="landing-mission">
-          <div className="landing-mission-copy">
-            <p className="landing-eyebrow" style={{ marginBottom: "1.25rem" }}>{c.impact.mission.eyebrow}</p>
-            <h3>{c.impact.mission.title}</h3>
-            <p>{c.impact.mission.description}</p>
-            <div className="landing-mission-grid">
-              {c.impact.mission.pillars.map((mp) => (
-                <div key={mp.title} className="landing-mission-pillar">
-                  <span className="mp-icon" aria-hidden="true"><Icon name={mp.icon} size={18} /></span>
-                  <strong>{mp.title}</strong><span>{mp.description}</span>
-                </div>
-              ))}
-            </div>
+      </div>
+    </section>
+  );
+}
+
+function SupportMarquee() {
+  return (
+    <div className="home-marquee" aria-hidden="true">
+      <div>
+        <span>Move</span><b>•</b><span>Nourish</span><b>•</b><span>Express</span><b>•</b><span>Belong</span><b>•</b><span>Grow</span><b>•</b>
+        <span>Move</span><b>•</b><span>Nourish</span><b>•</b><span>Express</span><b>•</b><span>Belong</span><b>•</b><span>Grow</span><b>•</b>
+      </div>
+    </div>
+  );
+}
+
+function SupportModel({ c }: { c: typeof import("../content/en").landingContent }) {
+  return (
+    <section id="support-model" className="home-support">
+      <div className="shell">
+        <div className="home-support-heading">
+          <div>
+            <p className="home-kicker home-kicker-light">The Love 21 model</p>
+            <h2>One community. Five connected layers of support.</h2>
           </div>
-          <div className="landing-mission-image">
-            <img src="/images/community-performance.jpg" alt="Love 21 community performance" />
-          </div>
+          <p>
+            We do more than run activities. We build a connected support system around
+            each member and the family beside them.
+          </p>
+        </div>
+
+        <div className="home-support-centre">
+          <span>Always at the centre</span>
+          <strong>Member + family</strong>
+        </div>
+
+        <div className="home-service-grid">
+          {c.whatWeDo.pillars.map((service, index) => (
+            <article key={service.id} className="home-service-card">
+              <div className="home-service-image-wrap">
+                <img src={service.image} alt="" />
+                <span className="home-service-index" aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </div>
+              <div className="home-service-copy">
+                <span className="home-service-icon" aria-hidden="true">
+                  <Icon name={service.icon} size={24} />
+                </span>
+                <h3>{service.title}</h3>
+                <p>{service.description}</p>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-// ── Call to Action ───────────────────────────────────────────────────────
-
-function CallToAction({ c }: { c: typeof import("../content/en").landingContent }) {
+function SupportDepth({ c }: { c: typeof import("../content/en").landingContent }) {
   return (
-    <section className="landing-section landing-section-alt">
-      <div className="shell">
-        <div className="landing-cta-header">
-          <p className="landing-eyebrow">{c.cta.eyebrow}</p>
-          <h2 className="landing-title">{c.cta.title}</h2>
-          <p className="landing-desc">{c.cta.description}</p>
-        </div>
-        <div className="landing-cta-grid">
-          <article className="landing-cta-card">
-            <div className="landing-cta-card-image">
-              <img src="/images/sports-session.jpg" alt="Volunteering with Love 21 Foundation" />
-            </div>
-            <div className="landing-cta-card-body">
-              <span className="cta-icon" aria-hidden="true"><Icon name={c.cta.volunteer.icon} size={32} /></span>
-              <h3>{c.cta.volunteer.title}</h3>
-              <p>{c.cta.volunteer.description}</p>
-              <ul className="landing-cta-roles">
-                {c.cta.volunteer.roles.map((role) => <li key={role}>{role}</li>)}
-              </ul>
-              <Link to={c.cta.volunteer.route} className="landing-cta-btn landing-cta-btn-teal" data-cta="volunteer-cta">
-                {c.cta.volunteer.cta} →
-              </Link>
-            </div>
-          </article>
-          <article className="landing-cta-card">
-            <div className="landing-cta-card-image">
-              <img src="/images/crystal-performing.jpg" alt="Supporting Love 21 Foundation" />
-            </div>
-            <div className="landing-cta-card-body">
-              <span className="cta-icon" aria-hidden="true"><Icon name={c.cta.donate.icon} size={32} /></span>
-              <h3>{c.cta.donate.title}</h3>
-              <p>{c.cta.donate.description}</p>
-              <div className="landing-cta-amounts">
-                {c.cta.donate.amounts.map((amt) => (
-                  <Link key={amt} to={c.cta.donate.route} className="landing-cta-amount">{amt}</Link>
-                ))}
+    <section className="home-depth">
+      <div className="home-depth-image">
+        <img src="/images/community-performance.jpg" alt="Love 21 members performing together" />
+      </div>
+
+      <div className="home-depth-content">
+        <p className="home-kicker">What depth looks like</p>
+        <h2>Weekly. Connected. Long-term.</h2>
+        <p className="home-depth-lede">{c.impact.mission.description}</p>
+
+        <div className="home-depth-list">
+          {SUPPORT_DEPTH.map((item) => (
+            <article key={item.marker}>
+              <span>{item.marker}</span>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
               </div>
-              <Link to={c.cta.donate.route} className="landing-cta-btn landing-cta-btn-red" data-cta="donate-cta">
-                {c.cta.donate.cta} →
-              </Link>
-            </div>
-          </article>
+            </article>
+          ))}
         </div>
-        <div className="landing-cta-tertiary">
-          <p>{c.cta.tertiary.text}</p>
-          <a href={c.cta.tertiary.href} target="_blank" rel="noopener noreferrer">
-            {c.cta.tertiary.label} →
-          </a>
-        </div>
+
+        <Link to="/story" className="home-text-link">
+          See Love 21 in action <ArrowUpRight size={18} aria-hidden="true" />
+        </Link>
       </div>
     </section>
+  );
+}
+
+function QuickLinks() {
+  return (
+    <nav className="landing-quick-links" aria-label="Explore Love 21">
+      <div className="shell landing-quick-links-grid">
+        {QUICK_LINKS.map((link) => (
+          <Link
+            key={link.to}
+            to={link.to}
+            className={`landing-quick-link${link.featured ? " landing-quick-link-featured" : ""}`}
+          >
+            <span>{link.label}</span>
+            <span aria-hidden="true">→</span>
+          </Link>
+        ))}
+      </div>
+    </nav>
   );
 }

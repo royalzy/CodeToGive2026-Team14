@@ -192,8 +192,8 @@ function Footer() {
         <div>
           <p className="footer-heading">Prototype note</p>
           <p>
-            This hackathon experience does not store personal information or
-            process real donations.
+            This hackathon experience stores demo donor profiles securely but
+            does not process real donations.
           </p>
         </div>
         <div>
@@ -227,17 +227,17 @@ function Footer() {
 
 function SupporterQuickActions({ pathname }: { pathname: string }) {
   const { lang } = useLanguage();
-  if (pathname !== "/community" && pathname !== "/donate") return null;
+  if (pathname !== "/supporter" && pathname !== "/donate") return null;
 
   return (
     <aside className={`supporter-quick-actions supporter-quick-actions-${pathname.slice(1)}`} aria-label="Supporter quick actions">
-      {pathname === "/community" ? (
+      {pathname === "/supporter" ? (
         <Link className="supporter-quick-action supporter-quick-action-primary" to="/donate">
           {lang === "zh" ? "立即捐款" : "Make a donation"}
         </Link>
       ) : (
-        <Link className="supporter-quick-action supporter-quick-action-primary" to="/community">
-          {lang === "zh" ? "支持者社群" : "Our community"}
+        <Link className="supporter-quick-action supporter-quick-action-primary" to="/supporter">
+          {lang === "zh" ? "支持者" : "Supporters"}
         </Link>
       )}
       <Link className="supporter-quick-action" to="/donor-profile">

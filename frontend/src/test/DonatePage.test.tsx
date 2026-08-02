@@ -81,6 +81,29 @@ function installApiMock({
 } = {}) {
   return vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
     const url = String(input);
+    if (url.endsWith("/donor-profiles")) {
+      return jsonResponse({
+        profile: {
+          id: "DNR-TEST",
+          email: "private@example.com",
+          nickname: "Alex Private",
+          name: "Alex Private",
+          consent_to_updates: false,
+          created_at: "2026-08-02T02:00:00+00:00",
+        },
+      }, 201);
+    }
+    if (url.includes("/wall-posts")) {
+      const wallPayload = JSON.parse(String(init?.body)) as { message: string | null };
+      return jsonResponse({
+        id: "WALL-TEST",
+        donation_intent_id: "DON-FINAL123",
+        nickname: "Alex Private",
+        message: wallPayload.message,
+        status: "pending",
+        created_at: "2026-08-02T02:05:00+00:00",
+      }, 201);
+    }
     if (url.endsWith("/donation-impact/options")) {
       return failOptions
         ? jsonResponse({ detail: "unavailable" }, 503)

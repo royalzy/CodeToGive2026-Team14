@@ -9,6 +9,25 @@
  * of specificity — utilities silently lose against them.
  */
 
+/* The theme pads the hero twice — `.page-hero` and `.page-hero-inner` — so the
+ * banner is far taller than its text needs. Trimmed here to match /help and
+ * /media; the duplicate padding still affects every other page. */
+.admin-hero .page-hero {
+  padding-block: clamp(3rem, 6vw, 5.5rem);
+}
+
+.admin-hero .page-hero-inner {
+  padding-block: 0;
+}
+
+/* Entry point to the Media page's delete controls. */
+.admin-manage-link {
+  max-width: 48rem;
+  margin: 1.25rem auto 0;
+  font-size: 0.9rem;
+  text-align: right;
+}
+
 /* --- Section heading ---------------------------------------------------- */
 
 /* `.section-heading` caps itself at 760px and `.section-heading > p:last-child`
@@ -44,4 +63,259 @@
   border-color: var(--blue);
   outline: 3px solid rgb(20 85 192 / 20%);
   outline-offset: 0;
+}
+
+/* --- Scheduled posts ------------------------------------------------------ */
+
+.pending-posts {
+  max-width: 48rem;
+  margin: 2rem auto 0;
+  padding: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.pending-posts h3 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.pending-posts ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pending-row + .pending-row {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgb(23 49 59 / 8%);
+}
+
+.pending-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pending-toggle {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.pending-when {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pending-overdue {
+  color: var(--red);
+  font-style: normal;
+}
+
+.pending-preview {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pending-platforms {
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.pending-detail {
+  padding: 0.75rem 0 0.5rem 1.5rem;
+}
+
+.pending-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pending-thumbs img {
+  width: 72px;
+  height: 72px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.pending-captions {
+  margin: 0.75rem 0 0;
+}
+
+.pending-captions div {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.pending-captions dt {
+  min-width: 5.5rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.pending-captions dd {
+  margin: 0;
+}
+
+.pending-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.pending-publish,
+.pending-delete {
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.pending-publish {
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: white;
+}
+
+.pending-delete {
+  border: 1px solid var(--red);
+  background: none;
+  color: var(--red);
+}
+
+.pending-publish:disabled,
+.pending-delete:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.pending-notice,
+.pending-empty {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.pending-error {
+  color: var(--red);
+  font-size: 0.9rem;
+}
+
+/* --- Posting activity ----------------------------------------------------- */
+
+.post-analytics-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.post-analytics-card {
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.post-analytics-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.post-analytics-total {
+  display: block;
+  margin: 0.25rem 0;
+  font-size: 2.4rem;
+  line-height: 1.1;
+}
+
+.post-analytics-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.post-analytics-change.is-up {
+  color: #1f7a5a;
+}
+
+.post-analytics-change.is-down {
+  color: var(--red);
+}
+
+/* No previous-period baseline to compare against. */
+.post-analytics-change.is-flat {
+  color: var(--muted);
+}
+
+.post-analytics-period {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.post-analytics-breakdown {
+  margin: 1rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgb(23 49 59 / 8%);
+}
+
+.post-analytics-breakdown div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+}
+
+.post-analytics-breakdown div + div {
+  margin-top: 0.2rem;
+}
+
+.post-analytics-breakdown dt {
+  color: var(--muted);
+}
+
+.post-analytics-breakdown dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+
+.pending-auto,
+.pending-manual {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.pending-auto {
+  background: rgb(31 122 90 / 12%);
+  color: #1f7a5a;
+}
+
+.pending-manual {
+  background: rgb(23 49 59 / 8%);
+  color: var(--muted);
 }

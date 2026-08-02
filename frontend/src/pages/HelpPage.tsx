@@ -83,7 +83,7 @@ export function HelpPage() {
                   In a live service, the Love 21 team would contact you within
                   two working days to arrange a conversation.
                 </p>
-                <Link className="button button-dark" to="/impact">
+                <Link className="button button-dark" to="/story">
                   Explore our programmes
                 </Link>
               </StatusPanel>

@@ -27,12 +27,13 @@ import type {
 } from "./types";
 
 export const navigation = [
-  { label: "影響力", href: "/impact" },
-  { label: "支持者社群", href: "/community" },
+  { label: "故事", href: "/story" },
   { label: "義工服務", href: "/volunteer" },
   { label: "捐款", href: "/donate" },
+  { label: "支持者", href: "/supporter" },
   { label: "支援", href: "/help" },
   { label: "了解更多", href: "/neuro-strengths" },
+  { label: "媒體", href: "/media" },
 ];
 
 export const personas = [
@@ -303,11 +304,31 @@ export const supportPathways: SupportPathway[] = [
     id: "programmes",
     title: "探索我們的活動",
     body: "了解我們在運動、舞蹈及營養方面的健康活動。",
-    href: "/impact",
+    href: "/story",
     actionLabel: "看看有甚麼活動",
     audienceTags: ["self", "carer", "exploring", "professional", "unspecified"],
     needTags: ["activities", "practical", "community"],
     startTags: ["group", "action", "read"],
+  },
+  {
+    id: "learn",
+    title: "認識神經多樣性",
+    body: "以簡明語言講解神經多樣性的運作方式，先看見優勢，而非缺損。",
+    href: "/neuro-strengths",
+    actionLabel: "開始了解",
+    audienceTags: ["self", "carer", "professional", "exploring", "unspecified"],
+    needTags: ["practical", "discrimination", "unsure"],
+    startTags: ["read"],
+  },
+  {
+    id: "community",
+    title: "看看你身邊的社群",
+    body: "1,284 位支持者及 10 間夥伴機構一直支持這項工作，也支持你。",
+    href: "/supporter",
+    actionLabel: "認識社群",
+    audienceTags: ["self", "carer", "exploring", "unspecified"],
+    needTags: ["community", "unsure"],
+    startTags: ["group"],
   },
   {
     id: "volunteer",

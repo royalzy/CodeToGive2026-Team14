@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -26,9 +26,9 @@ afterEach(() => {
 
 describe("route backbone", () => {
   it.each([
-    ["/", "Every Life is", 1],
-    ["/impact", "Crystal steps forward.", 1],
-    ["/community", "People making this possible.", 1],
+    ["/", "Love 21 builds fuller lives around every ability.", 1],
+    ["/story", "Crystal steps forward.", 1],
+    ["/supporter", "People making this possible.", 1],
     ["/volunteer", "Volunteer with Love 21", 1],
     ["/donate", "received", 1],
     ["/donor-profile", "Your impact, kept honest.", 1],
@@ -56,25 +56,74 @@ describe("route backbone", () => {
       ).toBeInTheDocument();
     },
   );
+
+  it("places Supporter immediately after Donate in the toolbar", () => {
+    renderRoute("/");
+
+    const toolbar = screen.getByRole("navigation", { name: "Main navigation" });
+    const labels = within(toolbar)
+      .getAllByRole("link")
+      .map((link) => link.textContent);
+
+    expect(labels.slice(0, 4)).toEqual(["Story", "Volunteer", "Donate", "Supporter"]);
+  });
+
+  it("links from donation transparency to the Supporter page", () => {
+    renderRoute("/donate");
+
+    expect(
+      screen.getByRole("link", { name: "Meet our supporters →" }),
+    ).toHaveAttribute("href", "/supporter");
+  });
 });
 
 describe("impact story", () => {
-  it("keeps Crystal and Love 21 support together while retaining service data", () => {
-    renderRoute("/impact");
+  it("tells Crystal's journey as a continuous story with a motivating next step", () => {
+    renderRoute("/story");
 
-    expect(screen.getByText("She worked through the movement.")).toBeInTheDocument();
-    expect(screen.getByText("Structured sessions, hands-on support.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "No spotlight. Just somewhere to begin." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Confidence found a rhythm." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /following the warm-up began leading it/i })).toBeInTheDocument();
+    expect(screen.getByText("500+")).toBeInTheDocument();
+    expect(screen.getByText("20")).toBeInTheDocument();
+    const volunteerAction = screen
+      .getAllByRole("link", { name: /^Volunteer/i })
+      .find((link) => link.classList.contains("impact-story-closing-primary"));
+    const donateAction = screen
+      .getAllByRole("link", { name: /^Donate/i })
+      .find((link) => link.classList.contains("impact-story-closing-secondary"));
+    expect(volunteerAction).toHaveAttribute("href", "/volunteer");
+    expect(donateAction).toHaveAttribute("href", "/donate");
+  });
+});
+
+describe("learn more story invitation", () => {
+  it("invites visitors to continue to Crystal's real story", () => {
+    renderRoute("/neuro-strengths");
+
     expect(
-      screen.getByText(/90\+ activity types and 500\+ volunteer hours/i),
+      screen.getByRole("heading", { name: "See what possibility looks like in motion." }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Wider service" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /read crystal's story/i })).toHaveAttribute(
+      "href",
+      "/story",
+    );
   });
 });
 
 describe("donor community experience", () => {
-  it("centres participation and keeps a new wall message private while moderated", () => {
-    renderRoute("/community");
+  it("centres participation and keeps a new wall message private while moderated", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify([{
+        id: "WALL-PRIVATE",
+        donation_intent_id: "DON-PRIVATE",
+        nickname: "Private Donor",
+        message: "Only I can see this preview.",
+        status: "pending",
+        created_at: "2026-08-02T02:05:00+00:00",
+      }]), { status: 200, headers: { "Content-Type": "application/json" } }),
+    );
+    renderRoute("/supporter");
 
     expect(screen.getAllByText("1,284").length).toBeGreaterThan(0);
     expect(screen.getByText("People making this possible")).toBeInTheDocument();
@@ -82,7 +131,8 @@ describe("donor community experience", () => {
     expect(screen.queryByText(/Every circle represents a person/i)).not.toBeInTheDocument();
     expect(screen.queryByText("No amounts. No rankings. Every circle is equal.")).not.toBeInTheDocument();
     expect(screen.getByText(/I hope every child feels seen/i)).toBeInTheDocument();
-    expect(screen.getByText(/Visible only to you · awaiting review/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Visible only to you · awaiting review/i)).toBeInTheDocument();
+    expect(screen.getByText(/Only I can see this preview/i)).toBeInTheDocument();
     expect(screen.queryByText(/Loading new supporters/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/No public messages yet/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "My donor profile" })).toHaveAttribute(
@@ -93,15 +143,75 @@ describe("donor community experience", () => {
 
   it("reveals the private, evidence-backed donor record after demo sign in", async () => {
     const user = userEvent.setup();
+    let profileRequests = 0;
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith("/donor-sessions")) {
+        return new Response(JSON.stringify({ profile: {
+          id: "DNR-PROFILE",
+          email: "supporter@example.com",
+          nickname: "阿木",
+          name: "阿木",
+          consent_to_updates: false,
+          created_at: "2026-08-02T01:00:00+00:00",
+        } }), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
+      if (url.endsWith("/donor-profiles/me")) {
+        profileRequests += 1;
+        if (profileRequests === 1) {
+          return new Response(JSON.stringify({ detail: "Sign in" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        return new Response(JSON.stringify({
+          profile: {
+            id: "DNR-PROFILE",
+            email: "supporter@example.com",
+            nickname: "阿木",
+            name: "阿木",
+            consent_to_updates: false,
+            created_at: "2026-08-02T01:00:00+00:00",
+          },
+          lifetime_amount_hkd: 600,
+          donation_count: 1,
+          donations: [{
+            donation_intent_id: "DON-TODAY",
+            cause_id: "dance",
+            amount_hkd: 600,
+            currency: "HKD",
+            status: "simulated",
+            created_at: "2026-08-02T02:00:00+00:00",
+            impact: {
+              cause_id: "dance",
+              amount_hkd: 600,
+              mode: "counted",
+              copy_key: "dance",
+              estimated_units: 4,
+              unit_key: "dance_training_session",
+              is_estimate: true,
+            },
+          }],
+        }), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
     renderRoute("/donor-profile");
 
+    await waitFor(() => expect(
+      screen.getByRole("button", { name: "View my profile" }),
+    ).toBeEnabled());
     await user.type(screen.getByLabelText("Email"), "supporter@example.com");
     await user.type(screen.getByLabelText("Password"), "private-demo");
     await user.click(screen.getByRole("button", { name: "View my profile" }));
 
     expect(screen.getByRole("heading", { name: "阿木", level: 1 })).toBeInTheDocument();
-    expect(screen.getByText("HK$2,400")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Your impact timeline" })).toBeInTheDocument();
+    expect(screen.getAllByText("HK$600").length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: "Your donation timeline" })).toBeInTheDocument();
+    expect(screen.getByText(/DON-TODAY/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Expected programme work" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "What access may require" })).toBeVisible();
+    expect(screen.getByText(/Next programme cycle/i)).toBeVisible();
     expect(screen.queryByText(/Only you can see this/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Message awaiting review/i)).not.toBeInTheDocument();
   });

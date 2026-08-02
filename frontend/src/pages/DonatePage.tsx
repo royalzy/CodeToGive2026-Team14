@@ -3,10 +3,14 @@ import { Link } from "react-router-dom";
 import { z } from "zod";
 
 import {
+  ApiError,
+  createDonorProfile,
+  createDonorSession,
   createDonationIntent,
   getDonationImpactOptions,
   previewDonationImpact,
   type CauseId,
+  type DonorSummary,
   type DonationIntentResult,
   type ImpactPreview,
 } from "../api/client";
@@ -172,6 +176,10 @@ export function DonatePage() {
   const [result, setResult] = useState<DonationIntentResult | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [authenticatedDonor, setAuthenticatedDonor] =
+    useState<DonorSummary | null>(null);
   const [photoStackOrder, setPhotoStackOrder] = useState<string[]>(
     transparencyPhotos.map((photo) => photo.id),
   );
@@ -192,7 +200,7 @@ export function DonatePage() {
     [preview],
   );
   const donorDisplayName =
-    details.donorNickname.trim() || details.donorName.trim();
+    authenticatedDonor?.nickname || details.donorNickname.trim() || details.donorName.trim();
 
   useEffect(() => {
     if (!pageViewTracked.current) {
@@ -310,6 +318,7 @@ export function DonatePage() {
     });
   }
 
+  async function continueToReview() {
   function continueToDetails() {
     if (!isValidAmount(amountHkd)) {
       setAmountError(
@@ -318,6 +327,47 @@ export function DonatePage() {
       return;
     }
     setAmountError(undefined);
+    const errors = authenticatedDonor && !details.anonymous
+      ? {}
+      : validateDetails(details);
+    setDetailsErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+    setProfileError(null);
+
+    if (!details.anonymous && authenticatedDonor === null) {
+      setIsAuthenticating(true);
+      try {
+        const authResult = details.profileMode === "new"
+          ? await createDonorProfile({
+              email: details.donorEmail.trim(),
+              password: details.donorPassword,
+              nickname: details.donorNickname.trim(),
+              name: details.donorName.trim() || null,
+              consent_to_updates: details.consentToUpdates,
+            })
+          : await createDonorSession({
+              email: details.donorEmail.trim(),
+              password: details.donorPassword,
+            });
+        setAuthenticatedDonor(authResult.profile);
+        setDetails((current) => ({ ...current, donorPassword: "" }));
+      } catch (error) {
+        if (error instanceof ApiError && error.code === "email_taken") {
+          setDetailsErrors({ donorEmail: error.message });
+        } else if (error instanceof ApiError && error.code === "nickname_taken") {
+          setDetailsErrors({ donorNickname: error.message });
+        } else {
+          setProfileError(
+            error instanceof Error
+              ? error.message
+              : "We could not open your donor profile. Please try again.",
+          );
+        }
+        return;
+      } finally {
+        setIsAuthenticating(false);
+      }
+    }
     if (!detailsStartedTracked.current) {
       detailsStartedTracked.current = true;
       trackDonationEvent("donation_details_started", {
@@ -350,9 +400,6 @@ export function DonatePage() {
         cause_id: causeId,
         amount_hkd: amountHkd,
         anonymous: details.anonymous,
-        donor_name: details.anonymous ? null : donorDisplayName || null,
-        donor_email: details.anonymous ? null : details.donorEmail.trim() || null,
-        consent_to_updates: details.anonymous ? false : details.consentToUpdates,
       });
       setResult(nextResult);
       setDetails((current) => ({ ...current, donorPassword: "" }));
@@ -399,6 +446,24 @@ export function DonatePage() {
     <div className="donate-a-page">
       <div className="donate-a-content">
         <div className="donate-a-main">
+          <article className="donate-a-transparency" aria-labelledby="donation-transparency-title">
+            <p className="donor-community-eyebrow">Jan–Jun 2026 · independently reviewed</p>
+            <h1 id="donation-transparency-title">HK$3.28m received.<br />HK$2.91m put to work.</h1>
+            <p>The remaining HK$370k is committed to programmes already scheduled for August–October.</p>
+            <div className="donate-a-allocation">
+              {transparencyRows.map((item) => (
+                <div className="donate-a-allocation-row" key={item.label}>
+                  <div><strong>{item.label}</strong><strong>{item.percentage}%</strong></div>
+                  <i aria-hidden="true"><b style={{ width: `${item.percentage}%` }} /></i>
+                  <p>{item.detail}</p>
+                </div>
+              ))}
+            </div>
+            <div className="donate-a-evidence"><strong>Evidence, not estimates:</strong> attendance logs, coach records and 90-day employment follow-ups support these figures.</div>
+            <Link className="donor-community-button donor-community-button-primary donate-a-supporter-link" to="/supporter">
+              Meet our supporters →
+            </Link>
+          </article>
           <div className="donate-a-top-row">
             <article className="donate-a-transparency" aria-labelledby="donation-transparency-title">
               <p className="donor-community-eyebrow">Jan–Jun 2026 · independently reviewed</p>
@@ -483,7 +548,7 @@ export function DonatePage() {
             </div>
 
             <div className="simulation-banner" role="note">
-              Hackathon simulation — no payment is taken and no personal information is stored.
+              Hackathon simulation — no payment is taken. Donor profiles and their demo donation records are stored in the local service.
             </div>
 
             {optionsNotice && <div className="form-alert form-notice" role="status">{optionsNotice}</div>}
@@ -494,6 +559,37 @@ export function DonatePage() {
                   <p>Step 1 of 4</p>
                   <h2 id="donation-flow-title">How would you like to give?</h2>
                 </div>
+                <DonorDetailsForm
+                  value={details}
+                  errors={detailsErrors}
+                  onChange={(nextDetails) => {
+                    setDetails(nextDetails);
+                    setDetailsErrors({});
+                  }}
+                />
+                {authenticatedDonor && !details.anonymous && (
+                  <div className="anonymous-confirmation" role="status">
+                    Signed in as <strong>{authenticatedDonor.nickname}</strong> ({authenticatedDonor.email}).
+                    This donation will be added to that profile.
+                  </div>
+                )}
+                {profileError && <div className="form-alert" role="alert">{profileError}</div>}
+
+                <hr className="donate-a-divider" />
+                <CauseSelector choices={causeChoices} value={causeId} onChange={selectCause} />
+                <AmountSelector
+                  presets={presets}
+                  amount={amountInput}
+                  error={amountError}
+                  onPreset={selectPreset}
+                  onChange={(value) => {
+                    setAmountInput(value);
+                    setAmountError(undefined);
+                  }}
+                  onCustomAmountConfirmed={confirmCustomAmount}
+                />
+                <div className="donate-a-impact-preview">
+                  <ImpactCard amountHkd={amountHkd} impact={preview} status={previewStatus} />
                 <div className="donate-a-gift-grid">
                   <div className="donate-a-gift-fields">
                     <CauseSelector choices={causeChoices} value={causeId} onChange={selectCause} />
@@ -529,6 +625,10 @@ export function DonatePage() {
                   <p>Step 2 of 4</p>
                   <h2 id="donation-flow-title">Your details</h2>
                 </div>
+                <button className="button button-dark button-full" type="button" onClick={continueToReview} disabled={isAuthenticating}>
+                  {isAuthenticating ? "Opening your donor profile…" : "Review & continue to secure payment"}
+                </button>
+                <p className="form-footnote">Secure payment · Receipt by email · You can change your mind before confirming</p>
                 <DonorDetailsForm
                   value={details}
                   errors={detailsErrors}
@@ -589,6 +689,18 @@ export function DonatePage() {
             )}
           </section>
         </div>
+
+        <aside className="donate-a-promise">
+          <p className="donor-community-eyebrow">Our promise</p>
+          <h2>Traceable from gift to outcome.</h2>
+          <div><strong>Quarterly</strong><span>Updates on where your selected fund was used.</span></div>
+          <div><strong>Specific</strong><span>Photos, programme records and real changes, with consent.</span></div>
+          <div><strong>Human</strong><span>A person reviews every donor-wall message.</span></div>
+          <div className="donate-a-promise-actions">
+            <Link className="donor-community-button" to="/supporter">← Supporters</Link>
+            <Link className="donor-community-button donor-community-button-primary" to="/donor-profile">My donor profile</Link>
+          </div>
+        </aside>
       </div>
     </div>
   );
