@@ -160,12 +160,6 @@ export function VolunteerRolePage() {
         </div>
       </section>
 
-      <section className="section volunteer-story-section">
-        <div className="shell">
-          <VolunteerStoryVideo role={role} journeyPath={journeyPath} />
-        </div>
-      </section>
-
       <section id="demo-session" className="section volunteer-role-next-section">
         <div className="shell">
           <div className="volunteer-role-next-heading">

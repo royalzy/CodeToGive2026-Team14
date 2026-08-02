@@ -7,8 +7,26 @@ import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNews
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerProgramBento } from "../components/volunteer/VolunteerProgramBento";
 import { VolunteerTestimonialMarquee } from "../components/volunteer/VolunteerTestimonialMarquee";
+import { programs } from "../content/programs";
 import { volunteerTestimonials } from "../content/volunteer";
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
+
+const PROGRAMME_TITLES = programs.map((program) => program.title);
+
+function VolunteerProgramMarquee() {
+  return (
+    <div className="home-marquee volunteer-program-marquee" aria-hidden="true">
+      <div>
+        {[0, 1].flatMap((repeat) =>
+          PROGRAMME_TITLES.flatMap((title) => [
+            <span key={`${repeat}-${title}`}>{title}</span>,
+            <b key={`${repeat}-${title}-dot`}>•</b>,
+          ]),
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function VolunteerPage() {
   useEffect(() => {
@@ -16,8 +34,9 @@ export function VolunteerPage() {
   }, []);
 
   return (
-    <>
+    <div className="volunteer-page">
       <VolunteerHero />
+      <VolunteerProgramMarquee />
 
       <section
         className="section volunteer-entry-section volunteer-hero-reveal"
@@ -80,13 +99,13 @@ export function VolunteerPage() {
         </div>
       </section>
 
-      <section className="section section-soft">
+      <section className="section section-soft volunteer-ways-section">
         <div className="shell">
           <VolunteerOtherWaysToHelp />
         </div>
       </section>
 
-      <section className="section">
+      <section className="section volunteer-closing-section">
         <div className="shell volunteer-alternatives-panel">
           <div>
             <p className="eyebrow">Still deciding between roles?</p>
@@ -106,6 +125,6 @@ export function VolunteerPage() {
           />
         </div>
       </section>
-    </>
+    </div>
   );
 }

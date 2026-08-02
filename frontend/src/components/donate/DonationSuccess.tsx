@@ -7,6 +7,51 @@ import {
   type DonorWallPost,
 } from "../../api/client";
 import { getDonationImpactMessage } from "../../content/donations";
+import { causeStampImages } from "../../lib/donationShareImage";
+import { DonationReceipt } from "./DonationReceipt";
+import { DonationShareModal } from "./DonationShareModal";
+import { ImpactCard } from "./ImpactCard";
+
+const programmeDetails = {
+  where_needed_most: {
+    focus: "the highest verified programme need at the next allocation review",
+    access: "coach time, accessible venue use, participant transport, or urgent family support where current records show the clearest gap",
+  },
+  dance: {
+    focus: "coached dance and creative movement delivery",
+    access: "trained coaches, accessible rehearsal space, participant transport, performance preparation, and the support needed to join confidently",
+  },
+  sports: {
+    focus: "supported sport and movement sessions",
+    access: "qualified coaching, accessible venues, safe equipment, participant transport, and adaptations that keep the activity genuinely inclusive",
+  },
+  nutrition: {
+    focus: "nutrition consultations and practical healthy-living workshops",
+    access: "dietitian time, fresh ingredients, accessible learning materials, family follow-up, and the support needed to practise new habits at home",
+  },
+  family_support: {
+    focus: "family and caregiver support",
+    access: "case-worker time, transport, practical resources, counselling access, and follow-up for families navigating an immediate need",
+  },
+} as const;
+
+function describeBackendEstimate(result: DonationIntentResult) {
+  const impact = result.impact;
+  if (impact.mode === "counted") {
+    const unitLabels: Record<string, string> = {
+      dance_training_session: "coached dance training sessions",
+      sports_session: "supported sports sessions",
+      nutrition_consultation: "nutrition consultations",
+      family_support_opportunity: "family support opportunities",
+    };
+    const unitLabel = unitLabels[impact.unit_key] ?? "programme opportunities";
+    return `The backend estimate associates this gift with approximately ${impact.estimated_units.toLocaleString("en-HK")} ${unitLabel}. The final record will use delivered activity, not this estimate.`;
+  }
+  if (impact.mode === "contribution") {
+    return "This amount contributes toward the next complete unit of programme delivery. We will report the delivered work without rounding a partial contribution up into a result.";
+  }
+  return "This flexible gift will be assigned at the next allocation review to the highest verified need. The final record will identify the programme and delivered work rather than implying a result today.";
+}
 import { DonationImpactBreakdown } from "./DonationImpactBreakdown";
 
 export function DonationSuccess({
@@ -14,21 +59,27 @@ export function DonationSuccess({
   donorName,
   donorEmail,
   anonymous,
+  causeLabel,
   onStayInvolved,
 }: {
   result: DonationIntentResult;
   donorName: string;
   donorEmail: string;
   anonymous: boolean;
+  causeLabel: string;
   onStayInvolved: () => void;
 }) {
   const [showOnWall, setShowOnWall] = useState(true);
   const [message, setMessage] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [wallPost, setWallPost] = useState<DonorWallPost | null>(null);
   const [wallError, setWallError] = useState<string | null>(null);
   const [isSubmittingWall, setIsSubmittingWall] = useState(false);
   const greeting =
     !anonymous && donorName.trim() ? `Thank you, ${donorName.trim()}.` : "Thank you.";
+  const recipientName =
+    !anonymous && donorName.trim() ? donorName.trim() : "A Friend of Love 21";
   const impactMessage = getDonationImpactMessage(result.impact);
   const amountLabel = `HK$${result.impact.amount_hkd.toLocaleString("en-HK")}`;
 
@@ -56,23 +107,74 @@ export function DonationSuccess({
       <span className="status-mark" aria-hidden="true">
         ✓
       </span>
-      <p className="eyebrow">Prototype donation confirmed</p>
+      <p className="eyebrow">Donation confirmed</p>
       <h2>{greeting}</h2>
-      <p>
-        Your possible impact has been recalculated and confirmed by the demonstration service. After delivery, verified records and photos will appear in your donor profile.
-      </p>
+
+      <div className="donation-impact-hero donation-envelope">
+        <svg className="donation-envelope-flap" viewBox="0 0 100 34" preserveAspectRatio="none" aria-hidden="true">
+          <polyline points="0,0 50,34 100,0" />
+        </svg>
+        <span className="donation-envelope-postmark" aria-hidden="true">
+          <span className="donation-envelope-postmark-ring donation-envelope-postmark-ring-outer" />
+          <span className="donation-envelope-postmark-ring donation-envelope-postmark-ring-inner" />
+          <span className="donation-envelope-postmark-ray" />
+          <span className="donation-envelope-postmark-ray" />
+          <span className="donation-envelope-postmark-ray" />
+          <span className="donation-envelope-postmark-ray" />
+          <span className="donation-envelope-postmark-ray" />
+        </span>
+        <figure className="donation-envelope-stamp">
+          <img src={causeStampImages[result.impact.cause_id]} alt="" />
+        </figure>
+        <span className="donation-envelope-seal" aria-hidden="true">21</span>
+        <span className="donation-impact-confetti" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+          <span />
+          <span />
+          <span />
+        </span>
+        <p className="donation-envelope-address">
+          From: 21 Foundation
+          <br />
+          To: {recipientName}
+        </p>
+        <p className="eyebrow">You just made this possible</p>
+        <p className="donation-impact-headline">{impactMessage.headline}</p>
+        <p className="donation-impact-amount">{amountLabel} given to {causeLabel}</p>
+        <p className="donation-impact-detail">{impactMessage.detail}</p>
+        <button
+          type="button"
+          className="button button-outline donation-impact-share-button"
+          onClick={() => setIsShareOpen(true)}
+        >
+          Share my impact
+        </button>
+      </div>
+
       <p className="reference">
         Demo reference: <strong>{result.donation_intent_id}</strong>
       </p>
-      <div className="simulation-confirmation">
-        {anonymous
-          ? "Simulation complete — no money was charged and no personal information was attached to this gift."
-          : "Simulation complete — no money was charged. This demo gift is now stored in your donor profile."}
-      </div>
-      {!anonymous && donorEmail && <p className="donation-email-note">A prototype confirmation, receipt and thank-you note would be sent to <strong>{donorEmail}</strong>.</p>}
+      <DonationReceipt
+        result={result}
+        donorName={donorName}
+        donorEmail={donorEmail}
+        anonymous={anonymous}
+        causeLabel={causeLabel}
+      />
+      {donorEmail && <p className="donation-email-note">A prototype confirmation, receipt and thank-you note would be sent to <strong>{donorEmail}</strong>.</p>}
 
       <section className="donation-outcome-record" aria-labelledby="donation-outcome-title">
-        <p className="eyebrow">Backend-calculated expected impact</p>
+        <div className="donate-a-impact-preview donate-a-impact-after">
+          <ImpactCard
+            amountHkd={result.impact.amount_hkd}
+            impact={result.impact}
+            status="success"
+            imageSrc={causeStampImages[result.impact.cause_id]}
+          />
+        </div>
+        <p className="eyebrow">Expected impact</p>
         <h3 id="donation-outcome-title">What your {amountLabel} gift is expected to set in motion.</h3>
         <p className="donation-outcome-lede"><strong>{impactMessage.headline}</strong> This is a planning estimate, not a promise that one gift alone caused an outcome. We will replace it with verified programme records after delivery.</p>
         <DonationImpactBreakdown impact={result.impact} />
@@ -83,7 +185,13 @@ export function DonationSuccess({
       </section>
 
       {anonymous ? (
-        <div className="anonymous-success-note"><strong>Your anonymity choice is complete.</strong><p>No email, profile or supporter-wall prompt is attached to this donation.</p></div>
+        <div className="anonymous-success-note">
+          <strong>Your anonymity choice is complete.</strong>
+          <p>
+            No name, profile or supporter-wall prompt is attached to this donation
+            {donorEmail ? ", aside from the receipt copy you asked to be emailed." : "."}
+          </p>
+        </div>
       ) : (
         <section className="donation-wall-invitation" aria-labelledby="wall-invitation-title">
           <p className="eyebrow">One last choice</p>
@@ -97,6 +205,18 @@ export function DonationSuccess({
         <Link className="button button-dark" to="/supporter" onClick={onStayInvolved}>Visit our supporters</Link>
         {!anonymous && <Link className="button button-outline" to="/donor-profile">View my donor profile</Link>}
       </div>
+
+      {isShareOpen && (
+        <DonationShareModal
+          data={{
+            causeId: result.impact.cause_id,
+            amountHkd: result.impact.amount_hkd,
+            headline: impactMessage.headline,
+            donorDisplayName: donorName,
+          }}
+          onClose={() => setIsShareOpen(false)}
+        />
+      )}
     </div>
   );
 }
