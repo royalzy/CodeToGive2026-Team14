@@ -6881,6 +6881,8 @@ h3 {
 .donor-profile-mode legend { grid-column: 1 / -1; margin-bottom: 0.35rem; font-weight: 900; }
 .donor-profile-mode label { display: flex; gap: 0.7rem; min-height: 92px; align-items: flex-start; padding: 1rem; border: 1px solid var(--line); border-radius: 1rem; background: white; }
 .donor-profile-mode label:has(input:checked) { border-color: #6c1f2a; box-shadow: inset 0 0 0 1px #6c1f2a; }
+.donor-demo-fill { margin-bottom: 1rem; padding: 0.4rem 0.85rem; border: 1px dashed var(--line); border-radius: 999px; color: var(--muted); background: transparent; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+.donor-demo-fill:hover { color: var(--ink); border-color: var(--ink); }
 .donation-email-note { padding: 0.9rem; border-radius: 0.8rem; background: #f7f0e4; }
 .anonymous-success-note,
 .donation-wall-invitation { margin-top: 1.5rem; padding: clamp(1.25rem, 4vw, 2rem); border-radius: 1.3rem; background: #fffaf2; }

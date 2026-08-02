@@ -1,3 +1,5 @@
+import { DEMO_DONOR_DETAILS } from "../../content/donations";
+
 export type DonorDetails = {
   donorName: string;
   donorEmail: string;
@@ -56,6 +58,16 @@ export function DonorDetailsForm({
             <label><input type="radio" name="profile-mode" checked={value.profileMode === "existing"} onChange={() => onChange({ ...value, profileMode: "existing", donorName: "", donorNickname: "" })} /><span><strong>I have a donor profile</strong><small>Sign in to keep receipts and impact records together.</small></span></label>
             <label><input type="radio" name="profile-mode" checked={value.profileMode === "new"} onChange={() => onChange({ ...value, profileMode: "new" })} /><span><strong>Create a donor profile</strong><small>Choose a public nickname before payment.</small></span></label>
           </fieldset>
+
+          {value.profileMode === "new" && (
+            <button
+              type="button"
+              className="donor-demo-fill"
+              onClick={() => onChange({ ...value, ...DEMO_DONOR_DETAILS })}
+            >
+              Fill demo details
+            </button>
+          )}
 
           <div className="two-column-fields">
             <label className={`field ${errors.donorEmail ? "field-error" : ""}`}>
