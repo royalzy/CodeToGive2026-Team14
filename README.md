@@ -11,10 +11,11 @@ experiment, fix, or piece of infrastructure and deliver it on a short-lived bran
 - Tests: Vitest, Testing Library, pytest, Playwright, axe
 - Package managers: pnpm and uv
 
-No application form data is persisted. Donation intents and bookings are stored
-in a local SQLite database: donations are clearly labelled simulations, only
-the anonymized subset of an intent (cause, amount, currency, anonymous flag)
-is kept, and payment card information is never collected.
+No volunteer application data is persisted. Donor profiles, donation intents,
+private pending wall previews, and bookings are stored in a local SQLite
+database. Donations are clearly labelled simulations, passwords are stored as
+Argon2 hashes, identity is kept separate from donation records, and payment
+card information is never collected.
 
 ## Quick start
 
@@ -45,6 +46,10 @@ Copy the example environment files only when you need to override the defaults:
 cp frontend/.env.example frontend/.env
 cp backend/.env.example backend/.env
 ```
+
+For local development, leave `VITE_API_BASE_URL` empty. The frontend will use
+the current page hostname on port 8000, keeping donor session cookies same-site
+whether the site is opened through `localhost` or `127.0.0.1`.
 
 ## Useful commands
 
@@ -94,12 +99,23 @@ changes.
 
 `POST /api/v1/donation-intents`
 
-- Accepts an HKD amount, impact cause, anonymous choice, optional contact
-  details, and a prototype updates preference.
+- Accepts an HKD amount, impact cause, and anonymous choice. Identified gifts
+  require an active donor session and are linked to that donor profile.
 - Recalculates the final impact server-side and always returns
   `simulation: true` with `persistence: "stored"`; no money moves.
-- Stores only the non-personal subset (cause, amount, currency, anonymous flag);
-  donor name, email, and updates preference are never written.
+- Stores cause, amount, currency, and anonymous flag in the donation record;
+  donor identity remains in a separate profile table connected by a link row.
+
+`POST /api/v1/donor-profiles` and `POST /api/v1/donor-sessions`
+
+- Create or authenticate a donor profile and issue a 30-day HttpOnly session.
+- Email and nickname are unique case-insensitively; passwords are never stored
+  in plaintext.
+
+`GET /api/v1/donor-profiles/me` and `GET /api/v1/donor-wall/me`
+
+- Return only the authenticated donor's donation history and pending wall
+  previews. Pending posts are not exposed publicly in this prototype.
 
 `GET /api/v1/donation-impact/options`
 

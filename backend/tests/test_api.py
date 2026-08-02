@@ -240,15 +240,24 @@ def test_donation_impact_preview_rejects_invalid_input(payload: dict[str, object
 
 
 def test_valid_donation_intent_is_simulated_and_recalculates_impact() -> None:
+    profile_response = client.post(
+        "/api/v1/donor-profiles",
+        json={
+            "email": "alex-donation@example.com",
+            "password": "secret1",
+            "nickname": "Alex Donation",
+            "name": "Alex Lee",
+            "consent_to_updates": True,
+        },
+    )
+    assert profile_response.status_code == 201
+
     response = client.post(
         "/api/v1/donation-intents",
         json={
             "amount_hkd": 650,
             "cause_id": "dance",
             "anonymous": False,
-            "donor_name": "Alex Lee",
-            "donor_email": "alex@example.com",
-            "consent_to_updates": True,
         },
     )
 
@@ -278,17 +287,18 @@ def test_valid_donation_intent_is_simulated_and_recalculates_impact() -> None:
     assert "consent_to_updates" not in row
 
 
-def test_donation_intent_requires_email_for_updates_preference() -> None:
-    response = client.post(
+def test_identified_donation_intent_requires_a_donor_session() -> None:
+    unauthenticated_client = TestClient(app)
+    response = unauthenticated_client.post(
         "/api/v1/donation-intents",
         json={
             "amount_hkd": 600,
             "cause_id": "dance",
-            "consent_to_updates": True,
+            "anonymous": False,
         },
     )
 
-    assert response.status_code == 422
+    assert response.status_code == 401
 
 
 @pytest.mark.parametrize(

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.bookings import router as bookings_router
 from app.api.routes.donations import router as donations_router
+from app.api.routes.donors import router as donors_router
 from app.api.routes.health import router as health_router
 from app.api.routes.media import router as media_router
 from app.api.routes.questionnaire import router as questionnaire_router
@@ -16,16 +17,21 @@ app = FastAPI(
     version="0.1.0",
     description=(
         "Demonstration API for the Love 21 volunteer, donation, and booking "
-        "journeys. Volunteer data is discarded; donation intents (anonymized) "
-        "and bookings are persisted to a local SQLite store."
+        "journeys. Volunteer data is discarded; donor profiles, linked demo "
+        "donation intents, private wall previews, and bookings are persisted "
+        "to a local SQLite store."
     ),
 )
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origin_list,
+<<<<<<< HEAD
     allow_credentials=False,
     # DELETE is needed so the admin can remove a website post from the browser.
+=======
+    allow_credentials=True,
+>>>>>>> origin/main
     allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
@@ -33,6 +39,7 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(volunteers_router, prefix="/api/v1")
 app.include_router(donations_router, prefix="/api/v1")
+app.include_router(donors_router, prefix="/api/v1")
 app.include_router(bookings_router, prefix="/api/v1")
 app.include_router(questionnaire_router, prefix="/api/v1")
 app.include_router(social_router, prefix="/api/v1")
