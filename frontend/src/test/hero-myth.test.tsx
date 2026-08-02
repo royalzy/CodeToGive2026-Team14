@@ -95,8 +95,8 @@ describe("hero myth-check", () => {
     expect(screen.getByText("Reveal B.")).toBeInTheDocument();
     expect(screen.getByText("Reveal C.")).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "See the evidence" }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("link").some((link) => link.textContent === "Learn more"),
+    ).toBe(true);
   });
 
   it("renders nothing when the round endpoint is unavailable", async () => {

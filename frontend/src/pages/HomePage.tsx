@@ -172,13 +172,13 @@ function HeroMythCheck() {
               </li>
             ))}
           </ul>
-          <a
-            href="#quiz"
+          <Link
+            to="/neuro-strengths"
             className="landing-hero-cta-primary hero-myth-cta"
-            data-cta="myth-evidence"
+            data-cta="myth-learn-more"
           >
-            See the evidence
-          </a>
+            Learn more
+          </Link>
         </div>
       )}
     </div>
