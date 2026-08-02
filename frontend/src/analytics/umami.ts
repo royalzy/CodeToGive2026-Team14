@@ -27,6 +27,10 @@ export function setCurrentLang(lang: string): void {
   currentLang = lang;
 }
 
+export function getCurrentLang(): string {
+  return currentLang;
+}
+
 export function isConfigured(): boolean {
   const { host, websiteId } = umamiConfig();
   return Boolean(host && websiteId);

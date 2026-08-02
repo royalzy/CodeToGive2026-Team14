@@ -18,3 +18,5 @@ frontend/coverage/
 backend/openapi.json
 .gstack/
 backend/love21.db
+backend/love21.db-shm
+backend/love21.db-wal

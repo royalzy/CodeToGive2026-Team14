@@ -462,6 +462,77 @@ export function previewDonationImpact(
   ).then((result) => impactPreviewSchema.parse(result));
 }
 
+const heroRoundStatementSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+});
+
+const heroRoundSchema = z.object({
+  id: z.string(),
+  theme: z.string().nullable(),
+  kick: z.string().nullable(),
+  twist: z.string(),
+  statements: z.array(heroRoundStatementSchema),
+});
+
+const revealStatementSchema = z.object({
+  id: z.string(),
+  is_myth: z.boolean(),
+  reveal: z.string(),
+  source: z.object({ label: z.string(), url: z.string() }),
+});
+
+const revealSchema = z.object({
+  round_id: z.string(),
+  twist: z.string(),
+  punchline: z.string(),
+  selected_statement_id: z.string(),
+  statements: z.array(revealStatementSchema),
+});
+
+export type HeroRound = z.infer<typeof heroRoundSchema>;
+export type RevealResult = z.infer<typeof revealSchema>;
+
+const statementCountSchema = z.object({
+  statement_id: z.string(),
+  count: z.number(),
+});
+
+const roundStatsSchema = z.object({
+  round_id: z.string(),
+  attempts: z.number(),
+  languages: z.number(),
+  statements: z.array(statementCountSchema),
+});
+
+const quizStatsSchema = z.object({
+  rounds: z.array(roundStatsSchema),
+});
+
+export type QuizStats = z.infer<typeof quizStatsSchema>;
+
+export function getQuizStats(signal?: AbortSignal): Promise<QuizStats> {
+  return getJson<unknown>("/api/v1/quiz/rounds/stats", signal).then((result) =>
+    quizStatsSchema.parse(result),
+  );
+}
+
+export function getHeroRound(signal?: AbortSignal): Promise<HeroRound> {
+  return getJson<unknown>("/api/v1/quiz/rounds/hero", signal).then((result) =>
+    heroRoundSchema.parse(result),
+  );
+}
+
+export function answerHeroRound(payload: {
+  round_id: string;
+  selected_statement_id: string;
+  lang: string;
+}): Promise<RevealResult> {
+  return postJson<unknown, unknown>("/api/v1/quiz/rounds/answer", payload).then(
+    (result) => revealSchema.parse(result),
+  );
+}
+
 export interface MediaPost {
   id: string;
   caption: string;

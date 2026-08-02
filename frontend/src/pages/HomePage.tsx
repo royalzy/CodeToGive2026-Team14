@@ -23,6 +23,14 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useLanguage } from "../hooks/useLanguage";
+import {
+  answerHeroRound,
+  getHeroRound,
+  getQuizStats,
+  type HeroRound,
+  type RevealResult,
+} from "../api/client";
+import { getCurrentLang, track, trackOnce } from "../analytics/umami";
 import type { Accent, AutismFact, DSFact } from "../content/types";
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -76,6 +84,138 @@ export function HomePage() {
 
 // ── Hero ─────────────────────────────────────────────────────────────────
 
+function HeroMythCheck() {
+  const [round, setRound] = useState<HeroRound | null>(null);
+  const [reveal, setReveal] = useState<RevealResult | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [attempts, setAttempts] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getQuizStats()
+      .then((stats) => {
+        if (cancelled) {
+          return;
+        }
+        const matched = stats.rounds.find((r) => r.round_id === round?.id);
+        if (matched) {
+          setAttempts(matched.attempts);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAttempts(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [round]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getHeroRound()
+      .then((r) => {
+        if (cancelled) {
+          return;
+        }
+        setRound(r);
+        trackOnce("hero_myth_round_started", { round_id: r.id });
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setRound(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const choose = useCallback(
+    (statementId: string) => {
+      if (!round || reveal || busy) {
+        return;
+      }
+      setBusy(true);
+      setSelectedId(statementId);
+      answerHeroRound({
+        round_id: round.id,
+        selected_statement_id: statementId,
+        lang: getCurrentLang(),
+      })
+        .then((result) => {
+          setReveal(result);
+          track("hero_myth_round_revealed", {
+            round_id: result.round_id,
+            selected_statement_id: statementId,
+          });
+        })
+        .catch(() => {
+          setSelectedId(null);
+        })
+        .finally(() => setBusy(false));
+    },
+    [round, reveal, busy],
+  );
+
+  if (!round) {
+    return null;
+  }
+
+  return (
+    <div className="hero-myth" aria-live="polite">
+      <p className="hero-myth-kick">{round.kick}</p>
+      <ul className="hero-myth-list">
+        {round.statements.map((st, i) => (
+          <li key={st.id}>
+            <button
+              type="button"
+              className={`hero-myth-statement${st.id === selectedId ? " picked" : ""}`}
+              onClick={() => choose(st.id)}
+              disabled={Boolean(reveal) || busy}
+            >
+              <span className="hero-myth-index">{i + 1}</span>
+              <span className="hero-myth-text">{st.text}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      {reveal && (
+        <div className="hero-myth-reveal">
+          <p className="hero-myth-punchline">{reveal.punchline}</p>
+          <ul className="hero-myth-verdicts">
+            {reveal.statements.map((st) => (
+              <li key={st.id} className={st.id === reveal.selected_statement_id ? "picked" : ""}>
+                <strong>{st.is_myth ? "Myth" : "True"}</strong>
+                <p>{st.reveal}</p>
+                <a href={st.source.url} target="_blank" rel="noreferrer">
+                  {st.source.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+          {attempts !== null && (
+            <p className="hero-myth-community">
+              {attempts.toLocaleString()}{" "}
+              {attempts === 1 ? "person has" : "people have"} already been put to the
+              test on this round.
+            </p>
+          )}
+          <Link
+            to="/neuro-strengths"
+            className="landing-hero-cta-primary hero-myth-cta"
+            data-cta="myth-learn-more"
+          >
+            Learn more
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Hero({ c }: { c: typeof import("../content/en").landingContent }) {
   const [imgIdx, setImgIdx] = useState(0);
   const images = c.hero.images;
@@ -102,6 +242,7 @@ function Hero({ c }: { c: typeof import("../content/en").landingContent }) {
           <a href="#community" className="landing-hero-cta-primary" data-cta="community-hero">{c.hero.ctaPrimary} ↓</a>
           <Link to="/volunteer" className="landing-hero-cta-secondary" data-cta="volunteer-hero">{c.hero.ctaSecondary}</Link>
         </div>
+        <HeroMythCheck />
         <div className="landing-hero-dots" role="tablist" aria-label="Hero images">
           {images.map((img, i) => (
             <button key={img.src} role="tab" aria-selected={imgIdx === i}

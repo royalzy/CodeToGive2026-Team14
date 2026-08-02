@@ -40,6 +40,14 @@ CREATE TABLE IF NOT EXISTS questionnaire_submissions (
     consent INTEGER NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS quiz_attempts (
+    id TEXT PRIMARY KEY,
+    reference TEXT NOT NULL UNIQUE,
+    round_id TEXT NOT NULL,
+    selected_statement_id TEXT NOT NULL,
+    lang TEXT NOT NULL DEFAULT 'en',
+    answered_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS donor_profiles (
     id TEXT PRIMARY KEY,
     email TEXT NOT NULL UNIQUE COLLATE NOCASE,
