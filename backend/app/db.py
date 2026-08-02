@@ -29,6 +29,16 @@ CREATE TABLE IF NOT EXISTS donation_intents (
     anonymous INTEGER NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS questionnaire_submissions (
+    id TEXT PRIMARY KEY,
+    reference TEXT NOT NULL UNIQUE,
+    path TEXT NOT NULL,
+    name TEXT,
+    email TEXT,
+    message TEXT,
+    consent INTEGER NOT NULL,
+    created_at TEXT NOT NULL
+);
 """
 
 

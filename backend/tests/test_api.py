@@ -135,6 +135,44 @@ def test_volunteer_application_rejects_session_for_another_role() -> None:
     assert response.status_code == 422
 
 
+def test_volunteer_application_accepts_new_programme_roles() -> None:
+    response = client.post(
+        "/api/v1/volunteer-applications",
+        json={
+            "name": "Jamie Chan",
+            "email": "jamie@example.com",
+            "role_id": "nutrition_class_assistant",
+            "session_id": "nutrition_cooking_workshop",
+            "first_step": "trial",
+            "consent": True,
+        },
+    )
+
+    assert response.status_code == 201
+    payload = response.json()
+    assert payload["role_id"] == "nutrition_class_assistant"
+    assert payload["session_id"] == "nutrition_cooking_workshop"
+
+
+def test_volunteer_application_accepts_class_leader_role_without_session() -> None:
+    response = client.post(
+        "/api/v1/volunteer-applications",
+        json={
+            "name": "Jamie Chan",
+            "email": "jamie@example.com",
+            "role_id": "sports_class_leader",
+            "session_id": None,
+            "first_step": "interest_only",
+            "consent": True,
+        },
+    )
+
+    assert response.status_code == 201
+    payload = response.json()
+    assert payload["status"] == "interest_submitted"
+    assert payload["role_id"] == "sports_class_leader"
+
+
 def test_donation_impact_options_return_ordered_demo_configuration() -> None:
     response = client.get("/api/v1/donation-impact/options")
 

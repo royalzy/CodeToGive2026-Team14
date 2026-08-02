@@ -4,6 +4,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { StrictMode } from "react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -136,6 +137,27 @@ afterEach(() => {
 });
 
 describe("donor impact journey", () => {
+  it("does not focus the donation flow on its StrictMode mount", async () => {
+    installApiMock();
+    const user = userEvent.setup();
+    render(
+      <StrictMode>
+        <MemoryRouter>
+          <DonatePage />
+        </MemoryRouter>
+      </StrictMode>,
+    );
+
+    const donationFlow = screen.getByRole("region", { name: "Donation flow" });
+    expect(donationFlow).not.toHaveFocus();
+
+    await user.click(screen.getByLabelText(/Give completely anonymously/i));
+    await user.click(
+      screen.getByRole("button", { name: "Review & continue to secure payment" }),
+    );
+    expect(donationFlow).toHaveFocus();
+  });
+
   it("clears an old impact when the custom amount becomes invalid", async () => {
     installApiMock();
     const user = userEvent.setup();
@@ -195,7 +217,7 @@ describe("donor impact journey", () => {
       await screen.findByText(/Live estimate unavailable/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Continue to your details" }),
+      screen.getByRole("button", { name: "Review & continue to secure payment" }),
     ).toBeEnabled();
   });
 
@@ -246,49 +268,52 @@ describe("donor impact journey", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("requires an email for the prototype updates preference", async () => {
+  it("requires credentials for a donor profile", async () => {
     installApiMock();
     const user = userEvent.setup();
     renderDonatePage();
 
     await user.click(
-      screen.getByRole("button", { name: "Continue to your details" }),
-    );
-    await user.click(
-      screen.getByLabelText(/I would like occasional Love 21 updates/i),
-    );
-    await user.click(
-      screen.getByRole("button", { name: "Review your intention" }),
+      screen.getByRole("button", { name: "Review & continue to secure payment" }),
     );
 
     expect(
-      await screen.findByText(/Enter an email to express an updates preference/i),
+      await screen.findByText(/Enter the email for your donor profile/i),
     ).toBeInTheDocument();
+    expect(screen.getByText(/Use at least 6 characters/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Tell us how to thank you" }),
+      screen.getByRole("heading", { name: "How would you like to give?" }),
     ).toBeInTheDocument();
   });
 
-  it("keeps the donor name visible when public acknowledgement is anonymous", async () => {
+  it("hides and clears every identity field for a completely anonymous gift", async () => {
     installApiMock();
     const user = userEvent.setup();
     renderDonatePage();
 
-    await user.click(
-      screen.getByRole("button", { name: "Continue to your details" }),
-    );
+    await user.click(screen.getByLabelText(/Create a donor profile/i));
+    await user.type(screen.getByLabelText("Email"), "alex@example.com");
+    await user.type(screen.getByLabelText("Password"), "secret1");
+    await user.type(screen.getByLabelText("Unique nickname"), "Alex C");
     await user.type(screen.getByLabelText("Name (optional)"), "Alex Chan");
     await user.click(
-      screen.getByLabelText(/prototype intention to be anonymous/i),
-    );
-    await user.click(
-      screen.getByRole("button", { name: "Review your intention" }),
+      screen.getByLabelText(/Give completely anonymously/i),
     );
 
-    expect(screen.getByText("Alex Chan")).toBeInTheDocument();
-    expect(
-      screen.getByText("Public acknowledgement: Anonymous"),
-    ).toBeInTheDocument();
+    expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Unique nickname")).not.toBeInTheDocument();
+    expect(screen.getByText(/Identity fields have been cleared/i)).toBeInTheDocument();
+
+    await user.click(screen.getByLabelText(/Give with my profile/i));
+    expect(screen.getByLabelText("Email")).toHaveValue("");
+    expect(screen.getByLabelText("Unique nickname")).toHaveValue("");
+    expect(screen.getByLabelText("Name (optional)")).toHaveValue("");
+
+    await user.click(screen.getByLabelText(/Give completely anonymously/i));
+    await user.click(screen.getByRole("button", { name: "Review & continue to secure payment" }));
+
+    expect(screen.getByText("Completely anonymous")).toBeInTheDocument();
+    expect(screen.queryByText("Alex Chan")).not.toBeInTheDocument();
   });
 
   it("shows the backend result on success and emits no PII to analytics", async () => {
@@ -304,28 +329,21 @@ describe("donor impact journey", () => {
         name: /Four more chances to move, learn, and shine/i,
       }),
     ).toBeInTheDocument();
-    await user.click(
-      screen.getByRole("button", { name: "Continue to your details" }),
-    );
+    await user.click(screen.getByLabelText(/Create a donor profile/i));
+    await user.type(screen.getByLabelText("Unique nickname"), "Alex Private");
     await user.type(screen.getByLabelText("Name (optional)"), "Alex Private");
     await user.type(
-      screen.getByLabelText("Email (optional)"),
+      screen.getByLabelText("Email"),
       "private@example.com",
     );
-    await user.click(
-      screen.getByRole("button", { name: "Review your intention" }),
-    );
+    await user.type(screen.getByLabelText("Password"), "secret1");
+    await user.click(screen.getByRole("button", { name: "Review & continue to secure payment" }));
     await user.click(
       screen.getByRole("button", {
         name: "Confirm prototype donation of HK$600",
       }),
     );
 
-    expect(
-      await screen.findByRole("heading", {
-        name: /Three more chances to move, learn, and shine/i,
-      }),
-    ).toBeInTheDocument();
     expect(
       screen.queryByRole("heading", {
         name: /Four more chances to move, learn, and shine/i,
@@ -338,5 +356,17 @@ describe("donor impact journey", () => {
     expect(window.dataLayer?.some(
       (entry) => entry.event === "donation_success_displayed",
     )).toBe(true);
+    expect(await screen.findByRole("heading", { name: /What your HK\$600 gift is expected to set in motion/i })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /Three more chances to move, learn, and shine/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/planning estimate, not a promise/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "How Love 21 will verify it" })).toBeInTheDocument();
+    expect(screen.getByText(/Quarter close/i)).toBeInTheDocument();
+
+    await user.type(
+      screen.getByLabelText(/Message to the community/i),
+      "Thank you for keeping this work going.",
+    );
+    await user.click(screen.getByRole("button", { name: "Send for review" }));
+    expect(screen.getByText(/Visible to you now · public after review/i)).toBeInTheDocument();
   });
 });

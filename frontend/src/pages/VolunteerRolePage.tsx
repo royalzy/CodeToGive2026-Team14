@@ -2,11 +2,15 @@ import { useEffect } from "react";
 import { Link, useSearchParams, useParams } from "react-router-dom";
 
 import { PageHero, StatusPanel } from "../components/Cards";
+import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
+import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerStoryVideo } from "../components/volunteer/VolunteerStoryVideo";
 import { VolunteerSessionCard } from "../components/volunteer/VolunteerSessionCard";
+import { programs } from "../content/programs";
 import {
   commonVolunteerPrinciples,
   getVolunteerRole,
+  getVolunteerRolesForProgram,
   volunteerSessions,
 } from "../content/volunteer";
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
@@ -17,6 +21,12 @@ export function VolunteerRolePage() {
   const journeyPath = searchParams.get("journey") === "guided" ? "guided" : "quick";
   const role = getVolunteerRole(roleId);
   const sessions = volunteerSessions.filter((session) => session.roleId === role?.id);
+  const otherProgramRoles = role
+    ? getVolunteerRolesForProgram(role.programSlug).filter((item) => item.id !== role.id)
+    : [];
+  const programTitle = role
+    ? programs.find((program) => program.slug === role.programSlug)?.title
+    : undefined;
 
   useEffect(() => {
     if (role) {
@@ -158,6 +168,43 @@ export function VolunteerRolePage() {
               </Link>
             </div>
           )}
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="shell volunteer-alternatives-panel">
+          <div>
+            <p className="eyebrow">Not quite the right fit?</p>
+            <h3>
+              {otherProgramRoles.length
+                ? `Other ways to help with ${programTitle}`
+                : "Explore a different programme"}
+            </h3>
+            <div className="volunteer-alternative-links">
+              {otherProgramRoles.map((otherRole) => (
+                <Link
+                  key={otherRole.id}
+                  className="text-link"
+                  to={`/volunteer/roles/${otherRole.id}?journey=${journeyPath}`}
+                >
+                  {otherRole.title} <span aria-hidden="true">→</span>
+                </Link>
+              ))}
+              <Link className="text-link" to="/volunteer/roles">
+                Browse every programme and role <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </div>
+          <VolunteerNewsletterSignup
+            source="volunteer_role_detail"
+            title="Prefer to hear from us by email?"
+          />
+        </div>
+      </section>
+
+      <section className="section section-soft">
+        <div className="shell">
+          <VolunteerOtherWaysToHelp />
         </div>
       </section>
     </>

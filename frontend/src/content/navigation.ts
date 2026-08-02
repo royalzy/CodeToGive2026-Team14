@@ -1,9 +1,8 @@
 export const navigation = [
   { label: "Impact", href: "/impact" },
+  { label: "Community", href: "/community" },
   { label: "Volunteer", href: "/volunteer" },
   { label: "Donate", href: "/donate" },
-  { label: "Members", href: "/members" },
-  { label: "Partners", href: "/partners" },
   { label: "Help", href: "/help" },
   { label: "Learn More", href: "/neuro-strengths" },
 ];
@@ -28,15 +27,9 @@ export const personas = [
     href: "/login",
   },
   {
-    icon: "🏢",
-    label: "I'm a corporate partner",
-    description: "Explore sponsorship and CSR opportunities.",
-    href: "/partners",
-  },
-  {
     icon: "🌍",
     label: "I want to learn more",
     description: "Understand neurodiversity, inclusion and how to help.",
-    href: "/resources",
+    href: "/neuro-strengths",
   },
 ];

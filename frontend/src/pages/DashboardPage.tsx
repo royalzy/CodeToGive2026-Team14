@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import { MemberCard, SectionHeading } from "../components/Cards";
 import { useAuth } from "../hooks/useAuth";
@@ -48,10 +48,7 @@ export function DashboardPage() {
         <div className="shell page-hero-inner">
           <p className="eyebrow">Family dashboard</p>
           <h1>Welcome, {family.name}</h1>
-          <div style={{ display: "flex", gap: "1rem", marginTop: "1rem", alignItems: "center" }}>
-            <Link className="button button-dark" to="/members">
-              Member profiles
-            </Link>
+          <div style={{ marginTop: "1rem" }}>
             <button className="button button-outline" type="button" onClick={logout}>
               Sign out
             </button>

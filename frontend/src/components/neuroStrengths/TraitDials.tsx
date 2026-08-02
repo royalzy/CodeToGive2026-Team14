@@ -2,11 +2,11 @@ import { TRAITS, type TraitId } from "./data";
 
 export function TraitDials({ values }: { values: Record<TraitId, number> }) {
   return (
-    <div className="flex flex-col gap-5">
+    <div className="neuro-trait-dials flex flex-col">
       {TRAITS.map((trait) => (
         <div
           key={trait.id}
-          className="rounded-2xl border border-love-blue/15 bg-white/70 p-4 shadow-sm"
+          className="neuro-trait-dial rounded-2xl border border-love-blue/15 bg-white/70 shadow-sm"
         >
           <div className="flex items-center justify-between gap-2">
             <span className="font-semibold text-love-ink">{trait.label}</span>
@@ -25,7 +25,7 @@ export function TraitDials({ values }: { values: Record<TraitId, number> }) {
             aria-readonly="true"
             aria-label={`${trait.label} score (set by the selected archetype)`}
             tabIndex={-1}
-            className="mt-3 w-full pointer-events-none accent-love-blue opacity-70"
+            className="neuro-trait-range w-full pointer-events-none accent-love-blue opacity-70"
           />
         </div>
       ))}

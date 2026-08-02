@@ -30,12 +30,12 @@ export function DonationReview({
       <div>
         <dt>Donor</dt>
         <dd>
-          {donorName.trim() || "Not provided"}
-          {anonymous && (
-            <span className="donor-acknowledgement">
-              Public acknowledgement: Anonymous
-            </span>
-          )}
+          {anonymous ? "Completely anonymous" : donorName.trim() || "Signed-in donor profile"}
+          <span className="donor-acknowledgement">
+            {anonymous
+              ? "No email, nickname, profile or supporter-wall tile will be attached."
+              : "Gift amount stays private on the supporter wall."}
+          </span>
         </dd>
       </div>
     </dl>

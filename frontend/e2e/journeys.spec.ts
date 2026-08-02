@@ -12,8 +12,8 @@ test("guided volunteer path creates a provisional first-session plan", async ({
   page,
 }) => {
   await page.goto("/volunteer");
-  await page.getByRole("link", { name: "Start the 60-second match" }).click();
-  await page.getByLabel("Dance & movement").check();
+  await page.getByRole("link", { name: "Start the guided match" }).click();
+  await page.getByLabel("Enrichment & intervention").check();
   await page.getByLabel("About once a month").check();
   await page.getByLabel("Join activities directly").check();
   await page.getByRole("button", { name: "Show my starting point" }).click();
@@ -43,8 +43,8 @@ test("quick volunteer path can skip matching and the story video", async ({ page
   await expect(page.getByText(/no place has been reserved/i)).toBeVisible();
 });
 
-test("community volunteer can register interest without a session", async ({ page }) => {
-  await page.goto("/volunteer/roles/community_event_volunteer");
+test("volunteer can register interest for a role without a session", async ({ page }) => {
+  await page.goto("/volunteer/roles/enrichment_class_leader");
   await page.getByRole("link", { name: "Register demo interest" }).click();
   await completeDemoApplication(page);
 
@@ -56,11 +56,11 @@ test("community volunteer can register interest without a session", async ({ pag
 
 test("visitor can complete the donation simulation", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Explore giving" }).click();
+  await page.getByRole("link", { name: "Donate Now" }).click();
 
   await expect(
     page.getByRole("heading", {
-      name: /What kind of opportunity would you like to create/i,
+      name: /HK\$3.28m received/i,
     }),
   ).toBeVisible();
   await expect(page.getByText(/Hackathon simulation/i)).toBeVisible();
@@ -72,13 +72,13 @@ test("visitor can complete the donation simulation", async ({ page }) => {
       name: /Four more chances to move, learn, and shine/i,
     }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Continue to your details" })
-    .click();
+  await page.getByLabel(/Create a donor profile/i).check();
+  await page.getByLabel("Unique nickname").fill("Alex Chan");
   await page.getByLabel("Name (optional)").fill("Alex Chan");
-  await page.getByLabel("Email (optional)").fill("alex@example.com");
-  await page.getByRole("button", { name: "Review your intention" }).click();
-  await expect(page.getByText("Discover a Talent")).toBeVisible();
+  await page.getByLabel("Email", { exact: true }).fill("alex@example.com");
+  await page.getByLabel("Password").fill("private-demo");
+  await page.getByRole("button", { name: "Review & continue to secure payment" }).click();
+  await expect(page.getByRole("heading", { name: "Review your prototype donation" })).toBeVisible();
   await page
     .getByRole("button", {
       name: "Confirm prototype donation of HK$600",
@@ -89,8 +89,8 @@ test("visitor can complete the donation simulation", async ({ page }) => {
     page.getByRole("heading", { name: "Thank you, Alex Chan." }),
   ).toBeVisible();
   await expect(page.getByText(/no money was charged/i)).toBeVisible();
-  await page.getByRole("link", { name: "Stay part of the journey" }).click();
-  await expect(page).toHaveURL(/\/impact$/);
+  await page.getByRole("link", { name: "Visit our community" }).click();
+  await expect(page).toHaveURL(/\/community$/);
 });
 
 test("donation impact journey remains usable on mobile", async ({ page }) => {
@@ -105,11 +105,12 @@ test("donation impact journey remains usable on mobile", async ({ page }) => {
     }),
   ).toBeVisible();
   await expect(page.getByText(/Demonstration estimates/i)).toBeVisible();
+  await page.getByLabel(/Give completely anonymously/i).check();
   await page
-    .getByRole("button", { name: "Continue to your details" })
+    .getByRole("button", { name: "Review & continue to secure payment" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Tell us how to thank you" }),
+    page.getByRole("heading", { name: "Review your prototype donation" }),
   ).toBeVisible();
 });
 

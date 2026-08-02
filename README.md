@@ -25,6 +25,16 @@ make setup
 make dev
 ```
 
+`make dev` checks port 8000 and `/api/health` before starting. It stops with a
+diagnostic if an old process owns the port, including the case where the port is
+open but the API no longer responds.
+
+For demos or long review sessions, use the stable backend without file reloads:
+
+```bash
+make demo
+```
+
 - Website: http://localhost:5173
 - API: http://localhost:8000
 - API docs: http://localhost:8000/docs
@@ -41,6 +51,7 @@ cp backend/.env.example backend/.env
 ```bash
 make test        # backend and frontend unit tests
 make lint        # Ruff, ESLint, and TypeScript checks
+make demo        # stable frontend + backend, without backend auto-reload
 make api-types   # regenerate TypeScript types from FastAPI OpenAPI
 make test-e2e    # run browser journeys; install Chromium once if prompted
 ```

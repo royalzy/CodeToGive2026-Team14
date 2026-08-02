@@ -8,6 +8,7 @@ import {
   submitVolunteerApplication,
   type VolunteerApplication,
 } from "../api/client";
+import { track, trackFormStarted } from "../analytics/umami";
 import { PageHero, StatusPanel } from "../components/Cards";
 import { ChoiceCard, Field } from "../components/FormControls";
 import {
@@ -113,6 +114,11 @@ export function VolunteerApplicationPage() {
         session_id: session?.id,
         application_status: result.status,
       });
+      track("volunteer_application", {
+        role_id: selectedRole.id,
+        journey_path: journeyPath,
+        first_step: data.firstStep,
+      });
       const state: VolunteerConfirmationState = {
         result,
         firstStep: data.firstStep,
@@ -163,7 +169,11 @@ export function VolunteerApplicationPage() {
           </aside>
 
           <div className="form-card">
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              onFocusCapture={() => trackFormStarted("volunteer")}
+              noValidate
+            >
               <div className="form-heading">
                 <p>Final demo step</p>
                 <h2>Confirm your first step</h2>

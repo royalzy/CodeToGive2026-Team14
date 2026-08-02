@@ -26,22 +26,84 @@ afterEach(() => {
 
 describe("route backbone", () => {
   it.each([
-    ["/", "See the ability."],
-    ["/impact", "Not what we provide."],
-    ["/volunteer", "Your first step can be a small one."],
-    ["/donate", "What kind of opportunity would you like to create?"],
-    ["/help", "Support for families and carers"],
-    ["/resources", "Learning for belonging"],
-    ["/members", "Meet the community"],
-    ["/partners", "Partner with Love 21"],
-    ["/admin", "Love 21 Admin"],
-    ["/login", "Welcome back"],
-  ])("renders %s", (route, heading) => {
+    ["/", "Every Life is", 1],
+    ["/impact", "Crystal steps forward.", 1],
+    ["/community", "People making this possible.", 1],
+    ["/volunteer", "Start with what you already know.", 2],
+    ["/donate", "received", 1],
+    ["/donor-profile", "Your impact, kept honest.", 1],
+    ["/help", "Let us find a starting point together", 2],
+    ["/admin", "Love 21 Admin", 1],
+    ["/login", "Sarah's family", 3],
+  ])("renders %s", (route, heading, level) => {
     renderRoute(route);
 
     expect(
-      screen.getByRole("heading", { name: new RegExp(heading, "i"), level: 1 }),
+      screen.getByRole("heading", { name: new RegExp(heading, "i"), level }),
     ).toBeInTheDocument();
+  });
+
+  it.each(["/resources", "/members", "/partners"])(
+    "does not expose the removed route %s",
+    (route) => {
+      renderRoute(route);
+
+      expect(
+        screen.getByRole("heading", {
+          name: "This path has not been added yet.",
+          level: 1,
+        }),
+      ).toBeInTheDocument();
+    },
+  );
+});
+
+describe("impact story", () => {
+  it("keeps Crystal and Love 21 support together while retaining service data", () => {
+    renderRoute("/impact");
+
+    expect(screen.getByText("She worked through the movement.")).toBeInTheDocument();
+    expect(screen.getByText("Structured sessions, hands-on support.")).toBeInTheDocument();
+    expect(
+      screen.getByText(/90\+ activity types and 500\+ volunteer hours/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Wider service" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+});
+
+describe("donor community experience", () => {
+  it("centres participation and keeps a new wall message private while moderated", () => {
+    renderRoute("/community");
+
+    expect(screen.getAllByText("1,284").length).toBeGreaterThan(0);
+    expect(screen.getByText("People making this possible")).toBeInTheDocument();
+    expect(screen.queryByText("A community, not a leaderboard.")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Every circle represents a person/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("No amounts. No rankings. Every circle is equal.")).not.toBeInTheDocument();
+    expect(screen.getByText(/I hope every child feels seen/i)).toBeInTheDocument();
+    expect(screen.getByText(/Visible only to you · awaiting review/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Loading new supporters/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No public messages yet/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "My donor profile" })).toHaveAttribute(
+      "href",
+      "/donor-profile",
+    );
+  });
+
+  it("reveals the private, evidence-backed donor record after demo sign in", async () => {
+    const user = userEvent.setup();
+    renderRoute("/donor-profile");
+
+    await user.type(screen.getByLabelText("Email"), "supporter@example.com");
+    await user.type(screen.getByLabelText("Password"), "private-demo");
+    await user.click(screen.getByRole("button", { name: "View my profile" }));
+
+    expect(screen.getByRole("heading", { name: "阿木", level: 1 })).toBeInTheDocument();
+    expect(screen.getByText("HK$2,400")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Your impact timeline" })).toBeInTheDocument();
+    expect(screen.queryByText(/Only you can see this/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Message awaiting review/i)).not.toBeInTheDocument();
   });
 });
 
@@ -53,34 +115,35 @@ describe("closed-loop forms", () => {
     await user.click(screen.getByRole("link", { name: "Browse all roles" }));
 
     expect(
-      screen.getByRole("heading", { name: "Explore without being boxed in.", level: 1 }),
+      screen.getByRole("heading", { name: "Creative Arts Class Assistant" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Dance Activity Buddy" })).toBeInTheDocument();
   });
 
   it("returns an explainable guided recommendation without restricting alternatives", async () => {
     const user = userEvent.setup();
 
     renderRoute("/volunteer/match");
-    await user.click(screen.getByLabelText("Dance & movement"));
-    await user.click(screen.getByLabelText("About once a month"));
-    await user.click(screen.getByLabelText("Join activities directly"));
+    await user.click(screen.getByLabelText("Community & education"));
+    await user.click(screen.getByLabelText("One activity for now"));
+    await user.click(screen.getByLabelText("Help behind the scenes"));
     await user.click(screen.getByRole("button", { name: "Show my starting point" }));
 
     expect(screen.getByText("Strong fit")).toBeInTheDocument();
-    expect(screen.getByText(/connects with your interest in dance/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/connects with your interest in community/i),
+    ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Two other roles worth exploring" })).toBeInTheDocument();
 
-    const communityHeading = screen.getByRole("heading", {
-      name: "Community Event Volunteer",
+    const eventHelperHeading = screen.getByRole("heading", {
+      name: "Community Event Helper",
     });
     await user.click(
-      within(communityHeading.closest("article")!).getByRole("link", {
+      within(eventHelperHeading.closest("article")!).getByRole("link", {
         name: "Explore this role",
       }),
     );
     expect(
-      screen.getByRole("heading", { name: "Community Event Volunteer", level: 1 }),
+      screen.getByRole("heading", { name: "Community Event Helper", level: 1 }),
     ).toBeInTheDocument();
   });
 
@@ -88,7 +151,7 @@ describe("closed-loop forms", () => {
     renderRoute("/volunteer/roles/dance_activity_buddy?journey=guided");
 
     expect(
-      screen.getByLabelText(/Volunteer story for people exploring the Dance Activity Buddy/i),
+      screen.getByLabelText(/Volunteer story for people exploring the Creative Arts Class Assistant/i),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Try this session" })).toBeInTheDocument();
   });
@@ -204,11 +267,9 @@ describe("closed-loop forms", () => {
         name: /Four more chances to move, learn, and shine/i,
       }),
     ).toBeInTheDocument();
+    await user.click(screen.getByLabelText(/Give completely anonymously/i));
     await user.click(
-      screen.getByRole("button", { name: "Continue to your details" }),
-    );
-    await user.click(
-      screen.getByRole("button", { name: "Review your intention" }),
+      screen.getByRole("button", { name: "Review & continue to secure payment" }),
     );
     await user.click(
       screen.getByRole("button", {

@@ -11,7 +11,7 @@ export function ArchetypeSwitcher({
     <div
       role="tablist"
       aria-label="Neurodiversity archetypes"
-      className="flex flex-wrap justify-center gap-3"
+      className="neuro-archetype-switcher flex flex-wrap justify-center"
     >
       {ARCHETYPES.map((archetype) => {
         const isActive = archetype.id === activeId;
@@ -23,7 +23,7 @@ export function ArchetypeSwitcher({
             role="tab"
             aria-selected={isActive}
             onClick={() => onSelect(archetype.id)}
-            className={`flex items-center gap-2 rounded-full border py-1.5 pl-1.5 pr-4 text-sm font-semibold transition-colors ${
+            className={`neuro-archetype-tab flex items-center gap-2 rounded-full border font-semibold transition-colors ${
               isActive
                 ? "border-love-blue bg-love-blue text-white shadow-md"
                 : "border-love-blue/20 bg-white/70 text-love-ink hover:border-love-blue/50 hover:text-love-blue"
@@ -32,7 +32,7 @@ export function ArchetypeSwitcher({
             <img
               src={archetype.avatarUrl}
               alt=""
-              className="h-10 w-10 rounded-full border border-love-blue/20 bg-white object-cover"
+              className="neuro-archetype-tab-avatar rounded-full border border-love-blue/20 bg-white object-cover"
             />
             {archetype.name}
           </button>

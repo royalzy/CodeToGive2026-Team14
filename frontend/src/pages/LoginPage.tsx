@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { PageHero } from "../components/Cards";
 import { useAuth } from "../hooks/useAuth";
 import { useLanguage } from "../hooks/useLanguage";
 
@@ -20,13 +19,6 @@ export function LoginPage() {
 
   return (
     <>
-      <PageHero
-        eyebrow="Member sign in"
-        title="Welcome back"
-        body="Choose your family account to browse programmes, book activities and see your calendar."
-        tone="blue"
-      />
-
       <section className="section">
         <div className="shell">
           <div className="help-grid">

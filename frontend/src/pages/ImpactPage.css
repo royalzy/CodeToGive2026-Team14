@@ -1,0 +1,706 @@
+.impact-story-page {
+  --impact-paper: #fffdf8;
+  --impact-cream: #fff9ed;
+  --impact-ink: #17313b;
+  --impact-ink-deep: #0c2d34;
+  --impact-muted: #56676d;
+  --impact-line: #bfd4d4;
+  --impact-sky: #dff4f7;
+  --impact-teal: #1687a7;
+  --impact-yellow: #ffd84d;
+  --impact-coral: #e7634f;
+  color: var(--impact-ink);
+  background: var(--impact-cream);
+}
+
+.impact-story-page h1,
+.impact-story-page h2,
+.impact-story-page h3,
+.impact-story-page p {
+  margin-top: 0;
+}
+
+.impact-story-eyebrow {
+  margin: 0 0 0.65rem;
+  color: var(--impact-teal);
+  font-family: "Work Sans", Inter, sans-serif;
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.impact-story-hero {
+  position: relative;
+  min-height: min(680px, calc(100vh - 86px));
+  overflow: hidden;
+  color: white;
+  background: var(--impact-ink-deep);
+}
+
+.impact-story-hero-image,
+.impact-story-hero-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.impact-story-hero-image {
+  object-fit: cover;
+  object-position: 58% 45%;
+}
+
+.impact-story-hero-overlay {
+  background:
+    linear-gradient(90deg, rgb(5 31 37 / 92%) 0%, rgb(5 31 37 / 74%) 40%, rgb(5 31 37 / 25%) 78%),
+    linear-gradient(0deg, rgb(5 31 37 / 35%), transparent 46%);
+}
+
+.impact-story-hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: inherit;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-block: clamp(3.5rem, 8vw, 5.4rem) 3.8rem;
+}
+
+.impact-story-hero .impact-story-eyebrow {
+  color: var(--impact-yellow);
+}
+
+.impact-story-hero h1 {
+  width: min(760px, 72%);
+  min-height: var(--pretext-height, auto);
+  margin: 0 0 1.15rem;
+  color: white;
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
+  font-size: clamp(3.6rem, 7.5vw, 7rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+}
+
+.impact-story-hero-deck {
+  width: min(640px, 70%);
+  min-height: var(--pretext-height, auto);
+  margin: 0;
+  color: rgb(255 255 255 / 88%);
+  font-size: clamp(0.95rem, 1.25vw, 1.08rem);
+  line-height: 1.55;
+}
+
+.impact-story-hero-bottom {
+  display: flex;
+  max-width: 850px;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.8rem;
+}
+
+.impact-story-primary-action {
+  display: inline-flex;
+  min-height: 48px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 1.05rem 0.55rem 0.65rem;
+  color: var(--impact-ink);
+  background: var(--impact-yellow);
+  border: 1px solid var(--impact-ink);
+  border-radius: 999px;
+  font-family: "Work Sans", Inter, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.impact-story-primary-action span {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  color: white;
+  background: var(--impact-ink);
+  border-radius: 50%;
+}
+
+.impact-story-hero-bottom > p {
+  max-width: 390px;
+  margin: 0;
+  color: rgb(255 255 255 / 72%);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.impact-story-hero-caption {
+  position: absolute;
+  z-index: 2;
+  right: 1.4rem;
+  bottom: 1.1rem;
+  margin: 0;
+  padding: 0.35rem 0.55rem;
+  color: rgb(255 255 255 / 76%);
+  background: rgb(5 31 37 / 70%);
+  border-radius: 3px;
+  font-size: 0.62rem;
+}
+
+.impact-story-tools {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  background: rgb(255 249 237 / 96%);
+  border-bottom: 1px solid var(--impact-line);
+  backdrop-filter: blur(12px);
+}
+
+.impact-story-tools-inner {
+  display: flex;
+  min-height: 74px;
+  align-items: center;
+  gap: 1.4rem;
+}
+
+.impact-story-progress-label {
+  min-width: 145px;
+  margin: 0;
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.impact-story-progress-label span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--impact-teal);
+  font-family: "Work Sans", Inter, sans-serif;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.impact-story-act-nav {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.impact-story-act-nav button {
+  position: relative;
+  display: grid;
+  min-width: 44px;
+  min-height: 44px;
+  flex: 1;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  color: var(--impact-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.impact-story-act-nav button::before {
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  left: 0;
+  height: 1px;
+  content: "";
+  background: var(--impact-line);
+}
+
+.impact-story-act-nav button::after {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 50%;
+  height: 1px;
+  content: "";
+  background: var(--impact-line);
+}
+
+.impact-story-act-nav button:first-child::before,
+.impact-story-act-nav button:last-child::after {
+  display: none;
+}
+
+.impact-story-act-nav button span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  background: var(--impact-cream);
+  border: 2px solid var(--impact-line);
+  border-radius: 50%;
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+.impact-story-act-nav button[aria-current="step"] span {
+  color: var(--impact-ink);
+  background: var(--impact-yellow);
+  border-color: var(--impact-yellow);
+}
+
+.impact-story-act {
+  padding-block: 4.5rem 5.1rem;
+  background: var(--impact-cream);
+  border-bottom: 1px solid rgb(23 49 59 / 14%);
+  scroll-margin-top: 74px;
+}
+
+.impact-story-act:nth-child(even) {
+  background: var(--impact-paper);
+}
+
+.impact-story-act-sky {
+  background: var(--impact-sky) !important;
+}
+
+.impact-story-act-cinema {
+  color: white;
+  background: var(--impact-ink-deep) !important;
+}
+
+.impact-story-act-media {
+  padding-block: 2.75rem 3rem;
+}
+
+.impact-story-act-head {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+  margin-bottom: 2.1rem;
+}
+
+.impact-story-act-media .impact-story-act-head {
+  margin-bottom: 1.5rem;
+}
+
+.impact-story-act-number {
+  color: var(--impact-teal);
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
+  font-size: 4.45rem;
+  line-height: 0.72;
+  opacity: 0.5;
+}
+
+.impact-story-act-cinema .impact-story-act-number {
+  color: #8ad1db;
+}
+
+.impact-story-act-head > div {
+  max-width: 810px;
+}
+
+.impact-story-act h2 {
+  margin: 0 0 0.6rem;
+  font-size: clamp(2.35rem, 4vw, 3.75rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 0.96;
+}
+
+.impact-story-act-intro {
+  max-width: 720px;
+  margin: 0;
+  color: var(--impact-muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.impact-story-act-cinema .impact-story-act-intro {
+  color: rgb(255 255 255 / 75%);
+}
+
+.impact-story-pair {
+  max-width: 900px;
+  margin-left: 9rem;
+  overflow: hidden;
+  background: var(--impact-paper);
+  border: 1px solid var(--impact-line);
+  border-radius: 8px;
+  box-shadow: 0 10px 26px rgb(23 49 59 / 8%);
+}
+
+.impact-story-act-cinema .impact-story-pair {
+  background: #173f47;
+  border-color: rgb(255 255 255 / 18%);
+  box-shadow: none;
+}
+
+.impact-story-panel {
+  padding: 1.3rem 1.55rem 1.4rem;
+}
+
+.impact-story-act-media .impact-story-panel {
+  padding-block: 1.05rem 1.15rem;
+}
+
+.impact-story-panel + .impact-story-panel {
+  border-top: 1px solid var(--impact-line);
+}
+
+.impact-story-act-cinema .impact-story-panel + .impact-story-panel {
+  border-color: rgb(255 255 255 / 18%);
+}
+
+.impact-story-panel h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+}
+
+.impact-story-panel > p {
+  margin: 0;
+  color: var(--impact-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.impact-story-act-cinema .impact-story-panel > p {
+  color: rgb(255 255 255 / 74%);
+}
+
+.impact-story-support-panel {
+  background: var(--impact-sky);
+}
+
+.impact-story-act-cinema .impact-story-support-panel {
+  background: rgb(223 244 247 / 8%);
+}
+
+.impact-story-panel .impact-story-data-line {
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  color: var(--impact-teal);
+  border-top: 1px solid rgb(23 49 59 / 16%);
+  font-size: 0.72rem;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.impact-story-act-cinema .impact-story-panel .impact-story-data-line {
+  color: var(--impact-yellow);
+  border-color: rgb(255 255 255 / 16%);
+}
+
+.impact-story-quote {
+  max-width: 730px;
+  margin: 1.9rem 0 0 9rem;
+  padding: 1.55rem 1.9rem 1.75rem;
+  color: white;
+  background: var(--impact-ink);
+  border-left: 5px solid var(--impact-yellow);
+}
+
+.impact-story-quote p {
+  margin: 0 0 0.55rem;
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
+  font-size: clamp(1.5rem, 2.6vw, 2.35rem);
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+}
+
+.impact-story-quote cite {
+  color: rgb(255 255 255 / 66%);
+  font-size: 0.67rem;
+  font-style: normal;
+}
+
+.impact-story-image-break {
+  position: relative;
+  height: 265px;
+  margin: 1.25rem 0 0;
+  overflow: hidden;
+  background: var(--impact-ink);
+  border-radius: 8px;
+}
+
+.impact-story-image-break img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.impact-story-image-break::after {
+  position: absolute;
+  inset: 42% 0 0;
+  content: "";
+  background: linear-gradient(transparent, rgb(4 24 28 / 88%));
+}
+
+.impact-story-image-break figcaption {
+  position: absolute;
+  z-index: 1;
+  right: 1.6rem;
+  bottom: 1.4rem;
+  left: 1.6rem;
+  max-width: 520px;
+  color: white;
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
+  font-size: clamp(1.2rem, 2.2vw, 1.9rem);
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+}
+
+.impact-story-context-link {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 1.1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid currentcolor;
+  border-radius: 7px;
+}
+
+.impact-story-context-link strong {
+  flex: 0 0 auto;
+  font-family: "Literata", Iowan Old Style, Georgia, serif;
+  font-size: 1rem;
+}
+
+.impact-story-context-link p {
+  flex: 1;
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.impact-story-context-link a {
+  display: inline-flex;
+  min-height: 44px;
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 0.6rem 0.9rem;
+  color: var(--impact-ink);
+  background: var(--impact-yellow);
+  border: 1px solid var(--impact-ink);
+  border-radius: 5px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.impact-story-act-cinema .impact-story-context-link {
+  border-color: rgb(255 255 255 / 28%);
+}
+
+.impact-story-closing {
+  padding-block: 3.6rem 3.25rem;
+  background: var(--impact-paper);
+}
+
+.impact-story-closing-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 3.25rem;
+  align-items: end;
+}
+
+.impact-story-closing h2 {
+  max-width: 690px;
+  margin: 0;
+  font-size: clamp(2.55rem, 4.4vw, 4.3rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 0.94;
+}
+
+.impact-story-closing-copy > p {
+  margin: 0;
+  color: var(--impact-muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 980px) {
+  .impact-story-tools-inner {
+    min-height: 92px;
+    flex-wrap: wrap;
+    gap: 0.55rem 1rem;
+    padding-block: 0.55rem;
+  }
+
+  .impact-story-progress-label {
+    flex: 1;
+  }
+
+  .impact-story-act-nav {
+    order: 3;
+    flex-basis: 100%;
+  }
+
+  .impact-story-act {
+    padding-block: 3.75rem 4rem;
+    scroll-margin-top: 92px;
+  }
+
+  .impact-story-act-media {
+    padding-block: 2.6rem 2.9rem;
+  }
+
+  .impact-story-act-head {
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .impact-story-act-number {
+    font-size: 3.8rem;
+  }
+
+  .impact-story-pair {
+    margin-left: 5.8rem;
+  }
+
+  .impact-story-panel,
+  .impact-story-act-media .impact-story-panel {
+    min-height: 0;
+  }
+
+  .impact-story-panel + .impact-story-panel {
+    border-top: 1px solid var(--impact-line);
+    border-left: 0;
+  }
+
+  .impact-story-quote {
+    margin-left: 5.8rem;
+  }
+
+  .impact-story-closing-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 680px) {
+  .impact-story-hero {
+    min-height: 620px;
+  }
+
+  .impact-story-hero-image {
+    object-position: 63% 45%;
+  }
+
+  .impact-story-hero-overlay {
+    background: linear-gradient(0deg, rgb(5 31 37 / 95%) 0%, rgb(5 31 37 / 68%) 62%, rgb(5 31 37 / 22%) 100%);
+  }
+
+  .impact-story-hero-content {
+    padding-block: 3.5rem 2.2rem;
+  }
+
+  .impact-story-hero h1,
+  .impact-story-hero-deck {
+    width: 100%;
+  }
+
+  .impact-story-hero h1 {
+    font-size: clamp(3.35rem, 17vw, 5rem);
+  }
+
+  .impact-story-hero-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-top: 1.35rem;
+  }
+
+  .impact-story-hero-bottom > p {
+    width: 100%;
+  }
+
+  .impact-story-hero-caption {
+    display: none;
+  }
+
+  .impact-story-tools-inner {
+    min-height: 96px;
+  }
+
+  .impact-story-act,
+  .impact-story-act-media {
+    padding-block: 3rem 3.4rem;
+    scroll-margin-top: 96px;
+  }
+
+  .impact-story-act-head {
+    display: block;
+    margin-bottom: 1.55rem;
+  }
+
+  .impact-story-act-number {
+    display: block;
+    margin-bottom: 1.1rem;
+    font-size: 3.2rem;
+  }
+
+  .impact-story-act h2 {
+    font-size: clamp(2.3rem, 11vw, 3.1rem);
+  }
+
+  .impact-story-panel,
+  .impact-story-act-media .impact-story-panel {
+    padding: 1.25rem 1.2rem 1.4rem;
+  }
+
+  .impact-story-pair {
+    margin-left: 0;
+  }
+
+  .impact-story-quote {
+    margin: 1.5rem 0 0;
+    padding: 1.4rem 1.25rem 1.55rem;
+  }
+
+  .impact-story-image-break {
+    height: 235px;
+  }
+
+  .impact-story-image-break figcaption {
+    right: 1.2rem;
+    bottom: 1.15rem;
+    left: 1.2rem;
+  }
+
+  .impact-story-context-link {
+    display: block;
+  }
+
+  .impact-story-context-link strong {
+    display: block;
+    margin-bottom: 0.45rem;
+  }
+
+  .impact-story-context-link a {
+    width: fit-content;
+    margin-top: 0.8rem;
+  }
+
+  .impact-story-closing {
+    padding-block: 3rem;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impact-story-page *,
+  .impact-story-page *::before,
+  .impact-story-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
