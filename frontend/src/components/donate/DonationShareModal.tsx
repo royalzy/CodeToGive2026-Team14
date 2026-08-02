@@ -204,9 +204,6 @@ export function DonationShareModal({
           <button type="button" className="button button-outline" onClick={handleCopyImage}>
             Copy image
           </button>
-          <button type="button" className="button button-outline" onClick={handleCopyLink}>
-            Copy link
-          </button>
         </div>
 
         <div className="quiz-share-socials">

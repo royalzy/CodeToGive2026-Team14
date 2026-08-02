@@ -7,8 +7,10 @@ import {
   type DonorWallPost,
 } from "../../api/client";
 import { getDonationImpactMessage } from "../../content/donations";
+import { causeStampImages } from "../../lib/donationShareImage";
 import { DonationReceipt } from "./DonationReceipt";
 import { DonationShareModal } from "./DonationShareModal";
+import { ImpactCard } from "./ImpactCard";
 
 const programmeDetails = {
   where_needed_most: {
@@ -76,6 +78,8 @@ export function DonationSuccess({
   const [isSubmittingWall, setIsSubmittingWall] = useState(false);
   const greeting =
     !anonymous && donorName.trim() ? `Thank you, ${donorName.trim()}.` : "Thank you.";
+  const recipientName =
+    !anonymous && donorName.trim() ? donorName.trim() : "A Friend of Love 21";
   const impactMessage = getDonationImpactMessage(result.impact);
   const amountLabel = `HK$${result.impact.amount_hkd.toLocaleString("en-HK")}`;
 
@@ -103,10 +107,26 @@ export function DonationSuccess({
       <span className="status-mark" aria-hidden="true">
         ✓
       </span>
-      <p className="eyebrow">Prototype donation confirmed</p>
+      <p className="eyebrow">Donation confirmed</p>
       <h2>{greeting}</h2>
 
-      <div className="donation-impact-hero">
+      <div className="donation-impact-hero donation-envelope">
+        <svg className="donation-envelope-flap" viewBox="0 0 100 34" preserveAspectRatio="none" aria-hidden="true">
+          <polyline points="0,0 50,34 100,0" />
+        </svg>
+        <span className="donation-envelope-postmark" aria-hidden="true">
+          <span className="donation-envelope-postmark-ring donation-envelope-postmark-ring-outer" />
+          <span className="donation-envelope-postmark-ring donation-envelope-postmark-ring-inner" />
+          <span className="donation-envelope-postmark-ray" />
+          <span className="donation-envelope-postmark-ray" />
+          <span className="donation-envelope-postmark-ray" />
+          <span className="donation-envelope-postmark-ray" />
+          <span className="donation-envelope-postmark-ray" />
+        </span>
+        <figure className="donation-envelope-stamp">
+          <img src={causeStampImages[result.impact.cause_id]} alt="" />
+        </figure>
+        <span className="donation-envelope-seal" aria-hidden="true">21</span>
         <span className="donation-impact-confetti" aria-hidden="true">
           <span />
           <span />
@@ -115,6 +135,11 @@ export function DonationSuccess({
           <span />
           <span />
         </span>
+        <p className="donation-envelope-address">
+          From: 21 Foundation
+          <br />
+          To: {recipientName}
+        </p>
         <p className="eyebrow">You just made this possible</p>
         <p className="donation-impact-headline">{impactMessage.headline}</p>
         <p className="donation-impact-amount">{amountLabel} given to {causeLabel}</p>
@@ -124,7 +149,7 @@ export function DonationSuccess({
           className="button button-outline donation-impact-share-button"
           onClick={() => setIsShareOpen(true)}
         >
-          <span aria-hidden="true">↗</span> Share my impact
+          Share my impact
         </button>
       </div>
 
@@ -138,15 +163,18 @@ export function DonationSuccess({
         anonymous={anonymous}
         causeLabel={causeLabel}
       />
-      <div className="simulation-confirmation">
-        {anonymous
-          ? "Simulation complete — no money was charged and no personal information was attached to this gift."
-          : "Simulation complete — no money was charged. This demo gift is now stored in your donor profile."}
-      </div>
-      {!anonymous && donorEmail && <p className="donation-email-note">A prototype confirmation, receipt and thank-you note would be sent to <strong>{donorEmail}</strong>.</p>}
+      {donorEmail && <p className="donation-email-note">A prototype confirmation, receipt and thank-you note would be sent to <strong>{donorEmail}</strong>.</p>}
 
       <section className="donation-outcome-record" aria-labelledby="donation-outcome-title">
-        <p className="eyebrow">Backend-calculated expected impact</p>
+        <div className="donate-a-impact-preview donate-a-impact-after">
+          <ImpactCard
+            amountHkd={result.impact.amount_hkd}
+            impact={result.impact}
+            status="success"
+            imageSrc={causeStampImages[result.impact.cause_id]}
+          />
+        </div>
+        <p className="eyebrow">Expected impact</p>
         <h3 id="donation-outcome-title">What your {amountLabel} gift is expected to set in motion.</h3>
         <p className="donation-outcome-lede"><strong>{impactMessage.headline}</strong> This is a planning estimate, not a promise that one gift alone caused an outcome. We will replace it with verified programme records after delivery.</p>
         <DonationImpactBreakdown impact={result.impact} />
@@ -157,7 +185,13 @@ export function DonationSuccess({
       </section>
 
       {anonymous ? (
-        <div className="anonymous-success-note"><strong>Your anonymity choice is complete.</strong><p>No email, profile or supporter-wall prompt is attached to this donation.</p></div>
+        <div className="anonymous-success-note">
+          <strong>Your anonymity choice is complete.</strong>
+          <p>
+            No name, profile or supporter-wall prompt is attached to this donation
+            {donorEmail ? ", aside from the receipt copy you asked to be emailed." : "."}
+          </p>
+        </div>
       ) : (
         <section className="donation-wall-invitation" aria-labelledby="wall-invitation-title">
           <p className="eyebrow">One last choice</p>

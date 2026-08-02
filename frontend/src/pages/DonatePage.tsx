@@ -48,13 +48,17 @@ const fallbackChoices: CauseChoice[] = donationPrograms.map((program) => ({
   label: program.label,
 }));
 
+const demoDonorSuffix = Math.random().toString(36).slice(2, 7);
+
 const initialDetails: DonorDetails = {
-  donorName: "",
-  donorEmail: "",
-  donorNickname: "",
-  donorPassword: "",
-  profileMode: "existing",
+  donorName: "Chloe Wong",
+  donorEmail: `chloe.wong+${demoDonorSuffix}@gmail.com`,
+  donorNickname: `Chloe Wong`,
+  donorPassword: "Demo1234!",
+  profileMode: "new",
   anonymous: false,
+  wantsAnonymousReceipt: false,
+  anonymousReceiptEmail: "",
   consentToUpdates: false,
 };
 
@@ -127,7 +131,17 @@ function validateDetails(details: DonorDetails): DonorDetailsErrors {
   const name = details.donorName.trim();
   const email = details.donorEmail.trim();
 
-  if (details.anonymous) return errors;
+  if (details.anonymous) {
+    if (details.wantsAnonymousReceipt) {
+      const receiptEmail = details.anonymousReceiptEmail.trim();
+      if (!receiptEmail) {
+        errors.anonymousReceiptEmail = "Enter an email to receive your receipt.";
+      } else if (!z.string().email().safeParse(receiptEmail).success) {
+        errors.anonymousReceiptEmail = "Enter a valid email address.";
+      }
+    }
+    return errors;
+  }
 
   if (name.length > 100) {
     errors.donorName = "Keep the name to 100 characters or fewer.";
@@ -318,7 +332,6 @@ export function DonatePage() {
     });
   }
 
-  async function continueToReview() {
   function continueToDetails() {
     if (!isValidAmount(amountHkd)) {
       setAmountError(
@@ -327,6 +340,10 @@ export function DonatePage() {
       return;
     }
     setAmountError(undefined);
+    setStep("details");
+  }
+
+  async function continueToReview() {
     const errors = authenticatedDonor && !details.anonymous
       ? {}
       : validateDetails(details);
@@ -376,13 +393,6 @@ export function DonatePage() {
         impact_mode: preview?.mode,
       });
     }
-    setStep("details");
-  }
-
-  function continueToReview() {
-    const errors = validateDetails(details);
-    setDetailsErrors(errors);
-    if (Object.keys(errors).length > 0) return;
     setStep("review");
   }
 
@@ -446,24 +456,6 @@ export function DonatePage() {
     <div className="donate-a-page">
       <div className="donate-a-content">
         <div className="donate-a-main">
-          <article className="donate-a-transparency" aria-labelledby="donation-transparency-title">
-            <p className="donor-community-eyebrow">Jan–Jun 2026 · independently reviewed</p>
-            <h1 id="donation-transparency-title">HK$3.28m received.<br />HK$2.91m put to work.</h1>
-            <p>The remaining HK$370k is committed to programmes already scheduled for August–October.</p>
-            <div className="donate-a-allocation">
-              {transparencyRows.map((item) => (
-                <div className="donate-a-allocation-row" key={item.label}>
-                  <div><strong>{item.label}</strong><strong>{item.percentage}%</strong></div>
-                  <i aria-hidden="true"><b style={{ width: `${item.percentage}%` }} /></i>
-                  <p>{item.detail}</p>
-                </div>
-              ))}
-            </div>
-            <div className="donate-a-evidence"><strong>Evidence, not estimates:</strong> attendance logs, coach records and 90-day employment follow-ups support these figures.</div>
-            <Link className="donor-community-button donor-community-button-primary donate-a-supporter-link" to="/supporter">
-              Meet our supporters →
-            </Link>
-          </article>
           <div className="donate-a-top-row">
             <article className="donate-a-transparency" aria-labelledby="donation-transparency-title">
               <p className="donor-community-eyebrow">Jan–Jun 2026 · independently reviewed</p>
@@ -479,6 +471,16 @@ export function DonatePage() {
                 ))}
               </div>
               <div className="donate-a-evidence"><strong>Evidence, not estimates:</strong> attendance logs, coach records and 90-day employment follow-ups support these figures.</div>
+              <button
+                type="button"
+                className="donate-a-evidence-cta"
+                onClick={() =>
+                  flowPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                }
+              >
+                <span aria-hidden="true">↓</span>
+                Donate now
+              </button>
             </article>
 
             <aside className="donate-a-photos" aria-label="Photos from our programmes">
@@ -540,15 +542,12 @@ export function DonatePage() {
                       className={index === currentIndex ? "current" : index < currentIndex ? "complete" : ""}
                       aria-current={index === currentIndex ? "step" : undefined}
                     >
-                      <span>{index + 1}</span>{item.label}
+                      <span className="donation-step-bar" />
+                      <span className="donation-step-label">{item.label}</span>
                     </li>
                   );
                 })}
               </ol>
-            </div>
-
-            <div className="simulation-banner" role="note">
-              Hackathon simulation — no payment is taken. Donor profiles and their demo donation records are stored in the local service.
             </div>
 
             {optionsNotice && <div className="form-alert form-notice" role="status">{optionsNotice}</div>}
@@ -556,40 +555,8 @@ export function DonatePage() {
             {step === "gift" && (
               <>
                 <div className="form-heading">
-                  <p>Step 1 of 4</p>
                   <h2 id="donation-flow-title">How would you like to give?</h2>
                 </div>
-                <DonorDetailsForm
-                  value={details}
-                  errors={detailsErrors}
-                  onChange={(nextDetails) => {
-                    setDetails(nextDetails);
-                    setDetailsErrors({});
-                  }}
-                />
-                {authenticatedDonor && !details.anonymous && (
-                  <div className="anonymous-confirmation" role="status">
-                    Signed in as <strong>{authenticatedDonor.nickname}</strong> ({authenticatedDonor.email}).
-                    This donation will be added to that profile.
-                  </div>
-                )}
-                {profileError && <div className="form-alert" role="alert">{profileError}</div>}
-
-                <hr className="donate-a-divider" />
-                <CauseSelector choices={causeChoices} value={causeId} onChange={selectCause} />
-                <AmountSelector
-                  presets={presets}
-                  amount={amountInput}
-                  error={amountError}
-                  onPreset={selectPreset}
-                  onChange={(value) => {
-                    setAmountInput(value);
-                    setAmountError(undefined);
-                  }}
-                  onCustomAmountConfirmed={confirmCustomAmount}
-                />
-                <div className="donate-a-impact-preview">
-                  <ImpactCard amountHkd={amountHkd} impact={preview} status={previewStatus} />
                 <div className="donate-a-gift-grid">
                   <div className="donate-a-gift-fields">
                     <CauseSelector choices={causeChoices} value={causeId} onChange={selectCause} />
@@ -610,9 +577,13 @@ export function DonatePage() {
                     <p className="form-footnote">Secure payment · Receipt by email · You can change your mind before confirming</p>
                   </div>
                   <aside className="donate-a-gift-impact" aria-label="Your possible impact">
-                    <img src={causeImages[causeId].src} alt={causeImages[causeId].alt} loading="lazy" />
                     <div className="donate-a-impact-preview">
-                      <ImpactCard amountHkd={amountHkd} impact={preview} status={previewStatus} />
+                      <ImpactCard
+                        amountHkd={amountHkd}
+                        impact={preview}
+                        status={previewStatus}
+                        imageSrc={causeImages[causeId].src}
+                      />
                     </div>
                   </aside>
                 </div>
@@ -622,13 +593,8 @@ export function DonatePage() {
             {step === "details" && (
               <>
                 <div className="form-heading">
-                  <p>Step 2 of 4</p>
                   <h2 id="donation-flow-title">Your details</h2>
                 </div>
-                <button className="button button-dark button-full" type="button" onClick={continueToReview} disabled={isAuthenticating}>
-                  {isAuthenticating ? "Opening your donor profile…" : "Review & continue to secure payment"}
-                </button>
-                <p className="form-footnote">Secure payment · Receipt by email · You can change your mind before confirming</p>
                 <DonorDetailsForm
                   value={details}
                   errors={detailsErrors}
@@ -649,8 +615,7 @@ export function DonatePage() {
             {step === "review" && (
               <>
                 <div className="form-heading">
-                  <p>Step 3 of 4</p>
-                  <h2 id="donation-flow-title">Review your prototype donation</h2>
+                  <h2 id="donation-flow-title">Review your donation</h2>
                 </div>
                 {submitError && <div className="form-alert" role="alert">{submitError}</div>}
                 <DonationReview
@@ -661,13 +626,18 @@ export function DonatePage() {
                   impactMessage={impactMessage}
                 />
                 <div className="donate-a-impact-preview donate-a-impact-after">
-                  <ImpactCard amountHkd={amountHkd} impact={preview} status={previewStatus} />
+                  <ImpactCard
+                    amountHkd={amountHkd}
+                    impact={preview}
+                    status={previewStatus}
+                    imageSrc={causeImages[causeId].src}
+                  />
                 </div>
                 <p className="form-footnote review-footnote">This confirms a prototype intention only. No money will be charged.</p>
                 <div className="button-row">
                   <button className="button button-outline" type="button" onClick={() => setStep("details")} disabled={isSubmitting}>Back</button>
                   <button className="button button-dark" type="button" onClick={submitDonationIntent} disabled={isSubmitting}>
-                    {isSubmitting ? "Confirming…" : `Confirm prototype donation of HK$${amountHkd.toLocaleString("en-HK")}`}
+                    {isSubmitting ? "Confirming…" : `Confirm donation of HK$${amountHkd.toLocaleString("en-HK")}`}
                   </button>
                 </div>
               </>
@@ -677,7 +647,7 @@ export function DonatePage() {
               <DonationSuccess
                 result={result}
                 donorName={donorDisplayName}
-                donorEmail={details.donorEmail}
+                donorEmail={details.anonymous ? details.anonymousReceiptEmail : details.donorEmail}
                 anonymous={details.anonymous}
                 causeLabel={selectedCauseLabel}
                 onStayInvolved={() => trackDonationEvent("stay_involved_clicked", {
@@ -689,18 +659,6 @@ export function DonatePage() {
             )}
           </section>
         </div>
-
-        <aside className="donate-a-promise">
-          <p className="donor-community-eyebrow">Our promise</p>
-          <h2>Traceable from gift to outcome.</h2>
-          <div><strong>Quarterly</strong><span>Updates on where your selected fund was used.</span></div>
-          <div><strong>Specific</strong><span>Photos, programme records and real changes, with consent.</span></div>
-          <div><strong>Human</strong><span>A person reviews every donor-wall message.</span></div>
-          <div className="donate-a-promise-actions">
-            <Link className="donor-community-button" to="/supporter">← Supporters</Link>
-            <Link className="donor-community-button donor-community-button-primary" to="/donor-profile">My donor profile</Link>
-          </div>
-        </aside>
       </div>
     </div>
   );

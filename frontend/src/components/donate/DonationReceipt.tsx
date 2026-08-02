@@ -55,7 +55,7 @@ function buildReceiptHtml({
 </head>
 <body>
   <div class="receipt">
-    <p class="eyebrow">Love 21 &middot; Prototype donation receipt</p>
+    <p class="eyebrow">Love 21 &middot; donation receipt</p>
     <h1>Thank you for your gift, ${donorLine}.</h1>
     <table>
       <tr><td>Receipt issued</td><td>${issuedOn}</td></tr>
@@ -113,7 +113,7 @@ export function DonationReceipt({
         <button className="button button-dark" type="button" onClick={openReceipt}>
           Download / print receipt
         </button>
-        {!anonymous && donorEmail && (
+        {donorEmail && (
           <button
             className="button button-outline"
             type="button"
