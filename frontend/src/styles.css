@@ -2431,7 +2431,7 @@ h3 {
    releases once that section fully covers it. No JS required. */
 .volunteer-hero-scroll {
   position: relative;
-  height: 200vh;
+  height: auto;
 }
 
 .volunteer-hero-sticky {
@@ -2439,7 +2439,7 @@ h3 {
   top: 0;
   z-index: 0;
   overflow: hidden;
-  height: 100vh;
+  min-height: min(680px, calc(100vh - 86px));
   color: white;
   background: var(--ink);
 }
@@ -2497,7 +2497,8 @@ h3 {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding-block: clamp(2rem, 8vw, 5rem) clamp(1.75rem, 5vw, 3rem);
+  min-height: inherit;
+  padding-block: clamp(3.5rem, 8vw, 5.4rem) 3.8rem;
 }
 
 .volunteer-hero-eyebrow.eyebrow {
@@ -2568,8 +2569,7 @@ h3 {
 .volunteer-hero-reveal {
   position: relative;
   z-index: 1;
-  min-height: 100vh;
-  margin-top: -100vh;
+  margin-top: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -2590,11 +2590,10 @@ h3 {
 
   .volunteer-hero-sticky {
     position: relative;
-    height: min(640px, 100vh);
+    min-height: min(640px, 100vh);
   }
 
   .volunteer-hero-reveal {
-    min-height: 0;
     margin-top: 0;
     border-radius: 0;
     box-shadow: none;
