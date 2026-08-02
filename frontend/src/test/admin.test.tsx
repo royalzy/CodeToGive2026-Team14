@@ -1,10 +1,16 @@
 import { cleanup, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 async function renderAdminPage() {
   vi.resetModules();
   const { AdminPage } = await import("../pages/AdminPage");
-  return render(<AdminPage />);
+  // The page links to the Media page, so it needs router context.
+  return render(
+    <MemoryRouter>
+      <AdminPage />
+    </MemoryRouter>,
+  );
 }
 
 afterEach(() => {

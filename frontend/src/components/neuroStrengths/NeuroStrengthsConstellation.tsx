@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
 
 import { ArchetypeSwitcher } from "./ArchetypeSwitcher";
+import { ArticleCard } from "./ArticleCard";
+import { ArticleModal } from "./ArticleModal";
 import { ConstellationRadar } from "./ConstellationRadar";
-import { ARCHETYPES } from "./data";
+import { ARCHETYPES, ARTICLES, type Article } from "./data";
 import { FactsMarquee } from "./FactsMarquee";
+import { MythRealityPanel } from "./MythRealityPanel";
 import { NarrativeStory } from "./NarrativeStory";
 import { ScenarioQuiz } from "./ScenarioQuiz";
 import { ScienceTrivia } from "./ScienceTrivia";
@@ -12,6 +15,7 @@ import { useAnimatedStats } from "./useAnimatedStats";
 
 export function NeuroStrengthsConstellation() {
   const [activeArchetypeId, setActiveArchetypeId] = useState(ARCHETYPES[0].id);
+  const [activeArticle, setActiveArticle] = useState<Article | null>(null);
 
   const activeArchetype = useMemo(
     () => ARCHETYPES.find((archetype) => archetype.id === activeArchetypeId) ?? ARCHETYPES[0],
@@ -37,16 +41,27 @@ export function NeuroStrengthsConstellation() {
       </section>
 
       {/* Chapter 2: The Proof */}
-      <section className="neuro-proof-section">
-        <div className="shell neuro-proof-layout flex flex-col">
+      <section className="py-16">
+        <div className="shell flex flex-col gap-10">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-bold text-love-ink">Meet the Archetypes</h2>
+            <p className="mx-auto mt-3 max-w-xl leading-relaxed text-love-ink/70">
+              Ever wonder why you might struggle with a task that someone else does
+              effortlessly? We all have a &ldquo;spiky profile.&rdquo; Explore these archetypes
+              to see how neurodivergent traits translate into unique advantages.
+            </p>
+          </div>
+
           <ArchetypeSwitcher activeId={activeArchetype.id} onSelect={setActiveArchetypeId} />
 
           <NarrativeStory key={activeArchetype.id} archetype={activeArchetype} />
 
           <div className="neuro-proof-grid grid grid-cols-1 lg:grid-cols-2">
             <TraitDials values={animatedStats} />
-            <ConstellationRadar archetype={activeArchetype} values={animatedStats} />
+            <ConstellationRadar values={animatedStats} />
           </div>
+
+          <MythRealityPanel archetype={activeArchetype} />
         </div>
       </section>
 
@@ -85,6 +100,27 @@ export function NeuroStrengthsConstellation() {
           </div>
         </div>
       </section>
+
+      {/* Chapter 5: Dive Deeper */}
+      <section className="bg-love-cream py-16">
+        <div className="shell">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-love-ink">Continue the Journey</h2>
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {ARTICLES.map((article) => (
+              <ArticleCard
+                key={article.id}
+                article={article}
+                onOpen={() => setActiveArticle(article)}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <ArticleModal article={activeArticle} onClose={() => setActiveArticle(null)} />
     </div>
   );
 }

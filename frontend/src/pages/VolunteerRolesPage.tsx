@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
@@ -13,7 +14,13 @@ import {
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
 
 export function VolunteerRolesPage() {
-  const [activePrograms, setActivePrograms] = useState<VolunteerInterest[]>([]);
+  const [searchParams] = useSearchParams();
+  const [activePrograms, setActivePrograms] = useState<VolunteerInterest[]>(() => {
+    const requested = searchParams.get("program")?.split(",") ?? [];
+    return programs
+      .map((program) => program.slug)
+      .filter((slug) => requested.includes(slug));
+  });
   const [activeRoleTypes, setActiveRoleTypes] = useState<VolunteerRoleType[]>([]);
 
   useEffect(() => {
@@ -131,6 +138,12 @@ export function VolunteerRolesPage() {
           )}
         </div>
       </section>
+      <section className="section section-soft">
+        <div className="shell">
+          <VolunteerOtherWaysToHelp />
+        </div>
+      </section>
+
       <section className="section">
         <div className="shell">
           <VolunteerNewsletterSignup
@@ -138,12 +151,6 @@ export function VolunteerRolesPage() {
             title="None of these feel right for now?"
             body="Subscribe and we'll let you know when new roles or programmes open up."
           />
-        </div>
-      </section>
-
-      <section className="section section-soft">
-        <div className="shell">
-          <VolunteerOtherWaysToHelp />
         </div>
       </section>
     </>

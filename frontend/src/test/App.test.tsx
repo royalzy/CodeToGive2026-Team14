@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -29,7 +29,7 @@ describe("route backbone", () => {
     ["/", "Every Life is", 1],
     ["/impact", "Crystal steps forward.", 1],
     ["/community", "People making this possible.", 1],
-    ["/volunteer", "Start with what you already know.", 2],
+    ["/volunteer", "Volunteer with Love 21", 1],
     ["/donate", "received", 1],
     ["/donor-profile", "Your impact, kept honest.", 1],
     ["/help", "Let us find a starting point together", 2],
@@ -73,7 +73,17 @@ describe("impact story", () => {
 });
 
 describe("donor community experience", () => {
-  it("centres participation and keeps a new wall message private while moderated", () => {
+  it("centres participation and keeps a new wall message private while moderated", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify([{
+        id: "WALL-PRIVATE",
+        donation_intent_id: "DON-PRIVATE",
+        nickname: "Private Donor",
+        message: "Only I can see this preview.",
+        status: "pending",
+        created_at: "2026-08-02T02:05:00+00:00",
+      }]), { status: 200, headers: { "Content-Type": "application/json" } }),
+    );
     renderRoute("/community");
 
     expect(screen.getAllByText("1,284").length).toBeGreaterThan(0);
@@ -82,7 +92,8 @@ describe("donor community experience", () => {
     expect(screen.queryByText(/Every circle represents a person/i)).not.toBeInTheDocument();
     expect(screen.queryByText("No amounts. No rankings. Every circle is equal.")).not.toBeInTheDocument();
     expect(screen.getByText(/I hope every child feels seen/i)).toBeInTheDocument();
-    expect(screen.getByText(/Visible only to you · awaiting review/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Visible only to you · awaiting review/i)).toBeInTheDocument();
+    expect(screen.getByText(/Only I can see this preview/i)).toBeInTheDocument();
     expect(screen.queryByText(/Loading new supporters/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/No public messages yet/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "My donor profile" })).toHaveAttribute(
@@ -93,15 +104,75 @@ describe("donor community experience", () => {
 
   it("reveals the private, evidence-backed donor record after demo sign in", async () => {
     const user = userEvent.setup();
+    let profileRequests = 0;
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith("/donor-sessions")) {
+        return new Response(JSON.stringify({ profile: {
+          id: "DNR-PROFILE",
+          email: "supporter@example.com",
+          nickname: "阿木",
+          name: "阿木",
+          consent_to_updates: false,
+          created_at: "2026-08-02T01:00:00+00:00",
+        } }), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
+      if (url.endsWith("/donor-profiles/me")) {
+        profileRequests += 1;
+        if (profileRequests === 1) {
+          return new Response(JSON.stringify({ detail: "Sign in" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        return new Response(JSON.stringify({
+          profile: {
+            id: "DNR-PROFILE",
+            email: "supporter@example.com",
+            nickname: "阿木",
+            name: "阿木",
+            consent_to_updates: false,
+            created_at: "2026-08-02T01:00:00+00:00",
+          },
+          lifetime_amount_hkd: 600,
+          donation_count: 1,
+          donations: [{
+            donation_intent_id: "DON-TODAY",
+            cause_id: "dance",
+            amount_hkd: 600,
+            currency: "HKD",
+            status: "simulated",
+            created_at: "2026-08-02T02:00:00+00:00",
+            impact: {
+              cause_id: "dance",
+              amount_hkd: 600,
+              mode: "counted",
+              copy_key: "dance",
+              estimated_units: 4,
+              unit_key: "dance_training_session",
+              is_estimate: true,
+            },
+          }],
+        }), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
     renderRoute("/donor-profile");
 
+    await waitFor(() => expect(
+      screen.getByRole("button", { name: "View my profile" }),
+    ).toBeEnabled());
     await user.type(screen.getByLabelText("Email"), "supporter@example.com");
     await user.type(screen.getByLabelText("Password"), "private-demo");
     await user.click(screen.getByRole("button", { name: "View my profile" }));
 
     expect(screen.getByRole("heading", { name: "阿木", level: 1 })).toBeInTheDocument();
-    expect(screen.getByText("HK$2,400")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Your impact timeline" })).toBeInTheDocument();
+    expect(screen.getAllByText("HK$600").length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: "Your donation timeline" })).toBeInTheDocument();
+    expect(screen.getByText(/DON-TODAY/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Expected programme work" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "What access may require" })).toBeVisible();
+    expect(screen.getByText(/Next programme cycle/i)).toBeVisible();
     expect(screen.queryByText(/Only you can see this/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Message awaiting review/i)).not.toBeInTheDocument();
   });
@@ -119,31 +190,48 @@ describe("closed-loop forms", () => {
     ).toBeInTheDocument();
   });
 
-  it("returns an explainable guided recommendation without restricting alternatives", async () => {
+  it("runs the volunteer personality quiz question-by-question to a role match", async () => {
     const user = userEvent.setup();
 
     renderRoute("/volunteer/match");
-    await user.click(screen.getByLabelText("Community & education"));
-    await user.click(screen.getByLabelText("One activity for now"));
-    await user.click(screen.getByLabelText("Help behind the scenes"));
-    await user.click(screen.getByRole("button", { name: "Show my starting point" }));
-
-    expect(screen.getByText("Strong fit")).toBeInTheDocument();
     expect(
-      screen.getByText(/connects with your interest in community/i),
+      screen.getByRole("heading", { name: "Volunteer personality quiz", level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Two other roles worth exploring" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Five quick questions, one fun result.", level: 2 }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/might not be fully accurate/i)).toBeInTheDocument();
 
-    const eventHelperHeading = screen.getByRole("heading", {
-      name: "Community Event Helper",
+    await user.click(screen.getByRole("button", { name: "Start the quiz" }));
+    expect(screen.getByText("Question 1 of 5")).toBeInTheDocument();
+
+    const creativeAnswers = [
+      /too shy myself/i,
+      /^Creative stuff/i,
+      /work alongside them/i,
+      /Using my creativity/i,
+      /^Creative\. I think outside the box/i,
+    ];
+
+    for (const [index, answer] of creativeAnswers.entries()) {
+      await user.click(screen.getByRole("button", { name: answer }));
+      if (index < creativeAnswers.length - 1) {
+        await screen.findByText(`Question ${index + 2} of 5`);
+      }
+    }
+
+    expect(await screen.findByText("The Creative Spirit")).toBeInTheDocument();
+
+    const creativeArtsHeading = screen.getByRole("heading", {
+      name: "Creative Arts Class Assistant",
     });
     await user.click(
-      within(eventHelperHeading.closest("article")!).getByRole("link", {
+      within(creativeArtsHeading.closest("article")!).getByRole("link", {
         name: "Explore this role",
       }),
     );
     expect(
-      screen.getByRole("heading", { name: "Community Event Helper", level: 1 }),
+      screen.getByRole("heading", { name: "Creative Arts Class Assistant", level: 1 }),
     ).toBeInTheDocument();
   });
 

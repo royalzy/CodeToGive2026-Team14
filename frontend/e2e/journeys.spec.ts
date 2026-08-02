@@ -8,17 +8,34 @@ async function completeDemoApplication(page: import("@playwright/test").Page) {
   await page.getByRole("button", { name: "Submit demo request" }).click();
 }
 
-test("guided volunteer path creates a provisional first-session plan", async ({
+async function openCreativeArtsRole(page: import("@playwright/test").Page) {
+  const roleCard = page.getByRole("article").filter({
+    has: page.getByRole("heading", { name: "Creative Arts Class Assistant" }),
+  });
+  await roleCard.getByRole("link", { name: "Explore this role" }).click();
+}
+
+test("guided volunteer quiz creates a provisional first-session plan", async ({
   page,
 }) => {
   await page.goto("/volunteer");
-  await page.getByRole("link", { name: "Start the guided match" }).click();
-  await page.getByLabel("Enrichment & intervention").check();
-  await page.getByLabel("About once a month").check();
-  await page.getByLabel("Join activities directly").check();
-  await page.getByRole("button", { name: "Show my starting point" }).click();
-  await expect(page.getByText("Strong fit")).toBeVisible();
-  await page.getByRole("link", { name: "Explore this role" }).first().click();
+  await page.getByRole("link", { name: "Find out" }).click();
+  await page.getByRole("button", { name: "Start the quiz" }).click();
+
+  for (const answer of [
+    /too shy myself/i,
+    /^Creative stuff/i,
+    /work alongside them/i,
+    /Using my creativity/i,
+    /^Creative\. I think outside the box/i,
+  ]) {
+    await page.getByRole("button", { name: answer }).click();
+  }
+
+  await expect(
+    page.getByRole("heading", { name: "The Creative Spirit" }),
+  ).toBeVisible();
+  await openCreativeArtsRole(page);
   await expect(page.locator("video")).toBeVisible();
   await expect(page.locator('video source[type="video/mp4"]')).toHaveAttribute(
     "src",
@@ -34,10 +51,11 @@ test("guided volunteer path creates a provisional first-session plan", async ({
   await expect(page.getByRole("heading", { name: "Saturday Dance Project" })).toBeVisible();
 });
 
-test("quick volunteer path can skip matching and the story video", async ({ page }) => {
+test("volunteer can browse roles without completing the quiz", async ({ page }) => {
   await page.goto("/volunteer");
-  await page.getByRole("link", { name: /View demo sessions/i }).click();
-  await page.getByRole("link", { name: "Try this session" }).first().click();
+  await page.getByRole("link", { name: "Browse all roles" }).click();
+  await openCreativeArtsRole(page);
+  await page.getByRole("link", { name: "Try this session" }).click();
   await completeDemoApplication(page);
 
   await expect(page.getByText(/no place has been reserved/i)).toBeVisible();
@@ -55,6 +73,7 @@ test("volunteer can register interest for a role without a session", async ({ pa
 });
 
 test("visitor can complete the donation simulation", async ({ page }) => {
+  const unique = `${Date.now()}-${test.info().parallelIndex}`;
   await page.goto("/");
   await page.getByRole("link", { name: "Donate Now" }).click();
 
@@ -73,9 +92,9 @@ test("visitor can complete the donation simulation", async ({ page }) => {
     }),
   ).toBeVisible();
   await page.getByLabel(/Create a donor profile/i).check();
-  await page.getByLabel("Unique nickname").fill("Alex Chan");
+  await page.getByLabel("Unique nickname").fill(`Alex Chan ${unique}`);
   await page.getByLabel("Name (optional)").fill("Alex Chan");
-  await page.getByLabel("Email", { exact: true }).fill("alex@example.com");
+  await page.getByLabel("Email", { exact: true }).fill(`alex-${unique}@example.com`);
   await page.getByLabel("Password").fill("private-demo");
   await page.getByRole("button", { name: "Review & continue to secure payment" }).click();
   await expect(page.getByRole("heading", { name: "Review your prototype donation" })).toBeVisible();
@@ -86,7 +105,7 @@ test("visitor can complete the donation simulation", async ({ page }) => {
     .click();
 
   await expect(
-    page.getByRole("heading", { name: "Thank you, Alex Chan." }),
+    page.getByRole("heading", { name: `Thank you, Alex Chan ${unique}.` }),
   ).toBeVisible();
   await expect(page.getByText(/no money was charged/i)).toBeVisible();
   await page.getByRole("link", { name: "Visit our community" }).click();

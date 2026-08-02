@@ -1,42 +1,7 @@
 import { useState } from "react";
 
-import { QUIZ_SCENARIOS, type QuizTheme } from "./data";
-
-const THEME_STYLES: Record<
-  QuizTheme,
-  { banner: string; shape: string; primary: string; secondary: string }
-> = {
-  blue: {
-    banner: "bg-blue-50",
-    shape: "bg-blue-200/50",
-    primary: "text-blue-600",
-    secondary: "text-slate-500",
-  },
-  indigo: {
-    banner: "bg-indigo-50",
-    shape: "bg-indigo-200/50",
-    primary: "text-indigo-600",
-    secondary: "text-cyan-500",
-  },
-  purple: {
-    banner: "bg-purple-50",
-    shape: "bg-purple-200/50",
-    primary: "text-purple-600",
-    secondary: "text-pink-500",
-  },
-  orange: {
-    banner: "bg-orange-50",
-    shape: "bg-orange-200/50",
-    primary: "text-orange-600",
-    secondary: "text-amber-500",
-  },
-  emerald: {
-    banner: "bg-emerald-50",
-    shape: "bg-emerald-200/50",
-    primary: "text-emerald-600",
-    secondary: "text-teal-500",
-  },
-};
+import { QUIZ_SCENARIOS } from "./data";
+import { ScenarioIllustration } from "./ScenarioIllustration";
 
 export function ScenarioQuiz() {
   const [index, setIndex] = useState(0);
@@ -70,47 +35,20 @@ export function ScenarioQuiz() {
   const selectedOption = scenario.options.find((option) => option.label === selectedLabel);
   const hasAnswered = selectedOption !== undefined;
   const isLastScenario = index === QUIZ_SCENARIOS.length - 1;
-  const theme = THEME_STYLES[scenario.theme];
-  const IconPrimary = scenario.iconPrimary;
-  const IconSecondary = scenario.iconSecondary;
 
   return (
-    <div className="mx-auto max-w-xl overflow-hidden rounded-3xl border border-love-blue/15 bg-white shadow-xl">
-      <div key={scenario.id} className={`relative h-48 overflow-hidden ${theme.banner}`}>
-        <div
-          className={`absolute -right-6 -top-6 h-28 w-28 rounded-full ${theme.shape}`}
-          aria-hidden="true"
-        />
-        <div
-          className={`absolute bottom-6 left-8 h-10 w-10 rotate-12 rounded-xl ${theme.shape}`}
-          aria-hidden="true"
-        />
-        <div
-          className={`absolute right-12 top-10 h-6 w-6 rounded-full ${theme.shape}`}
-          aria-hidden="true"
-        />
-
-        <div className="relative flex h-full items-center justify-center gap-4">
-          <div
-            className={`flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-md ${theme.primary}`}
-          >
-            <IconPrimary size={40} strokeWidth={1.75} />
-          </div>
-          <div
-            className={`flex h-14 w-14 translate-y-3 items-center justify-center rounded-full bg-white/70 shadow ${theme.secondary}`}
-          >
-            <IconSecondary size={26} strokeWidth={1.75} />
-          </div>
-        </div>
-      </div>
-
-      <div className="p-6 sm:p-8">
+    <div className="mx-auto flex w-full min-h-[500px] max-w-6xl flex-col overflow-hidden rounded-3xl border border-love-blue/15 bg-white shadow-xl lg:flex-row">
+      <div className="flex-1 p-6 sm:p-8 lg:p-10">
         <p className="text-xs font-semibold uppercase tracking-wide text-love-blue/70">
           Scenario {index + 1} of {QUIZ_SCENARIOS.length}
         </p>
         <p className="mt-2 text-lg font-semibold text-love-ink">{scenario.question}</p>
 
-        <div className="mt-5 flex flex-col gap-3">
+        <div
+          className={`mt-5 flex flex-col gap-3 transition-opacity duration-500 ${
+            hasAnswered ? "opacity-60" : "opacity-100"
+          }`}
+        >
           {scenario.options.map((option) => {
             const isSelected = option.label === selectedLabel;
 
@@ -170,6 +108,10 @@ export function ScenarioQuiz() {
             </button>
           </div>
         )}
+      </div>
+
+      <div className="lg:w-2/5 lg:shrink-0">
+        <ScenarioIllustration key={scenario.id} scenario={scenario} hasAnswered={hasAnswered} />
       </div>
     </div>
   );

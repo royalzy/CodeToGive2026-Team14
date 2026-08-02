@@ -6,7 +6,7 @@
   --impact-muted: #56676d;
   --impact-line: #bfd4d4;
   --impact-sky: #dff4f7;
-  --impact-teal: #1687a7;
+  --impact-teal: #0f6f8a;
   --impact-yellow: #ffd84d;
   --impact-coral: #e7634f;
   color: var(--impact-ink);
@@ -291,7 +291,10 @@
   font-family: "Literata", Iowan Old Style, Georgia, serif;
   font-size: 4.45rem;
   line-height: 0.72;
-  opacity: 0.5;
+}
+
+.impact-story-act-cinema .impact-story-eyebrow {
+  color: var(--impact-yellow);
 }
 
 .impact-story-act-cinema .impact-story-act-number {

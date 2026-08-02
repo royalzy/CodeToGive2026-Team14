@@ -16,12 +16,16 @@ export type ImpactPreview =
   | components["schemas"]["ContributionImpact"]
   | components["schemas"]["FlexibleImpact"];
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000";
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
+const API_BASE_URL = configuredApiBaseUrl
+  || `${window.location.protocol}//${window.location.hostname}:8000`;
 
 export class ApiError extends Error {
-  constructor(message: string, public readonly status: number) {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code?: string,
+  ) {
     super(message);
     this.name = "ApiError";
   }
@@ -49,7 +53,11 @@ async function fetchWithTimeout(
   }, API_TIMEOUT_MS);
 
   try {
-    return await fetch(input, { ...init, signal: controller.signal });
+    return await fetch(input, {
+      credentials: "include",
+      ...init,
+      signal: controller.signal,
+    });
   } catch (error) {
     if (timedOut) {
       throw new ApiError(
@@ -77,11 +85,13 @@ async function postJson<TRequest, TResponse>(
   });
 
   if (!response.ok) {
+    const problem = await extractApiProblem(response);
     throw new ApiError(
-      response.status >= 500
+      problem.message ?? (response.status >= 500
         ? "The service is taking a pause. Please try again shortly."
-        : "Please check the information and try again.",
+        : "Please check the information and try again."),
       response.status,
+      problem.code,
     );
   }
 
@@ -95,11 +105,13 @@ export async function getJson<TResponse>(
   const response = await fetchWithTimeout(`${API_BASE_URL}${path}`, { signal });
 
   if (!response.ok) {
+    const problem = await extractApiProblem(response);
     throw new ApiError(
-      response.status >= 500
+      problem.message ?? (response.status >= 500
         ? "The service is taking a pause. Please try again shortly."
-        : "We could not load the information. Please try again.",
+        : "We could not load the information. Please try again."),
       response.status,
+      problem.code,
     );
   }
 
@@ -159,6 +171,48 @@ const donationIntentResultSchema = z.object({
   impact: impactPreviewSchema,
 });
 
+const donorSummarySchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  nickname: z.string(),
+  name: z.string(),
+  consent_to_updates: z.boolean(),
+  created_at: z.string(),
+});
+
+const donorAuthSchema = z.object({ profile: donorSummarySchema });
+
+const donorDonationSchema = z.object({
+  donation_intent_id: z.string(),
+  cause_id: causeIdSchema,
+  amount_hkd: z.number().int(),
+  currency: z.literal("HKD"),
+  status: z.literal("simulated"),
+  created_at: z.string(),
+  impact: impactPreviewSchema,
+});
+
+const donorProfileSchema = z.object({
+  profile: donorSummarySchema,
+  lifetime_amount_hkd: z.number().int().nonnegative(),
+  donation_count: z.number().int().nonnegative(),
+  donations: z.array(donorDonationSchema),
+});
+
+const wallPostSchema = z.object({
+  id: z.string(),
+  donation_intent_id: z.string(),
+  nickname: z.string(),
+  message: z.string().nullable(),
+  status: z.literal("pending"),
+  created_at: z.string(),
+});
+
+export type DonorSummary = z.infer<typeof donorSummarySchema>;
+export type DonorAuthResult = z.infer<typeof donorAuthSchema>;
+export type DonorProfileResult = z.infer<typeof donorProfileSchema>;
+export type DonorWallPost = z.infer<typeof wallPostSchema>;
+
 export function submitVolunteerApplication(
   payload: VolunteerApplication,
 ): Promise<VolunteerApplicationResult> {
@@ -172,6 +226,56 @@ export function createDonationIntent(
     "/api/v1/donation-intents",
     payload,
   ).then((result) => donationIntentResultSchema.parse(result));
+}
+
+export function createDonorProfile(payload: {
+  email: string;
+  password: string;
+  nickname: string;
+  name: string | null;
+  consent_to_updates: boolean;
+}): Promise<DonorAuthResult> {
+  return postJson<typeof payload, unknown>("/api/v1/donor-profiles", payload)
+    .then((result) => donorAuthSchema.parse(result));
+}
+
+export function createDonorSession(payload: {
+  email: string;
+  password: string;
+}): Promise<DonorAuthResult> {
+  return postJson<typeof payload, unknown>("/api/v1/donor-sessions", payload)
+    .then((result) => donorAuthSchema.parse(result));
+}
+
+export function getMyDonorProfile(): Promise<DonorProfileResult> {
+  return getJson<unknown>("/api/v1/donor-profiles/me")
+    .then((result) => donorProfileSchema.parse(result));
+}
+
+export async function deleteDonorSession(): Promise<void> {
+  const response = await fetchWithTimeout(
+    `${API_BASE_URL}/api/v1/donor-sessions/current`,
+    { method: "DELETE" },
+  );
+  if (!response.ok) {
+    const problem = await extractApiProblem(response);
+    throw new ApiError(problem.message ?? "Could not sign out.", response.status, problem.code);
+  }
+}
+
+export function createDonorWallPost(
+  donationIntentId: string,
+  payload: { message: string | null },
+): Promise<DonorWallPost> {
+  return postJson<typeof payload, unknown>(
+    `/api/v1/donation-intents/${encodeURIComponent(donationIntentId)}/wall-posts`,
+    payload,
+  ).then((result) => wallPostSchema.parse(result));
+}
+
+export function getMyDonorWallPosts(): Promise<DonorWallPost[]> {
+  return getJson<unknown>("/api/v1/donor-wall/me")
+    .then((result) => z.array(wallPostSchema).parse(result));
 }
 
 export interface BookingPayload {
@@ -208,7 +312,7 @@ export function getDonationImpactOptions(
   );
 }
 
-export type PlatformId = "instagram" | "facebook";
+export type PlatformId = "website" | "instagram" | "facebook";
 
 export interface SocialPostResult {
   platform: PlatformId;
@@ -228,6 +332,8 @@ export interface SocialPostResponse {
 /** Instagram's caption cap. Facebook allows far more. */
 export const IG_MAX_CAPTION = 2200;
 export const FB_MAX_CAPTION = 63206;
+/** The website is ours; the only limit is keeping the feed readable. */
+export const WEB_MAX_CAPTION = 5000;
 /** Instagram carousels take 2-10 items; Facebook's feed limit matches. */
 export const MAX_IMAGES = 10;
 
@@ -263,6 +369,34 @@ async function extractDetail(response: Response): Promise<string | null> {
   }
 }
 
+async function extractApiProblem(
+  response: Response,
+): Promise<{ message: string | null; code?: string }> {
+  try {
+    const payload = (await response.json()) as { detail?: unknown };
+    const detail = payload.detail;
+    if (typeof detail === "string") return { message: detail };
+    if (Array.isArray(detail)) {
+      const messages = detail.flatMap((item) =>
+        item && typeof item === "object" && typeof (item as { msg?: unknown }).msg === "string"
+          ? [(item as { msg: string }).msg]
+          : [],
+      );
+      return { message: messages.length ? messages.join(" ") : null };
+    }
+    if (detail && typeof detail === "object") {
+      const record = detail as { message?: unknown; code?: unknown };
+      return {
+        message: typeof record.message === "string" ? record.message : null,
+        code: typeof record.code === "string" ? record.code : undefined,
+      };
+    }
+    return { message: null };
+  } catch {
+    return { message: null };
+  }
+}
+
 export async function publishSocialPost(input: {
   /**
    * Optional and repeatable. Empty means a text-only post (Facebook only);
@@ -273,6 +407,7 @@ export async function publishSocialPost(input: {
   /** Optional per-platform overrides; each falls back to `caption`. */
   captionInstagram?: string;
   captionFacebook?: string;
+  captionWebsite?: string;
   platforms: PlatformId[];
 }): Promise<SocialPostResponse> {
   const body = new FormData();
@@ -282,6 +417,7 @@ export async function publishSocialPost(input: {
   body.append("caption", input.caption);
   if (input.captionInstagram) body.append("caption_instagram", input.captionInstagram);
   if (input.captionFacebook) body.append("caption_facebook", input.captionFacebook);
+  if (input.captionWebsite) body.append("caption_website", input.captionWebsite);
   for (const platform of input.platforms) {
     body.append("platforms", platform);
   }
@@ -395,4 +531,114 @@ export function answerHeroRound(payload: {
   return postJson<unknown, unknown>("/api/v1/quiz/rounds/answer", payload).then(
     (result) => revealSchema.parse(result),
   );
+}
+
+export interface MediaPost {
+  id: string;
+  caption: string;
+  images: string[];
+  published_at: string;
+}
+
+/** Remove a website post and its images. Admin-only in practice. */
+export async function deleteMediaPost(postId: string): Promise<void> {
+  const response = await fetchWithTimeout(
+    `${API_BASE_URL}/api/v1/media-posts/${encodeURIComponent(postId)}`,
+    { method: "DELETE" },
+  );
+
+  if (!response.ok) {
+    throw new ApiError(
+      (await extractDetail(response)) ?? "Could not delete the post.",
+      response.status,
+    );
+  }
+}
+
+export interface ScheduledPost {
+  id: string;
+  captions: Partial<Record<PlatformId, string>>;
+  platforms: PlatformId[];
+  images: string[];
+  scheduled_for: string;
+  created_at: string;
+}
+
+/** Store a post for later instead of publishing it now. */
+export async function schedulePost(input: {
+  images: File[];
+  caption: string;
+  captionInstagram?: string;
+  captionFacebook?: string;
+  captionWebsite?: string;
+  platforms: PlatformId[];
+  /** Local datetime from an <input type="datetime-local">. */
+  scheduledFor: string;
+}): Promise<ScheduledPost> {
+  const body = new FormData();
+  for (const image of input.images) body.append("images", image);
+  body.append("caption", input.caption);
+  body.append("scheduled_for", input.scheduledFor);
+  if (input.captionInstagram) body.append("caption_instagram", input.captionInstagram);
+  if (input.captionFacebook) body.append("caption_facebook", input.captionFacebook);
+  if (input.captionWebsite) body.append("caption_website", input.captionWebsite);
+  for (const platform of input.platforms) body.append("platforms", platform);
+
+  const response = await fetchWithTimeout(`${API_BASE_URL}/api/v1/scheduled-posts`, {
+    method: "POST",
+    body,
+  });
+
+  if (!response.ok) {
+    throw new ApiError(
+      (await extractDetail(response)) ?? "Could not schedule the post.",
+      response.status,
+    );
+  }
+  return (await response.json()) as ScheduledPost;
+}
+
+export async function listScheduledPosts(): Promise<ScheduledPost[]> {
+  return getJson<ScheduledPost[]>("/api/v1/scheduled-posts");
+}
+
+export async function deleteScheduledPost(postId: string): Promise<void> {
+  const response = await fetchWithTimeout(
+    `${API_BASE_URL}/api/v1/scheduled-posts/${encodeURIComponent(postId)}`,
+    { method: "DELETE" },
+  );
+  if (!response.ok) {
+    throw new ApiError(
+      (await extractDetail(response)) ?? "Could not delete the scheduled post.",
+      response.status,
+    );
+  }
+}
+
+/** Publish a pending post now. Meta calls can be slow, so this uses the long timeout. */
+export async function publishScheduledPost(postId: string): Promise<SocialPostResponse> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), SOCIAL_PUBLISH_TIMEOUT_MS);
+  let response: Response;
+  try {
+    response = await fetch(
+      `${API_BASE_URL}/api/v1/scheduled-posts/${encodeURIComponent(postId)}/publish`,
+      { method: "POST", signal: controller.signal },
+    );
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new ApiError("Publishing took too long. Check the platforms before retrying.", 408);
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+
+  if (!response.ok) {
+    throw new ApiError(
+      (await extractDetail(response)) ?? "Could not publish the scheduled post.",
+      response.status,
+    );
+  }
+  return (await response.json()) as SocialPostResponse;
 }

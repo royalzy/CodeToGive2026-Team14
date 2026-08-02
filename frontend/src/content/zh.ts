@@ -33,6 +33,7 @@ export const navigation = [
   { label: "捐款", href: "/donate" },
   { label: "支援", href: "/help" },
   { label: "了解更多", href: "/neuro-strengths" },
+  { label: "媒體", href: "/media" },
 ];
 
 export const personas = [
@@ -308,6 +309,26 @@ export const supportPathways: SupportPathway[] = [
     audienceTags: ["self", "carer", "exploring", "professional", "unspecified"],
     needTags: ["activities", "practical", "community"],
     startTags: ["group", "action", "read"],
+  },
+  {
+    id: "learn",
+    title: "認識神經多樣性",
+    body: "以簡明語言講解神經多樣性的運作方式，先看見優勢，而非缺損。",
+    href: "/neuro-strengths",
+    actionLabel: "開始了解",
+    audienceTags: ["self", "carer", "professional", "exploring", "unspecified"],
+    needTags: ["practical", "discrimination", "unsure"],
+    startTags: ["read"],
+  },
+  {
+    id: "community",
+    title: "看看你身邊的社群",
+    body: "1,284 位支持者及 10 間夥伴機構一直支持這項工作，也支持你。",
+    href: "/community",
+    actionLabel: "認識社群",
+    audienceTags: ["self", "carer", "exploring", "unspecified"],
+    needTags: ["community", "unsure"],
+    startTags: ["group"],
   },
   {
     id: "volunteer",
