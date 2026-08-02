@@ -16,7 +16,7 @@ function jsonResponse(payload: unknown, status = 200) {
 const round = {
   id: "rw-001",
   theme: "stigma",
-  kick: "One of these is actually TRUE. Can you spot it?",
+  kick: "One of these is actually a MYTH. Can you spot it?",
   twist: "all_myths",
   statements: [
     { id: "st-001a", text: "Statement one." },
@@ -108,7 +108,7 @@ describe("hero myth-check", () => {
 
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(
-      screen.queryByText("One of these is actually TRUE. Can you spot it?"),
+      screen.queryByText("One of these is actually a MYTH. Can you spot it?"),
     ).not.toBeInTheDocument();
   });
 });
