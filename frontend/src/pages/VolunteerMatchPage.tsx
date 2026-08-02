@@ -78,6 +78,7 @@ export function VolunteerMatchPage() {
   return (
     <>
       <PageHero
+        eyebrow="Find your fit"
         title="What type of volunteer are you?"
         body="Answer five quick, situational questions and we'll match you with the volunteer role that fits your personality best."
         tone="red"
