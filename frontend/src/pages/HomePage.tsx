@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Apple,
@@ -5,10 +6,19 @@ import {
   ArrowUpRight,
   Drama,
   Handshake,
+  Heart,
   Medal,
   Sprout,
   type LucideIcon,
 } from "lucide-react";
+import {
+  answerHeroRound,
+  getHeroRound,
+  getQuizStats,
+  type HeroRound,
+  type RevealResult,
+} from "../api/client";
+import { getCurrentLang, track, trackOnce } from "../analytics/umami";
 import { useLanguage } from "../hooks/useLanguage";
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -80,15 +90,38 @@ export function HomePage() {
   return (
     <>
       <Hero c={c} />
+      <MythQuiz />
       <Barriers />
       <SupportMarquee />
       <SupportModel c={c} />
       <SupportDepth c={c} />
       <QuickLinks />
-      <Link to="/help" className="landing-help-button">
-        <span className="landing-help-button-icon" aria-hidden="true">?</span>
-        <span>Need help?</span>
-      </Link>
+      <div className="landing-help-buttons">
+        <Link to="/help" className="landing-help-button landing-help-button-help">
+          <span className="landing-help-button-icon" aria-hidden="true">?</span>
+          <span>Need help?</span>
+        </Link>
+        <Link
+          to="/volunteer"
+          className="landing-help-button landing-help-button-volunteer"
+          aria-label="Volunteer with Love 21"
+        >
+          <span className="landing-help-button-icon" aria-hidden="true">
+            <Handshake size={16} strokeWidth={2} />
+          </span>
+          <span>Volunteer</span>
+        </Link>
+        <Link
+          to="/donate"
+          className="landing-help-button landing-help-button-donate"
+          aria-label="Support Love 21 financially"
+        >
+          <span className="landing-help-button-icon" aria-hidden="true">
+            <Heart size={16} strokeWidth={2} />
+          </span>
+          <span>Donate</span>
+        </Link>
+      </div>
     </>
   );
 }
@@ -100,16 +133,11 @@ function Hero({ c }: { c: typeof import("../content/en").landingContent }) {
     <section className="home-hero">
       <img className="home-hero-image" src={heroImage.src} alt={heroImage.alt} />
       <div className="home-hero-shade" aria-hidden="true" />
-      <div className="home-hero-orbits" aria-hidden="true">
-        <span />
-        <span />
-      </div>
 
       <div className="shell home-hero-inner">
         <p className="home-kicker home-kicker-light">{c.hero.tagline}</p>
         <h1>
-          {c.hero.titleLine1}
-          <em>{c.hero.titleAccent}</em>
+          {c.hero.titleLine1} <em>{c.hero.titleAccent}</em>
         </h1>
         <p className="home-hero-lede">{c.hero.subtitle}</p>
         <div className="home-hero-actions">
@@ -120,10 +148,6 @@ function Hero({ c }: { c: typeof import("../content/en").landingContent }) {
             Our story <ArrowUpRight size={18} aria-hidden="true" />
           </Link>
         </div>
-        <aside className="home-hero-note" aria-label="Our promise">
-          <span>Our promise</span>
-          <strong>Whole-person support. Whole-family community.</strong>
-        </aside>
       </div>
 
       <div className="home-hero-stats" aria-label="Love 21 at a glance">
@@ -133,6 +157,156 @@ function Hero({ c }: { c: typeof import("../content/en").landingContent }) {
             <span>{stat.label}</span>
           </div>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function HeroMythCheck() {
+  const [round, setRound] = useState<HeroRound | null>(null);
+  const [reveal, setReveal] = useState<RevealResult | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [attempts, setAttempts] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getQuizStats()
+      .then((stats) => {
+        if (cancelled) {
+          return;
+        }
+        const matched = stats.rounds.find((r) => r.round_id === round?.id);
+        if (matched) {
+          setAttempts(matched.attempts);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAttempts(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [round]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getHeroRound()
+      .then((r) => {
+        if (cancelled) {
+          return;
+        }
+        setRound(r);
+        trackOnce("hero_myth_round_started", { round_id: r.id });
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setRound(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const choose = useCallback(
+    (statementId: string) => {
+      if (!round || reveal || busy) {
+        return;
+      }
+      setBusy(true);
+      setSelectedId(statementId);
+      answerHeroRound({
+        round_id: round.id,
+        selected_statement_id: statementId,
+        lang: getCurrentLang(),
+      })
+        .then((result) => {
+          setReveal(result);
+          track("hero_myth_round_revealed", {
+            round_id: result.round_id,
+            selected_statement_id: statementId,
+          });
+        })
+        .catch(() => {
+          setSelectedId(null);
+        })
+        .finally(() => setBusy(false));
+    },
+    [round, reveal, busy],
+  );
+
+  if (!round) {
+    return null;
+  }
+
+  return (
+    <div className="hero-myth" aria-live="polite">
+      <p className="hero-myth-kick">{round.kick}</p>
+      <ul className="hero-myth-list">
+        {round.statements.map((st, i) => {
+          const verdict = reveal?.statements.find((r) => r.id === st.id);
+          return (
+            <li key={st.id}>
+              <button
+                type="button"
+                className={`hero-myth-statement${st.id === selectedId ? " picked" : ""}`}
+                onClick={() => choose(st.id)}
+                disabled={Boolean(reveal) || busy}
+              >
+                <span className="hero-myth-index">{i + 1}</span>
+                <span className="hero-myth-text">{st.text}</span>
+              </button>
+              <div className={`hero-myth-panel${verdict ? " open" : ""}`}>
+                <div className="hero-myth-panel-inner">
+                  {verdict && (
+                    <div className={`hero-myth-verdict${st.id === reveal?.selected_statement_id ? " picked" : ""}`}>
+                      <strong>{verdict.is_myth ? "Myth" : "True"}</strong>
+                      <p>{verdict.reveal}</p>
+                      <a href={verdict.source.url} target="_blank" rel="noreferrer">
+                        {verdict.source.label}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {reveal && (
+        <div className="hero-myth-reveal">
+          <p className="hero-myth-punchline">{reveal.punchline}</p>
+          {attempts !== null && (
+            <p className="hero-myth-community">
+              {attempts.toLocaleString()}{" "}
+              {attempts === 1 ? "person has" : "people have"} already been put to the
+              test on this round.
+            </p>
+          )}
+          <Link
+            to="/neuro-strengths"
+            className="landing-hero-cta-primary hero-myth-cta"
+            data-cta="myth-learn-more"
+          >
+            Learn more
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MythQuiz() {
+  return (
+    <section className="bg-love-cream py-20">
+      <div className="shell text-center">
+        <p className="home-kicker">Myth vs. reality</p>
+      </div>
+      <div className="shell mt-6 max-w-2xl">
+        <HeroMythCheck />
       </div>
     </section>
   );
