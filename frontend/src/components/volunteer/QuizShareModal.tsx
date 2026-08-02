@@ -60,6 +60,8 @@ export function QuizShareModal({
 
   const shareUrl = new URL(`/volunteer/match?result=${result.letter}`, window.location.origin).toString();
   const shareText = `I just found out I'm "${result.archetype}" (${result.title}) on Love 21's "What type of volunteer are you?" quiz.`;
+  const supportsNativeShare =
+    typeof navigator !== "undefined" && typeof navigator.share === "function";
 
   useEffect(() => {
     let cancelled = false;
@@ -187,7 +189,7 @@ export function QuizShareModal({
         )}
 
         <div className="quiz-share-actions">
-          {typeof navigator !== "undefined" && navigator.share && (
+          {supportsNativeShare && (
             <button type="button" className="button button-dark" onClick={handleNativeShare}>
               Share…
             </button>
@@ -197,6 +199,9 @@ export function QuizShareModal({
           </button>
           <button type="button" className="button button-outline" onClick={handleCopyImage}>
             Copy image
+          </button>
+          <button type="button" className="button button-outline" onClick={handleCopyLink}>
+            Copy link
           </button>
         </div>
 
