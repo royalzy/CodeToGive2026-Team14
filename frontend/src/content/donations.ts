@@ -1,6 +1,15 @@
 import type { AllocationShare, WishlistItem } from "./types";
 import type { CauseId, ImpactPreview } from "../api/client";
 
+// A pre-baked donor profile so demos can skip typing. The email is fixed
+// and reused across every demo run, so DonatePage falls back to signing
+// into this profile if creating it fails because it already exists.
+export const DEMO_DONOR_DETAILS = {
+  donorEmail: "team14@mail.com",
+  donorPassword: "123456",
+  donorNickname: "Team 14",
+};
+
 export const donationPrograms: ReadonlyArray<{
   value: CauseId;
   label: string;

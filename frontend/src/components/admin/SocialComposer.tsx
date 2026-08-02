@@ -21,6 +21,14 @@ const CAPTION_LIMITS: Record<PlatformId, number> = {
 /** Platforms that cannot publish without an image. */
 const NEEDS_IMAGE: PlatformId[] = ["website", "instagram"];
 
+// For demo runs: one click loads a real photo, caption and platform instead
+// of walking through the form by hand.
+const DEMO_IMAGE_URL = "/images/demo-yoga-family.png";
+const DEMO_CAPTION =
+  "Deep breaths and steady stretches, side by side. Members and their " +
+  "families move through a seated yoga session together, finding calm " +
+  "and connection on the studio floor.";
+
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const IMAGE_REQUIREMENTS =
@@ -265,6 +273,22 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
+  async function fillDemoPost() {
+    setError(null);
+    setResults(null);
+    setScheduledNotice(null);
+    try {
+      const response = await fetch(DEMO_IMAGE_URL);
+      const blob = await response.blob();
+      const file = new File([blob], "demo-yoga-family.png", { type: "image/png" });
+      setFiles([file]);
+      setCaption(DEMO_CAPTION);
+      setSelected(["website"]);
+    } catch {
+      setError("Could not load the demo image. Please try again.");
+    }
+  }
+
   function togglePlatform(id: PlatformId) {
     setScheduledNotice(null);
     setSelected((current) =>
@@ -431,6 +455,14 @@ export function SocialComposer({ onScheduled }: SocialComposerProps) {
               {error}
             </div>
           ) : null}
+
+          <button
+            type="button"
+            onClick={fillDemoPost}
+            className="mb-4 rounded-full border border-dashed border-love-ink/30 px-4 py-1.5 text-sm font-semibold text-love-ink/70 transition-colors hover:border-love-ink hover:text-love-ink"
+          >
+            Fill demo post
+          </button>
 
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold">Images</span>

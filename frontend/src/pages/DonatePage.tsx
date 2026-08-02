@@ -36,6 +36,7 @@ import {
   type PreviewStatus,
 } from "../components/donate/ImpactCard";
 import {
+  DEMO_DONOR_DETAILS,
   donationPrograms,
   getDonationImpactMessage,
 } from "../content/donations";
@@ -317,18 +318,39 @@ export function DonatePage() {
         setAuthenticatedDonor(authResult.profile);
         setDetails((current) => ({ ...current, donorPassword: "" }));
       } catch (error) {
-        if (error instanceof ApiError && error.code === "email_taken") {
+        const isDemoEmail =
+          details.profileMode === "new" &&
+          details.donorEmail.trim() === DEMO_DONOR_DETAILS.donorEmail;
+        if (isDemoEmail && error instanceof ApiError && error.code === "email_taken") {
+          // The demo details are reused across every run of this flow, so the
+          // "create" call fails from the second run onward. Sign into the
+          // profile it made the first time instead of surfacing an error —
+          // for a demo, reusing that profile is fine.
+          try {
+            const authResult = await createDonorSession({
+              email: DEMO_DONOR_DETAILS.donorEmail,
+              password: DEMO_DONOR_DETAILS.donorPassword,
+            });
+            setAuthenticatedDonor(authResult.profile);
+            setDetails((current) => ({ ...current, donorPassword: "" }));
+          } catch {
+            setProfileError("We could not open your donor profile. Please try again.");
+            return;
+          }
+        } else if (error instanceof ApiError && error.code === "email_taken") {
           setDetailsErrors({ donorEmail: error.message });
+          return;
         } else if (error instanceof ApiError && error.code === "nickname_taken") {
           setDetailsErrors({ donorNickname: error.message });
+          return;
         } else {
           setProfileError(
             error instanceof Error
               ? error.message
               : "We could not open your donor profile. Please try again.",
           );
+          return;
         }
-        return;
       } finally {
         setIsAuthenticating(false);
       }
