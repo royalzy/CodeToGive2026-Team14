@@ -538,7 +538,7 @@ h3 {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.5fr 0.75fr 1.25fr;
+  grid-template-columns: 1.5fr 0.75fr 1.05fr 1fr;
   gap: 4rem;
 }
 
@@ -566,8 +566,63 @@ h3 {
   text-underline-offset: 0.25rem;
 }
 
-.footer-grid>div:last-child>p:last-child {
+.footer-grid>div:nth-child(3)>p:last-child {
   color: #c8c5ce;
+}
+
+.footer-social-heading {
+  margin-top: 0;
+}
+
+.footer-social-links {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.footer-social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+  text-decoration: none;
+}
+
+.footer-social-link:hover {
+  color: white;
+}
+
+.footer-social-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.7rem;
+  color: white;
+  background: transparent;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 18%) inset;
+}
+
+.footer-social-icon-svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.social-link-instagram .footer-social-icon {
+  color: white;
+}
+
+.social-link-linkedin .footer-social-icon {
+  color: white;
+}
+
+.social-link-youtube .footer-social-icon {
+  color: white;
+}
+
+.social-link-facebook .footer-social-icon {
+  color: white;
 }
 
 .footer-bottom {
