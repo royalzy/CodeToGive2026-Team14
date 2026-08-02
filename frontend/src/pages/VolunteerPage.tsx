@@ -5,6 +5,7 @@ import { SectionHeading } from "../components/Cards";
 import { VolunteerNewsletterSignup } from "../components/volunteer/VolunteerNewsletterSignup";
 import { VolunteerOtherWaysToHelp } from "../components/volunteer/VolunteerOtherWaysToHelp";
 import { VolunteerProgramAccordion } from "../components/volunteer/VolunteerProgramAccordion";
+import { VolunteerTestimonialMarquee } from "../components/volunteer/VolunteerTestimonialMarquee";
 import { volunteerTestimonials } from "../content/volunteer";
 import { trackVolunteerEvent } from "../lib/volunteerAnalytics";
 
@@ -19,35 +20,33 @@ export function VolunteerPage() {
         <div className="shell">
           <SectionHeading
             eyebrow="Choose your way in"
-            title="Start with what you already know."
-            body="If you are unsure, we can suggest a role. If you already have an idea, go straight to roles or demo sessions."
+            title="Not sure where to start?"
+            body="Take the quiz for a fun, personalised starting point, or skip straight to browsing every role yourself."
           />
-          <div className="volunteer-path-grid">
-            <article className="volunteer-path-card volunteer-path-guided">
-              <span>01 · Guided path</span>
-              <h2>Help me find a role</h2>
-              <p>
-                Tell us about the areas you care about and how you'd like to help. The
-                recommendation is a starting point, never a test or restriction.
-              </p>
-              <Link className="button button-light" to="/volunteer/match">
-                Start the guided match
-              </Link>
-            </article>
-            <article className="volunteer-path-card volunteer-path-quick">
-              <span>02 · Quick path</span>
-              <h2>I know how I want to explore</h2>
-              <p>
-                Browse every role or look at the available demo sessions without
-                completing a questionnaire.
-              </p>
-              <div className="volunteer-inline-actions">
-                <Link className="button button-dark" to="/volunteer/roles">
-                  Browse all roles
-                </Link>
-                <Link className="text-link" to="/volunteer/sessions?journey=quick">
-                  View demo sessions <span aria-hidden="true">→</span>
-                </Link>
+          <div className="volunteer-path-grid volunteer-path-grid-single">
+            <article className="volunteer-path-card volunteer-path-quiz">
+              <img
+                className="volunteer-path-quiz-image"
+                src="/images/quiz-cta-girl.jpg"
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+              />
+              <div className="volunteer-path-quiz-content">
+                <h2>Find out which type of volunteer you are</h2>
+                <br></br>
+                <p>
+                  Take our 1 minute quiz and discover the role that was made for you.
+                </p>
+                <div className="volunteer-inline-actions">
+                  <Link className="button button-light" to="/volunteer/match">
+                    Find out{" "}
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                  <Link className="button button-dark" to="/volunteer/roles">
+                    Browse all roles
+                  </Link>
+                </div>
               </div>
             </article>
           </div>
@@ -69,33 +68,15 @@ export function VolunteerPage() {
         <div className="shell">
           <SectionHeading
             eyebrow="From our volunteers"
-            title="What corporate and individual volunteers say."
+            title="Why they keep coming back"
           />
-          <div className="volunteer-testimonial-grid">
-            {volunteerTestimonials.map((testimonial) => (
-              <figure key={testimonial.name} className="volunteer-testimonial-card">
-                <blockquote>"{testimonial.quote}"</blockquote>
-                <figcaption>
-                  {testimonial.name} — {testimonial.org}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+          <VolunteerTestimonialMarquee testimonials={volunteerTestimonials} />
         </div>
       </section>
 
-      <section className="section volunteer-reassurance-section">
-        <div className="shell volunteer-reassurance-grid">
-          <div>
-            <p className="eyebrow">What this is</p>
-            <h2>A friendly way to prepare before you share personal details.</h2>
-          </div>
-          <ul>
-            <li>No expertise is required for these first-step roles.</li>
-            <li>A volunteer story shows what people do and gain from taking part.</li>
-            <li>Demo requests are not saved, sent or automatically approved.</li>
-            <li>You can observe or express interest without booking a session.</li>
-          </ul>
+      <section className="section section-soft">
+        <div className="shell">
+          <VolunteerOtherWaysToHelp />
         </div>
       </section>
 
@@ -117,12 +98,6 @@ export function VolunteerPage() {
             source="volunteer_landing"
             title="Prefer to hear from us by email?"
           />
-        </div>
-      </section>
-
-      <section className="section section-soft">
-        <div className="shell">
-          <VolunteerOtherWaysToHelp />
         </div>
       </section>
     </>

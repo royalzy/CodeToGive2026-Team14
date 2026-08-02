@@ -119,20 +119,26 @@ describe("closed-loop forms", () => {
     ).toBeInTheDocument();
   });
 
-  it("returns an explainable guided recommendation without restricting alternatives", async () => {
+  it("runs the volunteer personality quiz question-by-question to a role match", async () => {
     const user = userEvent.setup();
 
     renderRoute("/volunteer/match");
-    await user.click(screen.getByLabelText("Community & education"));
-    await user.click(screen.getByLabelText("One activity for now"));
-    await user.click(screen.getByLabelText("Help behind the scenes"));
-    await user.click(screen.getByRole("button", { name: "Show my starting point" }));
-
-    expect(screen.getByText("Strong fit")).toBeInTheDocument();
     expect(
-      screen.getByText(/connects with your interest in community/i),
+      screen.getByRole("heading", { name: "What type of volunteer are you?", level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Two other roles worth exploring" })).toBeInTheDocument();
+    expect(screen.getByText(/might not be fully accurate/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Start the quiz" }));
+    expect(screen.getByText("Question 1 of 5")).toBeInTheDocument();
+
+    for (let i = 0; i < 5; i += 1) {
+      const options = screen.getAllByRole("button", { name: /./ }).filter((button) =>
+        button.className.includes("volunteer-quiz-option"),
+      );
+      await user.click(options[3]);
+    }
+
+    expect(screen.getByText("The Behind-the-Scenes Hero")).toBeInTheDocument();
 
     const eventHelperHeading = screen.getByRole("heading", {
       name: "Community Event Helper",
