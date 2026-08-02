@@ -6,6 +6,7 @@ import {
   WEB_MAX_CAPTION,
   MAX_IMAGES,
   publishSocialPost,
+  schedulePost,
   type PlatformId,
   type SocialPostResult,
 } from "../../api/client";
@@ -174,7 +175,12 @@ function InfoTooltip({ text }: { text: string }) {
   );
 }
 
-export function SocialComposer() {
+interface SocialComposerProps {
+  /** Called after a post is scheduled, so the pending list can refresh. */
+  onScheduled?: () => void;
+}
+
+export function SocialComposer({ onScheduled }: SocialComposerProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [caption, setCaption] = useState("");
@@ -189,6 +195,9 @@ export function SocialComposer() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<SocialPostResult[] | null>(null);
+  const [scheduling, setScheduling] = useState(false);
+  const [scheduledFor, setScheduledFor] = useState("");
+  const [scheduledNotice, setScheduledNotice] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Object URLs leak if not revoked when the selection changes or unmounts.
@@ -211,6 +220,8 @@ export function SocialComposer() {
   function addFiles(picked: FileList | null) {
     setError(null);
     setResults(null);
+    // Starting a new post: the previous confirmation no longer applies.
+    setScheduledNotice(null);
     if (!picked || picked.length === 0) return;
 
     const incoming = [...picked];
@@ -261,6 +272,7 @@ export function SocialComposer() {
   }
 
   function togglePlatform(id: PlatformId) {
+    setScheduledNotice(null);
     setSelected((current) =>
       current.includes(id) ? current.filter((p) => p !== id) : [...current, id],
     );
@@ -277,13 +289,12 @@ export function SocialComposer() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  async function onSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    setError(null);
-
+  /** Validation shared by "Post now" and "Schedule". Returns the resolved
+   *  captions, or null when something is missing (error already set). */
+  function validate(): { textFor: (p: PlatformId) => string } | null {
     if (selected.length === 0) {
       setError("Choose at least one platform.");
-      return;
+      return null;
     }
     const imageless = selected.filter((p) => NEEDS_IMAGE.includes(p));
     if (files.length === 0 && imageless.length > 0) {
@@ -291,7 +302,7 @@ export function SocialComposer() {
         `${imageless.map((p) => PLATFORM_LABEL[p]).join(" and ")} ` +
           "needs an image. Add one, or post to Facebook only.",
       );
-      return;
+      return null;
     }
 
     // Each platform uses its override when splitting, otherwise the shared one.
@@ -303,8 +314,20 @@ export function SocialComposer() {
           ? `Write a caption for ${missing.map((p) => PLATFORM_LABEL[p]).join(" and ")}.`
           : "Write a caption before posting.",
       );
-      return;
+      return null;
     }
+
+    return { textFor };
+  }
+
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setScheduledNotice(null);
+
+    const valid = validate();
+    if (!valid) return;
+    const { textFor } = valid;
 
     setBusy(true);
     try {
@@ -319,6 +342,46 @@ export function SocialComposer() {
       setResults(response.results);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onSchedule() {
+    setError(null);
+    setScheduledNotice(null);
+
+    const valid = validate();
+    if (!valid) return;
+    const { textFor } = valid;
+
+    if (!scheduledFor) {
+      setError("Choose a date and time for the post.");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      await schedulePost({
+        images: files,
+        caption: splitCaptions ? "" : caption.trim(),
+        captionWebsite: splitCaptions ? textFor("website") : undefined,
+        captionInstagram: splitCaptions ? textFor("instagram") : undefined,
+        captionFacebook: splitCaptions ? textFor("facebook") : undefined,
+        platforms: selected,
+        scheduledFor,
+      });
+      setScheduledNotice(
+        `Scheduled for ${new Date(scheduledFor).toLocaleString("en-GB", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        })}.`,
+      );
+      reset();
+      setScheduling(false);
+      onScheduled?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not schedule the post.");
     } finally {
       setBusy(false);
     }
@@ -505,9 +568,13 @@ export function SocialComposer() {
                       rows={4}
                       value={value}
                       maxLength={limit}
-                      onChange={(e) =>
-                        setPerCaption((current) => ({ ...current, [platform.id]: e.target.value }))
-                      }
+                      onChange={(e) => {
+                        setScheduledNotice(null);
+                        setPerCaption((current) => ({
+                          ...current,
+                          [platform.id]: e.target.value,
+                        }));
+                      }}
                       placeholder="Share a moment..."
                       className="mt-1 w-full rounded-lg border border-love-ink/20 p-3"
                     />
@@ -528,7 +595,10 @@ export function SocialComposer() {
                 rows={4}
                 value={caption}
                 maxLength={sharedLimit}
-                onChange={(e) => setCaption(e.target.value)}
+                onChange={(e) => {
+                  setScheduledNotice(null);
+                  setCaption(e.target.value);
+                }}
                 placeholder="Share a moment..."
                 className="mt-2 w-full rounded-lg border border-love-ink/20 p-3"
               />
@@ -576,13 +646,57 @@ export function SocialComposer() {
             </div>
           </fieldset>
 
-          <button
-            type="submit"
-            disabled={busy}
-            className="mt-6 w-full rounded-full bg-love-ink px-5 py-3 font-semibold text-white disabled:opacity-60"
-          >
-            {busy ? "Posting…" : "Post now"}
-          </button>
+          {scheduledNotice ? (
+            <p className="mt-4 rounded-lg bg-love-teal/10 p-3 text-sm text-love-ink">
+              {scheduledNotice}
+            </p>
+          ) : null}
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button
+              type="submit"
+              disabled={busy}
+              className="flex-1 rounded-full bg-love-ink px-5 py-3 font-semibold text-white disabled:opacity-60"
+            >
+              {busy ? "Posting…" : "Post now"}
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setScheduling((open) => !open)}
+              aria-expanded={scheduling}
+              className="flex-1 rounded-full border border-love-ink px-5 py-3 font-semibold text-love-ink disabled:opacity-60"
+            >
+              Schedule post
+            </button>
+          </div>
+
+          {scheduling ? (
+            <div className="mt-4 rounded-xl border border-love-ink/15 p-4">
+              <label className="block text-sm font-semibold" htmlFor="schedule-when">
+                Date and time
+              </label>
+              <input
+                id="schedule-when"
+                type="datetime-local"
+                value={scheduledFor}
+                onChange={(e) => setScheduledFor(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-love-ink/20 p-3"
+              />
+              <p className="mt-2 text-xs text-love-ink/60">
+                The post is saved and listed below. Nothing sends automatically —
+                publish it from the pending list when you are ready.
+              </p>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={onSchedule}
+                className="mt-3 rounded-full bg-love-ink px-5 py-2 font-semibold text-white disabled:opacity-60"
+              >
+                {busy ? "Saving…" : "Save to schedule"}
+              </button>
+            </div>
+          ) : null}
           <p aria-live="polite" className="sr-only">
             {busy ? "Posting your update" : ""}
           </p>

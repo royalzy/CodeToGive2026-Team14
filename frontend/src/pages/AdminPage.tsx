@@ -1,38 +1,28 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { PageHero, SectionHeading } from "../components/Cards";
 import { analyticsDashboardUrl } from "../analytics/umami";
+import { PendingPosts } from "../components/admin/PendingPosts";
+import { PostAnalytics } from "../components/admin/PostAnalytics";
 import { SocialComposer } from "../components/admin/SocialComposer";
 
-const adminMetrics = [
-  { value: "1,234", label: "visitors this month", accent: "blue" as const },
-  { value: "45", label: "volunteer sign-ups", accent: "red" as const },
-  { value: "23", label: "donation intents", accent: "yellow" as const },
-  { value: "8", label: "social posts scheduled", accent: "teal" as const },
-];
-
 export function AdminPage() {
+  // Bumped when a post is scheduled, so the pending list reloads.
+  const [scheduleVersion, setScheduleVersion] = useState(0);
+
   return (
     <>
-      <PageHero
-        eyebrow="Admin dashboard"
-        title="Love 21 Admin"
-        body="A demo overview of site activity, volunteer engagement and social media automation."
-        tone="blue"
-      />
-
-      <section className="section">
-        <div className="shell">
-          <div className="metric-grid">
-            {adminMetrics.map((metric) => (
-              <article key={metric.label} className={`metric-card accent-${metric.accent}`}>
-                <strong>{metric.value}</strong>
-                <h3>{metric.label}</h3>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Wrapper only exists so the banner height can be trimmed without
+          touching the shared .page-hero used by every other page. */}
+      <div className="admin-hero">
+        <PageHero
+          eyebrow="Admin dashboard"
+          title="Love 21 Admin"
+          body="A demo overview of site activity, volunteer engagement and social media automation."
+          tone="blue"
+        />
+      </div>
 
       <section className="section section-soft">
         <div className="shell admin-social">
@@ -44,13 +34,26 @@ export function AdminPage() {
               "Upload an image, write a caption and publish to Instagram and Facebook Page at once."
             }
           />
-          <SocialComposer />
+          <SocialComposer onScheduled={() => setScheduleVersion((v) => v + 1)} />
+
+          <PendingPosts refreshKey={scheduleVersion} />
 
           {/* Website posts are editable after publishing; the delete controls
               live on the Media page and only appear via this link. */}
           <p className="admin-manage-link">
             <Link to="/media?manage=1">Manage website posts</Link>
           </p>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Posting activity"
+            title="How much we are publishing"
+            body="Posts created in each period, and how that compares with the one before."
+          />
+          <PostAnalytics />
         </div>
       </section>
 

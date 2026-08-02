@@ -117,79 +117,17 @@ def _resolve_captions(
     return resolved
 
 
-@router.post("", response_model=SocialPostResponse, status_code=status.HTTP_201_CREATED)
-async def create_social_post(
-    platforms: Annotated[list[str], Form()],
-    caption: Annotated[str, Form()] = "",
-    # Optional and repeatable. Empty -> text-only (Facebook only); more than one
-    # becomes an Instagram carousel / Facebook multi-photo post.
-    # Note: a `list[UploadFile] | None` union is NOT parsed as a file list by
-    # FastAPI — it silently arrives empty. Keep the plain list with a default.
-    images: Annotated[list[UploadFile], File()] = [],  # noqa: B006
-    # Optional per-platform overrides; each falls back to `caption`.
-    caption_instagram: Annotated[str | None, Form()] = None,
-    caption_facebook: Annotated[str | None, Form()] = None,
-    caption_website: Annotated[str | None, Form()] = None,
+
+async def publish_to_platforms(
+    targets: list[str],
+    captions: dict[str, str],
+    normalised: list[bytes],
 ) -> SocialPostResponse:
-    targets = _parse_platforms(platforms)
-    captions = _resolve_captions(
-        caption.strip(),
-        {
-            "website": caption_website,
-            "instagram": caption_instagram,
-            "facebook": caption_facebook,
-        },
-        targets,
-    )
+    """Publish already-validated images and captions to the chosen platforms.
 
-    # FastAPI gives an empty UploadFile rather than None when the field is sent
-    # but blank, so treat a missing filename as "no image".
-    uploads = [item for item in images if item.filename]
-
-    needs_image = sorted({"instagram", "website"} & set(targets))
-    if not uploads and needs_image:
-        names = " and ".join(name.title() for name in needs_image)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                f"{names} requires an image. Add one, or post to Facebook only "
-                "for a text-only update."
-            ),
-        )
-    if len(uploads) > meta.MAX_CAROUSEL_ITEMS:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                f"Up to {meta.MAX_CAROUSEL_ITEMS} images per post; "
-                f"you attached {len(uploads)}."
-            ),
-        )
-
-    normalised: list[bytes] = []
-    for upload in uploads:
-        if upload.content_type not in ALLOWED_CONTENT_TYPES:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    f"'{upload.filename}' is {upload.content_type}. "
-                    "Use JPEG, PNG or WebP."
-                ),
-            )
-
-        raw = await upload.read()
-        if len(raw) > MAX_UPLOAD_BYTES:
-            raise HTTPException(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail=(
-                    f"'{upload.filename}' is over "
-                    f"{MAX_UPLOAD_BYTES // (1024 * 1024)}MB."
-                ),
-            )
-
-        # Validate the payload before the server-configuration check, so a bad
-        # upload always reports the upload problem rather than a missing token.
-        normalised.append(_normalise_image(raw, upload.filename or "image"))
-
+    Shared by immediate posting and by publishing a previously scheduled post,
+    so both take exactly the same path through Cloudinary and Meta.
+    """
     results: list[PlatformResult] = []
 
     # The website is written to disk locally, so it needs neither Meta
@@ -341,3 +279,79 @@ async def create_social_post(
                 )
 
     return SocialPostResponse(image_urls=image_urls, results=results)
+
+
+@router.post("", response_model=SocialPostResponse, status_code=status.HTTP_201_CREATED)
+async def create_social_post(
+    platforms: Annotated[list[str], Form()],
+    caption: Annotated[str, Form()] = "",
+    # Optional and repeatable. Empty -> text-only (Facebook only); more than one
+    # becomes an Instagram carousel / Facebook multi-photo post.
+    # Note: a `list[UploadFile] | None` union is NOT parsed as a file list by
+    # FastAPI — it silently arrives empty. Keep the plain list with a default.
+    images: Annotated[list[UploadFile], File()] = [],  # noqa: B006
+    # Optional per-platform overrides; each falls back to `caption`.
+    caption_instagram: Annotated[str | None, Form()] = None,
+    caption_facebook: Annotated[str | None, Form()] = None,
+    caption_website: Annotated[str | None, Form()] = None,
+) -> SocialPostResponse:
+    targets = _parse_platforms(platforms)
+    captions = _resolve_captions(
+        caption.strip(),
+        {
+            "website": caption_website,
+            "instagram": caption_instagram,
+            "facebook": caption_facebook,
+        },
+        targets,
+    )
+
+    # FastAPI gives an empty UploadFile rather than None when the field is sent
+    # but blank, so treat a missing filename as "no image".
+    uploads = [item for item in images if item.filename]
+
+    needs_image = sorted({"instagram", "website"} & set(targets))
+    if not uploads and needs_image:
+        names = " and ".join(name.title() for name in needs_image)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"{names} requires an image. Add one, or post to Facebook only "
+                "for a text-only update."
+            ),
+        )
+    if len(uploads) > meta.MAX_CAROUSEL_ITEMS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"Up to {meta.MAX_CAROUSEL_ITEMS} images per post; "
+                f"you attached {len(uploads)}."
+            ),
+        )
+
+    normalised: list[bytes] = []
+    for upload in uploads:
+        if upload.content_type not in ALLOWED_CONTENT_TYPES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"'{upload.filename}' is {upload.content_type}. "
+                    "Use JPEG, PNG or WebP."
+                ),
+            )
+
+        raw = await upload.read()
+        if len(raw) > MAX_UPLOAD_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail=(
+                    f"'{upload.filename}' is over "
+                    f"{MAX_UPLOAD_BYTES // (1024 * 1024)}MB."
+                ),
+            )
+
+        # Validate the payload before the server-configuration check, so a bad
+        # upload always reports the upload problem rather than a missing token.
+        normalised.append(_normalise_image(raw, upload.filename or "image"))
+
+    return await publish_to_platforms(targets, captions, normalised)
