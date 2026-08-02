@@ -1,5 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { useEffect, useState, type CSSProperties, MouseEvent as ReactMouseEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 import { Link } from "react-router-dom";
 
 import {
