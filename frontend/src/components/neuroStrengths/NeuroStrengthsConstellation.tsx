@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { ArchetypeSwitcher } from "./ArchetypeSwitcher";
 import { ArticleCard } from "./ArticleCard";
@@ -116,6 +117,27 @@ export function NeuroStrengthsConstellation() {
                 onOpen={() => setActiveArticle(article)}
               />
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="neuro-story-cta" aria-labelledby="neuro-story-cta-title">
+        <div className="shell neuro-story-cta-inner">
+          <img
+            className="neuro-story-cta-photo"
+            src="/images/crystal-performing.jpg"
+            alt="Crystal performing with the Love 21 community"
+          />
+          <div className="neuro-story-cta-copy">
+            <p className="eyebrow">A real Love 21 story</p>
+            <h2 id="neuro-story-cta-title">See what possibility looks like in motion.</h2>
+            <p>
+              Crystal started by showing up. Fifty dance sessions later, she stepped forward
+              to lead a warm-up for 20 members.
+            </p>
+            <Link className="neuro-story-cta-button" to="/story">
+              Read Crystal&apos;s story <span aria-hidden="true">→</span>
+            </Link>
           </div>
         </div>
       </section>

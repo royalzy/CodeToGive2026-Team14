@@ -94,7 +94,7 @@ export function DonationSuccess({
         </section>
       )}
       <div className="button-row donation-success-actions">
-        <Link className="button button-dark" to="/community" onClick={onStayInvolved}>Visit our community</Link>
+        <Link className="button button-dark" to="/supporter" onClick={onStayInvolved}>Visit our supporters</Link>
         {!anonymous && <Link className="button button-outline" to="/donor-profile">View my donor profile</Link>}
       </div>
     </div>

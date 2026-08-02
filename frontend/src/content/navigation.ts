@@ -1,8 +1,8 @@
 export const navigation = [
-  { label: "Impact", href: "/impact" },
-  { label: "Community", href: "/community" },
+  { label: "Story", href: "/story" },
   { label: "Volunteer", href: "/volunteer" },
   { label: "Donate", href: "/donate" },
+  { label: "Supporter", href: "/supporter" },
   { label: "Help", href: "/help" },
   { label: "Learn More", href: "/neuro-strengths" },
   { label: "Media", href: "/media" },
