@@ -124,7 +124,10 @@ describe("closed-loop forms", () => {
 
     renderRoute("/volunteer/match");
     expect(
-      screen.getByRole("heading", { name: "What type of volunteer are you?", level: 1 }),
+      screen.getByRole("heading", { name: "Volunteer personality quiz", level: 1 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Five quick questions, one fun result.", level: 2 }),
     ).toBeInTheDocument();
     expect(screen.getByText(/might not be fully accurate/i)).toBeInTheDocument();
 

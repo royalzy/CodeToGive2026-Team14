@@ -6,6 +6,7 @@ import { useAuth } from "../hooks/useAuth";
 
 const routePageTitles: Record<string, string> = {
   "/volunteer": "Volunteer with Love 21",
+  "/volunteer/match": "Volunteer personality quiz",
   "/volunteer/roles": "Browse volunteer roles",
   "/volunteer/sessions": "Browse volunteer sessions",
 };
