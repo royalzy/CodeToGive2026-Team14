@@ -106,10 +106,4 @@ export const donorWallPosts = [
     time: "2 days ago",
     status: "public",
   },
-  {
-    name: "阿木",
-    message: "May every child have space to shine at their own pace.",
-    time: "Just now",
-    status: "pending",
-  },
 ] as const;

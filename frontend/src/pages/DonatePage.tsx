@@ -3,10 +3,14 @@ import { Link } from "react-router-dom";
 import { z } from "zod";
 
 import {
+  ApiError,
+  createDonorProfile,
+  createDonorSession,
   createDonationIntent,
   getDonationImpactOptions,
   previewDonationImpact,
   type CauseId,
+  type DonorSummary,
   type DonationIntentResult,
   type ImpactPreview,
 } from "../api/client";
@@ -141,6 +145,10 @@ export function DonatePage() {
   const [result, setResult] = useState<DonationIntentResult | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [authenticatedDonor, setAuthenticatedDonor] =
+    useState<DonorSummary | null>(null);
 
   const requestSequence = useRef(0);
   const pageViewTracked = useRef(false);
@@ -158,7 +166,7 @@ export function DonatePage() {
     [preview],
   );
   const donorDisplayName =
-    details.donorNickname.trim() || details.donorName.trim();
+    authenticatedDonor?.nickname || details.donorNickname.trim() || details.donorName.trim();
 
   useEffect(() => {
     if (!pageViewTracked.current) {
@@ -276,7 +284,7 @@ export function DonatePage() {
     });
   }
 
-  function continueToReview() {
+  async function continueToReview() {
     if (!isValidAmount(amountHkd)) {
       setAmountError(
         "Enter a whole HKD amount between HK$10 and HK$1,000,000.",
@@ -284,9 +292,47 @@ export function DonatePage() {
       return;
     }
     setAmountError(undefined);
-    const errors = validateDetails(details);
+    const errors = authenticatedDonor && !details.anonymous
+      ? {}
+      : validateDetails(details);
     setDetailsErrors(errors);
     if (Object.keys(errors).length > 0) return;
+    setProfileError(null);
+
+    if (!details.anonymous && authenticatedDonor === null) {
+      setIsAuthenticating(true);
+      try {
+        const authResult = details.profileMode === "new"
+          ? await createDonorProfile({
+              email: details.donorEmail.trim(),
+              password: details.donorPassword,
+              nickname: details.donorNickname.trim(),
+              name: details.donorName.trim() || null,
+              consent_to_updates: details.consentToUpdates,
+            })
+          : await createDonorSession({
+              email: details.donorEmail.trim(),
+              password: details.donorPassword,
+            });
+        setAuthenticatedDonor(authResult.profile);
+        setDetails((current) => ({ ...current, donorPassword: "" }));
+      } catch (error) {
+        if (error instanceof ApiError && error.code === "email_taken") {
+          setDetailsErrors({ donorEmail: error.message });
+        } else if (error instanceof ApiError && error.code === "nickname_taken") {
+          setDetailsErrors({ donorNickname: error.message });
+        } else {
+          setProfileError(
+            error instanceof Error
+              ? error.message
+              : "We could not open your donor profile. Please try again.",
+          );
+        }
+        return;
+      } finally {
+        setIsAuthenticating(false);
+      }
+    }
     if (!detailsStartedTracked.current) {
       detailsStartedTracked.current = true;
       trackDonationEvent("donation_details_started", {
@@ -312,9 +358,6 @@ export function DonatePage() {
         cause_id: causeId,
         amount_hkd: amountHkd,
         anonymous: details.anonymous,
-        donor_name: details.anonymous ? null : donorDisplayName || null,
-        donor_email: details.anonymous ? null : details.donorEmail.trim() || null,
-        consent_to_updates: details.anonymous ? false : details.consentToUpdates,
       });
       setResult(nextResult);
       setDetails((current) => ({ ...current, donorPassword: "" }));
@@ -387,7 +430,7 @@ export function DonatePage() {
             </div>
 
             <div className="simulation-banner" role="note">
-              Hackathon simulation — no payment is taken and no personal information is stored.
+              Hackathon simulation — no payment is taken. Donor profiles and their demo donation records are stored in the local service.
             </div>
 
             {optionsNotice && <div className="form-alert form-notice" role="status">{optionsNotice}</div>}
@@ -406,6 +449,13 @@ export function DonatePage() {
                     setDetailsErrors({});
                   }}
                 />
+                {authenticatedDonor && !details.anonymous && (
+                  <div className="anonymous-confirmation" role="status">
+                    Signed in as <strong>{authenticatedDonor.nickname}</strong> ({authenticatedDonor.email}).
+                    This donation will be added to that profile.
+                  </div>
+                )}
+                {profileError && <div className="form-alert" role="alert">{profileError}</div>}
 
                 <hr className="donate-a-divider" />
                 <CauseSelector choices={causeChoices} value={causeId} onChange={selectCause} />
@@ -423,8 +473,8 @@ export function DonatePage() {
                 <div className="donate-a-impact-preview">
                   <ImpactCard amountHkd={amountHkd} impact={preview} status={previewStatus} />
                 </div>
-                <button className="button button-dark button-full" type="button" onClick={continueToReview}>
-                  Review & continue to secure payment
+                <button className="button button-dark button-full" type="button" onClick={continueToReview} disabled={isAuthenticating}>
+                  {isAuthenticating ? "Opening your donor profile…" : "Review & continue to secure payment"}
                 </button>
                 <p className="form-footnote">Secure payment · Receipt by email · You can change your mind before confirming</p>
               </>
