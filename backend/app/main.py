@@ -5,7 +5,9 @@ from app.api.routes.bookings import router as bookings_router
 from app.api.routes.donations import router as donations_router
 from app.api.routes.donors import router as donors_router
 from app.api.routes.health import router as health_router
+from app.api.routes.media import router as media_router
 from app.api.routes.questionnaire import router as questionnaire_router
+from app.api.routes.schedule import router as schedule_router
 from app.api.routes.social import router as social_router
 from app.api.routes.volunteers import router as volunteers_router
 from app.core.config import settings
@@ -24,7 +26,9 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origin_list,
+    # True on main: the donor session cookie needs credentialed requests.
     allow_credentials=True,
+    # DELETE is needed so the admin can remove a website post from the browser.
     allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
@@ -36,3 +40,5 @@ app.include_router(donors_router, prefix="/api/v1")
 app.include_router(bookings_router, prefix="/api/v1")
 app.include_router(questionnaire_router, prefix="/api/v1")
 app.include_router(social_router, prefix="/api/v1")
+app.include_router(media_router, prefix="/api/v1")
+app.include_router(schedule_router, prefix="/api/v1")

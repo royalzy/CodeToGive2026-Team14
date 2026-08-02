@@ -5,6 +5,7 @@ export const navigation = [
   { label: "Donate", href: "/donate" },
   { label: "Help", href: "/help" },
   { label: "Learn More", href: "/neuro-strengths" },
+  { label: "Media", href: "/media" },
 ];
 
 export const personas = [

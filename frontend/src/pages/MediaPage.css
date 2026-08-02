@@ -1,0 +1,153 @@
+/* Media feed: image on the left, caption and date on the right.
+ *
+ * Written as CSS rather than Tailwind because styles.css rules are unlayered
+ * and beat Tailwind's `@layer utilities` regardless of specificity.
+ */
+
+/* The theme pads the hero twice — `.page-hero` and `.page-hero-inner` — which
+ * leaves a banner far taller than its text needs. Trimmed here rather than in
+ * styles.css, which would resize every other page's banner too. */
+.media-hero .page-hero {
+  padding-block: clamp(3rem, 6vw, 5.5rem);
+}
+
+.media-hero .page-hero-inner {
+  padding-block: 0;
+}
+
+.media-feed {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.media-entry {
+  display: grid;
+  grid-template-columns: 1fr;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 10px 30px rgb(23 49 59 / 8%);
+}
+
+/* The frame is a fixed size so every card lines up, but the photo inside is
+ * never cropped — a 9:16 portrait is letterboxed rather than cut down to a
+ * square. The min/max bounds stop an extreme ratio from distorting the row. */
+.media-entry-image {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  max-height: 460px;
+  padding: 0.75rem;
+  background: rgb(23 49 59 / 5%);
+}
+
+.media-entry-image img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+/* Carousel posts show the first image; this marks that there are more. */
+.media-entry-count {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgb(23 49 59 / 75%);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.media-entry-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1.75rem;
+}
+
+/* `margin-top: auto` drops this to the bottom of the pane, so the date sits on
+ * the baseline of the card no matter how short the caption is. */
+.media-entry-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.media-entry-body time {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.media-entry-body p {
+  margin: 0;
+  /* Captions arrive as typed, so honour the author's line breaks. */
+  white-space: pre-wrap;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.media-entry-delete {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--red);
+  border-radius: 999px;
+  background: none;
+  color: var(--red);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.media-entry-delete:hover:not(:disabled) {
+  background: var(--red);
+  color: white;
+}
+
+.media-entry-delete:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.media-manage-note {
+  max-width: 900px;
+  margin: 0 auto 1.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.media-error {
+  max-width: 900px;
+  margin: 0 auto 1.25rem;
+  color: var(--red);
+  font-size: 0.9rem;
+}
+
+.media-empty {
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (min-width: 720px) {
+  .media-entry {
+    grid-template-columns: 320px 1fr;
+  }
+}
