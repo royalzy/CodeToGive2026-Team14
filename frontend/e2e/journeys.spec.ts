@@ -73,6 +73,7 @@ test("volunteer can register interest for a role without a session", async ({ pa
 });
 
 test("visitor can complete the donation simulation", async ({ page }) => {
+  const unique = `${Date.now()}-${test.info().parallelIndex}`;
   await page.goto("/");
   await page.getByRole("link", { name: "Donate Now" }).click();
 
@@ -91,9 +92,9 @@ test("visitor can complete the donation simulation", async ({ page }) => {
     }),
   ).toBeVisible();
   await page.getByLabel(/Create a donor profile/i).check();
-  await page.getByLabel("Unique nickname").fill("Alex Chan");
+  await page.getByLabel("Unique nickname").fill(`Alex Chan ${unique}`);
   await page.getByLabel("Name (optional)").fill("Alex Chan");
-  await page.getByLabel("Email", { exact: true }).fill("alex@example.com");
+  await page.getByLabel("Email", { exact: true }).fill(`alex-${unique}@example.com`);
   await page.getByLabel("Password").fill("private-demo");
   await page.getByRole("button", { name: "Review & continue to secure payment" }).click();
   await expect(page.getByRole("heading", { name: "Review your prototype donation" })).toBeVisible();
@@ -104,7 +105,7 @@ test("visitor can complete the donation simulation", async ({ page }) => {
     .click();
 
   await expect(
-    page.getByRole("heading", { name: "Thank you, Alex Chan." }),
+    page.getByRole("heading", { name: `Thank you, Alex Chan ${unique}.` }),
   ).toBeVisible();
   await expect(page.getByText(/no money was charged/i)).toBeVisible();
   await page.getByRole("link", { name: "Visit our community" }).click();

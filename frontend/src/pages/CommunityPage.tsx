@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { CSSProperties, MouseEvent as ReactMouseEvent } from "react";
+import { useEffect, useState, type CSSProperties, MouseEvent as ReactMouseEvent } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -8,6 +8,11 @@ import {
   donorWallPosts,
   supporterFaces,
 } from "../content/donorCommunity";
+import {
+  ApiError,
+  getMyDonorWallPosts,
+  type DonorWallPost,
+} from "../api/client";
 import { useLanguage } from "../hooks/useLanguage";
 import { usePretextLayout } from "../lib/usePretextLayout";
 
@@ -20,6 +25,23 @@ export function CommunityPage() {
   const titleText = `${copy.heroLead} ${copy.heroEmphasis}`;
   const titleRef = usePretextLayout<HTMLHeadingElement>(titleText);
   const bodyRef = usePretextLayout<HTMLParagraphElement>(copy.heroBody);
+  const [privatePosts, setPrivatePosts] = useState<DonorWallPost[]>([]);
+  const [wallNotice, setWallNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    getMyDonorWallPosts()
+      .then((posts) => {
+        if (!controller.signal.aborted) setPrivatePosts(posts);
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        if (!(error instanceof ApiError && error.status === 401)) {
+          setWallNotice("Your private wall previews could not be loaded just now.");
+        }
+      });
+    return () => controller.abort();
+  }, []);
 
   const bubbleRefs = useRef<(HTMLLIElement | null)[]>([]);
   const bubbleRafRef = useRef<number | null>(null);
@@ -151,11 +173,19 @@ export function CommunityPage() {
             <div className="donor-community-moderation-note"><strong>Public after review</strong><span>Report controls and privacy checks protect the whole community.</span></div>
           </div>
           <div className="donor-community-wall" aria-live="polite">
+            {wallNotice && <div className="form-alert form-notice" role="status">{wallNotice}</div>}
+            {privatePosts.map((post) => (
+              <article className="pending" key={post.id}>
+                <span className="donor-community-post-avatar" aria-hidden="true">{post.nickname.slice(0, 2)}</span>
+                <div><strong>{post.nickname} {lang === "zh" ? "加入了大家庭" : "joined the family"}</strong>{post.message && <p>“{post.message}”</p>}</div>
+                <div className="donor-community-post-meta"><time>Just now</time><span>{copy.pending}</span></div>
+              </article>
+            ))}
             {donorWallPosts.map((post) => (
-              <article className={post.status === "pending" ? "pending" : undefined} key={`${post.name}-${post.time}`}>
+              <article key={`${post.name}-${post.time}`}>
                 <span className="donor-community-post-avatar" aria-hidden="true">{post.name.slice(0, 2)}</span>
                 <div><strong>{post.name} {lang === "zh" ? "加入了大家庭" : "joined the family"}</strong><p>“{post.message}”</p></div>
-                <div className="donor-community-post-meta"><time>{post.time}</time>{post.status === "pending" && <span>{copy.pending}</span>}</div>
+                <div className="donor-community-post-meta"><time>{post.time}</time></div>
               </article>
             ))}
           </div>

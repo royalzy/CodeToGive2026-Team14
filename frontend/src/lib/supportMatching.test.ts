@@ -51,14 +51,24 @@ describe("support pathway matching", () => {
     expect(first.reasons).toHaveLength(3);
   });
 
-  it("sends someone who wants to read first to programmes", () => {
+  it("sends someone who wants to read first to the learning page", () => {
     const [first] = recommendSupportPathways({
       audience: "self",
       need: "practical",
       start: "read",
     });
 
-    expect(first.pathway.id).toBe("programmes");
+    expect(first.pathway.id).toBe("learn");
+  });
+
+  it("sends someone wanting to meet people to the community page", () => {
+    const [first] = recommendSupportPathways({
+      audience: "self",
+      need: "community",
+      start: "group",
+    });
+
+    expect(first.pathway.id).toBe("community");
   });
 
   it("sends a professional wanting practical action to programmes", () => {

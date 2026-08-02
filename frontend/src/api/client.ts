@@ -16,12 +16,16 @@ export type ImpactPreview =
   | components["schemas"]["ContributionImpact"]
   | components["schemas"]["FlexibleImpact"];
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000";
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
+const API_BASE_URL = configuredApiBaseUrl
+  || `${window.location.protocol}//${window.location.hostname}:8000`;
 
 export class ApiError extends Error {
-  constructor(message: string, public readonly status: number) {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code?: string,
+  ) {
     super(message);
     this.name = "ApiError";
   }
@@ -49,7 +53,11 @@ async function fetchWithTimeout(
   }, API_TIMEOUT_MS);
 
   try {
-    return await fetch(input, { ...init, signal: controller.signal });
+    return await fetch(input, {
+      credentials: "include",
+      ...init,
+      signal: controller.signal,
+    });
   } catch (error) {
     if (timedOut) {
       throw new ApiError(
@@ -77,11 +85,13 @@ async function postJson<TRequest, TResponse>(
   });
 
   if (!response.ok) {
+    const problem = await extractApiProblem(response);
     throw new ApiError(
-      response.status >= 500
+      problem.message ?? (response.status >= 500
         ? "The service is taking a pause. Please try again shortly."
-        : "Please check the information and try again.",
+        : "Please check the information and try again."),
       response.status,
+      problem.code,
     );
   }
 
@@ -95,11 +105,13 @@ export async function getJson<TResponse>(
   const response = await fetchWithTimeout(`${API_BASE_URL}${path}`, { signal });
 
   if (!response.ok) {
+    const problem = await extractApiProblem(response);
     throw new ApiError(
-      response.status >= 500
+      problem.message ?? (response.status >= 500
         ? "The service is taking a pause. Please try again shortly."
-        : "We could not load the information. Please try again.",
+        : "We could not load the information. Please try again."),
       response.status,
+      problem.code,
     );
   }
 
@@ -159,6 +171,48 @@ const donationIntentResultSchema = z.object({
   impact: impactPreviewSchema,
 });
 
+const donorSummarySchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  nickname: z.string(),
+  name: z.string(),
+  consent_to_updates: z.boolean(),
+  created_at: z.string(),
+});
+
+const donorAuthSchema = z.object({ profile: donorSummarySchema });
+
+const donorDonationSchema = z.object({
+  donation_intent_id: z.string(),
+  cause_id: causeIdSchema,
+  amount_hkd: z.number().int(),
+  currency: z.literal("HKD"),
+  status: z.literal("simulated"),
+  created_at: z.string(),
+  impact: impactPreviewSchema,
+});
+
+const donorProfileSchema = z.object({
+  profile: donorSummarySchema,
+  lifetime_amount_hkd: z.number().int().nonnegative(),
+  donation_count: z.number().int().nonnegative(),
+  donations: z.array(donorDonationSchema),
+});
+
+const wallPostSchema = z.object({
+  id: z.string(),
+  donation_intent_id: z.string(),
+  nickname: z.string(),
+  message: z.string().nullable(),
+  status: z.literal("pending"),
+  created_at: z.string(),
+});
+
+export type DonorSummary = z.infer<typeof donorSummarySchema>;
+export type DonorAuthResult = z.infer<typeof donorAuthSchema>;
+export type DonorProfileResult = z.infer<typeof donorProfileSchema>;
+export type DonorWallPost = z.infer<typeof wallPostSchema>;
+
 export function submitVolunteerApplication(
   payload: VolunteerApplication,
 ): Promise<VolunteerApplicationResult> {
@@ -172,6 +226,56 @@ export function createDonationIntent(
     "/api/v1/donation-intents",
     payload,
   ).then((result) => donationIntentResultSchema.parse(result));
+}
+
+export function createDonorProfile(payload: {
+  email: string;
+  password: string;
+  nickname: string;
+  name: string | null;
+  consent_to_updates: boolean;
+}): Promise<DonorAuthResult> {
+  return postJson<typeof payload, unknown>("/api/v1/donor-profiles", payload)
+    .then((result) => donorAuthSchema.parse(result));
+}
+
+export function createDonorSession(payload: {
+  email: string;
+  password: string;
+}): Promise<DonorAuthResult> {
+  return postJson<typeof payload, unknown>("/api/v1/donor-sessions", payload)
+    .then((result) => donorAuthSchema.parse(result));
+}
+
+export function getMyDonorProfile(): Promise<DonorProfileResult> {
+  return getJson<unknown>("/api/v1/donor-profiles/me")
+    .then((result) => donorProfileSchema.parse(result));
+}
+
+export async function deleteDonorSession(): Promise<void> {
+  const response = await fetchWithTimeout(
+    `${API_BASE_URL}/api/v1/donor-sessions/current`,
+    { method: "DELETE" },
+  );
+  if (!response.ok) {
+    const problem = await extractApiProblem(response);
+    throw new ApiError(problem.message ?? "Could not sign out.", response.status, problem.code);
+  }
+}
+
+export function createDonorWallPost(
+  donationIntentId: string,
+  payload: { message: string | null },
+): Promise<DonorWallPost> {
+  return postJson<typeof payload, unknown>(
+    `/api/v1/donation-intents/${encodeURIComponent(donationIntentId)}/wall-posts`,
+    payload,
+  ).then((result) => wallPostSchema.parse(result));
+}
+
+export function getMyDonorWallPosts(): Promise<DonorWallPost[]> {
+  return getJson<unknown>("/api/v1/donor-wall/me")
+    .then((result) => z.array(wallPostSchema).parse(result));
 }
 
 export interface BookingPayload {
@@ -260,6 +364,34 @@ async function extractDetail(response: Response): Promise<string | null> {
     return null;
   } catch {
     return null;
+  }
+}
+
+async function extractApiProblem(
+  response: Response,
+): Promise<{ message: string | null; code?: string }> {
+  try {
+    const payload = (await response.json()) as { detail?: unknown };
+    const detail = payload.detail;
+    if (typeof detail === "string") return { message: detail };
+    if (Array.isArray(detail)) {
+      const messages = detail.flatMap((item) =>
+        item && typeof item === "object" && typeof (item as { msg?: unknown }).msg === "string"
+          ? [(item as { msg: string }).msg]
+          : [],
+      );
+      return { message: messages.length ? messages.join(" ") : null };
+    }
+    if (detail && typeof detail === "object") {
+      const record = detail as { message?: unknown; code?: unknown };
+      return {
+        message: typeof record.message === "string" ? record.message : null,
+        code: typeof record.code === "string" ? record.code : undefined,
+      };
+    }
+    return { message: null };
+  } catch {
+    return { message: null };
   }
 }
 
