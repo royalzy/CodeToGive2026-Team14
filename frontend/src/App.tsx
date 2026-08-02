@@ -10,6 +10,7 @@ import { HelpPage } from "./pages/HelpPage";
 import { HomePage } from "./pages/HomePage";
 import { ImpactPage } from "./pages/ImpactPage";
 import { LoginPage } from "./pages/LoginPage";
+import { MediaPage } from "./pages/MediaPage";
 import { MemberProfilePage } from "./pages/MemberProfilePage";
 import { NeuroStrengthsConstellationPage } from "./pages/NeuroStrengthsConstellationPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -38,6 +39,7 @@ export function App() {
         <Route path="donate" element={<DonatePage />} />
         <Route path="donor-profile" element={<DonorProfilePage />} />
         <Route path="help" element={<HelpPage />} />
+        <Route path="media" element={<MediaPage />} />
         <Route path="members/:slug" element={<MemberProfilePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="dashboard" element={<DashboardPage />} />

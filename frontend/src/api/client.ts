@@ -312,7 +312,7 @@ export function getDonationImpactOptions(
   );
 }
 
-export type PlatformId = "instagram" | "facebook";
+export type PlatformId = "website" | "instagram" | "facebook";
 
 export interface SocialPostResult {
   platform: PlatformId;
@@ -332,6 +332,8 @@ export interface SocialPostResponse {
 /** Instagram's caption cap. Facebook allows far more. */
 export const IG_MAX_CAPTION = 2200;
 export const FB_MAX_CAPTION = 63206;
+/** The website is ours; the only limit is keeping the feed readable. */
+export const WEB_MAX_CAPTION = 5000;
 /** Instagram carousels take 2-10 items; Facebook's feed limit matches. */
 export const MAX_IMAGES = 10;
 
@@ -405,6 +407,7 @@ export async function publishSocialPost(input: {
   /** Optional per-platform overrides; each falls back to `caption`. */
   captionInstagram?: string;
   captionFacebook?: string;
+  captionWebsite?: string;
   platforms: PlatformId[];
 }): Promise<SocialPostResponse> {
   const body = new FormData();
@@ -414,6 +417,7 @@ export async function publishSocialPost(input: {
   body.append("caption", input.caption);
   if (input.captionInstagram) body.append("caption_instagram", input.captionInstagram);
   if (input.captionFacebook) body.append("caption_facebook", input.captionFacebook);
+  if (input.captionWebsite) body.append("caption_website", input.captionWebsite);
   for (const platform of input.platforms) {
     body.append("platforms", platform);
   }
@@ -456,4 +460,114 @@ export function previewDonationImpact(
     payload,
     signal,
   ).then((result) => impactPreviewSchema.parse(result));
+}
+
+export interface MediaPost {
+  id: string;
+  caption: string;
+  images: string[];
+  published_at: string;
+}
+
+/** Remove a website post and its images. Admin-only in practice. */
+export async function deleteMediaPost(postId: string): Promise<void> {
+  const response = await fetchWithTimeout(
+    `${API_BASE_URL}/api/v1/media-posts/${encodeURIComponent(postId)}`,
+    { method: "DELETE" },
+  );
+
+  if (!response.ok) {
+    throw new ApiError(
+      (await extractDetail(response)) ?? "Could not delete the post.",
+      response.status,
+    );
+  }
+}
+
+export interface ScheduledPost {
+  id: string;
+  captions: Partial<Record<PlatformId, string>>;
+  platforms: PlatformId[];
+  images: string[];
+  scheduled_for: string;
+  created_at: string;
+}
+
+/** Store a post for later instead of publishing it now. */
+export async function schedulePost(input: {
+  images: File[];
+  caption: string;
+  captionInstagram?: string;
+  captionFacebook?: string;
+  captionWebsite?: string;
+  platforms: PlatformId[];
+  /** Local datetime from an <input type="datetime-local">. */
+  scheduledFor: string;
+}): Promise<ScheduledPost> {
+  const body = new FormData();
+  for (const image of input.images) body.append("images", image);
+  body.append("caption", input.caption);
+  body.append("scheduled_for", input.scheduledFor);
+  if (input.captionInstagram) body.append("caption_instagram", input.captionInstagram);
+  if (input.captionFacebook) body.append("caption_facebook", input.captionFacebook);
+  if (input.captionWebsite) body.append("caption_website", input.captionWebsite);
+  for (const platform of input.platforms) body.append("platforms", platform);
+
+  const response = await fetchWithTimeout(`${API_BASE_URL}/api/v1/scheduled-posts`, {
+    method: "POST",
+    body,
+  });
+
+  if (!response.ok) {
+    throw new ApiError(
+      (await extractDetail(response)) ?? "Could not schedule the post.",
+      response.status,
+    );
+  }
+  return (await response.json()) as ScheduledPost;
+}
+
+export async function listScheduledPosts(): Promise<ScheduledPost[]> {
+  return getJson<ScheduledPost[]>("/api/v1/scheduled-posts");
+}
+
+export async function deleteScheduledPost(postId: string): Promise<void> {
+  const response = await fetchWithTimeout(
+    `${API_BASE_URL}/api/v1/scheduled-posts/${encodeURIComponent(postId)}`,
+    { method: "DELETE" },
+  );
+  if (!response.ok) {
+    throw new ApiError(
+      (await extractDetail(response)) ?? "Could not delete the scheduled post.",
+      response.status,
+    );
+  }
+}
+
+/** Publish a pending post now. Meta calls can be slow, so this uses the long timeout. */
+export async function publishScheduledPost(postId: string): Promise<SocialPostResponse> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), SOCIAL_PUBLISH_TIMEOUT_MS);
+  let response: Response;
+  try {
+    response = await fetch(
+      `${API_BASE_URL}/api/v1/scheduled-posts/${encodeURIComponent(postId)}/publish`,
+      { method: "POST", signal: controller.signal },
+    );
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new ApiError("Publishing took too long. Check the platforms before retrying.", 408);
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+
+  if (!response.ok) {
+    throw new ApiError(
+      (await extractDetail(response)) ?? "Could not publish the scheduled post.",
+      response.status,
+    );
+  }
+  return (await response.json()) as SocialPostResponse;
 }
