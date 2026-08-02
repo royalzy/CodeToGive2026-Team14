@@ -4,7 +4,7 @@ test("supporter quick actions stay top-right and Donate starts at the top", asyn
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto("/community");
+  await page.goto("/supporter");
 
   const communityActions = page.getByRole("complementary", {
     name: "Supporter quick actions",
@@ -27,7 +27,7 @@ test("supporter quick actions stay top-right and Donate starts at the top", asyn
     name: "Supporter quick actions",
   });
   await expect(donateActions).toBeVisible();
-  await expect(donateActions.getByRole("link", { name: "Our community" })).toBeVisible();
+  await expect(donateActions.getByRole("link", { name: "Supporters" })).toBeVisible();
   await expect(donateActions.getByRole("link", { name: "My donor profile" })).toBeVisible();
 });
 
@@ -64,7 +64,7 @@ test("new donor donation appears in their private wall and profile", async ({ pa
   await page.getByRole("button", { name: "Send for review" }).click();
   await expect(page.getByText(/Visible to you now · public after review/i)).toBeVisible();
 
-  await page.getByRole("link", { name: "Visit our community" }).click();
+  await page.getByRole("link", { name: "Visit our supporters" }).click();
   await expect(page.getByText(wallMessage)).toBeVisible();
   await expect(page.getByText(/Visible only to you · awaiting review/i)).toBeVisible();
 

@@ -108,8 +108,8 @@ test("visitor can complete the donation simulation", async ({ page }) => {
     page.getByRole("heading", { name: `Thank you, Alex Chan ${unique}.` }),
   ).toBeVisible();
   await expect(page.getByText(/no money was charged/i)).toBeVisible();
-  await page.getByRole("link", { name: "Visit our community" }).click();
-  await expect(page).toHaveURL(/\/community$/);
+  await page.getByRole("link", { name: "Visit our supporters" }).click();
+  await expect(page).toHaveURL(/\/supporter$/);
 });
 
 test("donation impact journey remains usable on mobile", async ({ page }) => {
@@ -138,7 +138,7 @@ test("core pages have no automatically detectable accessibility violations", asy
 }) => {
   for (const route of [
     "/",
-    "/impact",
+    "/story",
     "/volunteer",
     "/volunteer/match",
     "/volunteer/roles",

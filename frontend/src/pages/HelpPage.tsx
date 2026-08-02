@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { z } from "zod";
 
-import { PageHero, SectionHeading, StatusPanel } from "../components/Cards";
+import { SectionHeading, StatusPanel } from "../components/Cards";
 import { Field } from "../components/FormControls";
 import { SupportFinder } from "../components/help/SupportFinder";
 import { type SupportAnswers } from "../content/support";
@@ -50,17 +50,6 @@ export function HelpPage() {
   }
   return (
     <>
-      {/* Wrapper exists only so the banner height can be trimmed without
-          touching the shared .page-hero used by every other page. */}
-      <div className="help-hero">
-        <PageHero
-          eyebrow="Support for families and carers"
-          title="You do not have to work this out alone"
-          body="Love 21 offers practical guidance, warm connection and a clear path to support for parents, carers and families."
-          tone="red"
-        />
-      </div>
-
       <section className="section">
         <div className="shell help-finder">
           <SectionHeading
@@ -94,7 +83,7 @@ export function HelpPage() {
                   In a live service, the Love 21 team would contact you within
                   two working days to arrange a conversation.
                 </p>
-                <Link className="button button-dark" to="/impact">
+                <Link className="button button-dark" to="/story">
                   Explore our programmes
                 </Link>
               </StatusPanel>

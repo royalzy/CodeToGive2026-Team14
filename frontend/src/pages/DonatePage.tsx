@@ -400,6 +400,9 @@ export function DonatePage() {
               ))}
             </div>
             <div className="donate-a-evidence"><strong>Evidence, not estimates:</strong> attendance logs, coach records and 90-day employment follow-ups support these figures.</div>
+            <Link className="donor-community-button donor-community-button-primary donate-a-supporter-link" to="/supporter">
+              Meet our supporters →
+            </Link>
           </article>
 
           <section
@@ -530,7 +533,7 @@ export function DonatePage() {
           <div><strong>Specific</strong><span>Photos, programme records and real changes, with consent.</span></div>
           <div><strong>Human</strong><span>A person reviews every donor-wall message.</span></div>
           <div className="donate-a-promise-actions">
-            <Link className="donor-community-button" to="/community">← Our community</Link>
+            <Link className="donor-community-button" to="/supporter">← Supporters</Link>
             <Link className="donor-community-button donor-community-button-primary" to="/donor-profile">My donor profile</Link>
           </div>
         </aside>
