@@ -5,6 +5,7 @@
 | Item | Status |
 |---|---|
 | Donation intents persisted (anonymized) — **first delivered** | `Done` |
+| Donor profiles, sessions, donation links, private wall previews | `Done` |
 | `donation_intents` table added to the simple schema in `app/db.py` | `Done` |
 | Volunteer applications persistence | `Planned` |
 | Events catalog + seeding (`bev-*`, `opp-*`) | `Planned` |
@@ -16,7 +17,7 @@
 
 ## Decisions (locked)
 
-- **Persist both** volunteer applications (consent-gated) and donation intents (anonymized) — changes the old README "no data stored" contract.
+- **Persist donation journeys** with donor PII isolated in `donor_profiles`, opaque sessions stored as hashes, and donation identity joined through `donor_donation_links`.
 - **Stack:** Python stdlib `sqlite3`, no ORM, no migration tooling. Keeps the existing backbone pattern exactly: schema in `app/db.py`, direct SQL in the route module (same as `bookings.py`). Minimal diff, PR-friendly.
 - **Identifier compatibility:** member slugs (`crystal`, `ka-wai`, `mei-ling`) and event ids (`bev-1`…`bev-8`, `opp-1`…`opp-6`) match `frontend/src/content/*` exactly, so the UI needs no changes.
 
@@ -46,7 +47,7 @@ CREATE TABLE IF NOT EXISTS donation_intents (
 ### `app/api/routes/donations.py`
 
 - One `INSERT` via `get_connection()` in the existing handler — same style as `bookings.py`, no new layers.
-- Stores only the anonymized subset (program, amount, currency, anonymous flag). Donor name and email are never written.
+- Stores program, amount, currency, and anonymous flag in `donation_intents`; identified gifts are connected to separately stored donor profiles through a link row.
 
 ### API contract changes
 

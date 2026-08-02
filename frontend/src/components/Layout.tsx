@@ -192,8 +192,8 @@ function Footer() {
         <div>
           <p className="footer-heading">Prototype note</p>
           <p>
-            This hackathon experience does not store personal information or
-            process real donations.
+            This hackathon experience stores demo donor profiles securely but
+            does not process real donations.
           </p>
         </div>
         <div>

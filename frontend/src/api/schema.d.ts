@@ -89,6 +89,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/donor-profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Donor Profile */
+        post: operations["create_donor_profile_api_v1_donor_profiles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/donor-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Donor Session */
+        post: operations["create_donor_session_api_v1_donor_sessions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/donor-sessions/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Donor Session */
+        delete: operations["delete_donor_session_api_v1_donor_sessions_current_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/donor-profiles/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Donor Profile */
+        get: operations["get_my_donor_profile_api_v1_donor_profiles_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/donation-intents/{donation_intent_id}/wall-posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Wall Post */
+        post: operations["create_wall_post_api_v1_donation_intents__donation_intent_id__wall_posts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/donor-wall/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Wall Posts */
+        get: operations["get_my_wall_posts_api_v1_donor_wall_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/bookings": {
         parameters: {
             query?: never;
@@ -107,10 +209,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/questionnaire-submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Questionnaire Submission */
+        post: operations["create_questionnaire_submission_api_v1_questionnaire_submissions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/social-posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Social Post */
+        post: operations["create_social_post_api_v1_social_posts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** Body_create_social_post_api_v1_social_posts_post */
+        Body_create_social_post_api_v1_social_posts_post: {
+            /** Platforms */
+            platforms: string[];
+            /**
+             * Caption
+             * @default
+             */
+            caption: string;
+            /**
+             * Images
+             * @default []
+             */
+            images: string[];
+            /** Caption Instagram */
+            caption_instagram?: string | null;
+            /** Caption Facebook */
+            caption_facebook?: string | null;
+        };
         /** BookingCreate */
         BookingCreate: {
             /** Member Slug */
@@ -219,15 +374,6 @@ export interface components {
              * @default false
              */
             anonymous: boolean;
-            /** Donor Name */
-            donor_name?: string | null;
-            /** Donor Email */
-            donor_email?: string | null;
-            /**
-             * Consent To Updates
-             * @default false
-             */
-            consent_to_updates: boolean;
         };
         /** DonationIntentResponse */
         DonationIntentResponse: {
@@ -252,6 +398,96 @@ export interface components {
             persistence: "stored";
             /** Impact */
             impact: components["schemas"]["CountedImpact"] | components["schemas"]["ContributionImpact"] | components["schemas"]["FlexibleImpact"];
+        };
+        /** DonorAuthResponse */
+        DonorAuthResponse: {
+            profile: components["schemas"]["DonorSummary"];
+        };
+        /** DonorDonation */
+        DonorDonation: {
+            /** Donation Intent Id */
+            donation_intent_id: string;
+            cause_id: components["schemas"]["CauseId"];
+            /** Amount Hkd */
+            amount_hkd: number;
+            /**
+             * Currency
+             * @constant
+             */
+            currency: "HKD";
+            /**
+             * Status
+             * @default simulated
+             * @constant
+             */
+            status: "simulated";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Impact */
+            impact: components["schemas"]["CountedImpact"] | components["schemas"]["ContributionImpact"] | components["schemas"]["FlexibleImpact"];
+        };
+        /** DonorProfileCreate */
+        DonorProfileCreate: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Password */
+            password: string;
+            /** Nickname */
+            nickname: string;
+            /** Name */
+            name?: string | null;
+            /**
+             * Consent To Updates
+             * @default false
+             */
+            consent_to_updates: boolean;
+        };
+        /** DonorProfileResponse */
+        DonorProfileResponse: {
+            profile: components["schemas"]["DonorSummary"];
+            /** Lifetime Amount Hkd */
+            lifetime_amount_hkd: number;
+            /** Donation Count */
+            donation_count: number;
+            /** Donations */
+            donations: components["schemas"]["DonorDonation"][];
+        };
+        /** DonorSessionCreate */
+        DonorSessionCreate: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Password */
+            password: string;
+        };
+        /** DonorSummary */
+        DonorSummary: {
+            /** Id */
+            id: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Nickname */
+            nickname: string;
+            /** Name */
+            name: string;
+            /** Consent To Updates */
+            consent_to_updates: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** FlexibleImpact */
         FlexibleImpact: {
@@ -291,11 +527,87 @@ export interface components {
             /** Service */
             service: string;
         };
+        /**
+         * HelpPath
+         * @enum {string}
+         */
+        HelpPath: "child" | "adult" | "family" | "other";
         /** ImpactPreviewRequest */
         ImpactPreviewRequest: {
             cause_id: components["schemas"]["CauseId"];
             /** Amount Hkd */
             amount_hkd: number;
+        };
+        /**
+         * PlatformResult
+         * @description Outcome for a single platform. Platforms are published independently,
+         *     so one can succeed while another fails.
+         */
+        PlatformResult: {
+            /**
+             * Platform
+             * @enum {string}
+             */
+            platform: "instagram" | "facebook";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "published" | "failed";
+            /**
+             * Caption
+             * @description The caption actually used for this platform.
+             */
+            caption?: string | null;
+            /** Permalink */
+            permalink?: string | null;
+            /** Media Url */
+            media_url?: string | null;
+            /**
+             * Error
+             * @description Meta's own error message when status is 'failed'.
+             */
+            error?: string | null;
+        };
+        /** QuestionnaireRequest */
+        QuestionnaireRequest: {
+            path: components["schemas"]["HelpPath"];
+            /** Name */
+            name?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Message */
+            message?: string | null;
+            /**
+             * Consent
+             * @default false
+             */
+            consent: boolean;
+        };
+        /** QuestionnaireResponse */
+        QuestionnaireResponse: {
+            /** Reference */
+            reference: string;
+            /**
+             * Status
+             * @constant
+             */
+            status: "submitted";
+            /** Suggested Path */
+            suggested_path: string;
+            /**
+             * Persistence
+             * @default stored
+             * @constant
+             */
+            persistence: "stored";
+        };
+        /** SocialPostResponse */
+        SocialPostResponse: {
+            /** Image Urls */
+            image_urls?: string[];
+            /** Results */
+            results: components["schemas"]["PlatformResult"][];
         };
         /** ValidationError */
         ValidationError: {
@@ -364,6 +676,32 @@ export interface components {
          * @enum {string}
          */
         VolunteerSessionId: "saturday_dance_project" | "sunday_sports_session" | "dragon_boat_training_day" | "nutrition_cooking_workshop" | "family_support_afternoon" | "community_csr_volunteer_day";
+        /** WallPostCreate */
+        WallPostCreate: {
+            /** Message */
+            message?: string | null;
+        };
+        /** WallPostResponse */
+        WallPostResponse: {
+            /** Id */
+            id: string;
+            /** Donation Intent Id */
+            donation_intent_id: string;
+            /** Nickname */
+            nickname: string;
+            /** Message */
+            message: string | null;
+            /**
+             * Status
+             * @constant
+             */
+            status: "pending";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -484,7 +822,9 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
-            cookie?: never;
+            cookie?: {
+                love21_donor_session?: string | null;
+            };
         };
         requestBody: {
             content: {
@@ -499,6 +839,200 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DonationIntentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_donor_profile_api_v1_donor_profiles_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DonorProfileCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DonorAuthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_donor_session_api_v1_donor_sessions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DonorSessionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DonorAuthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_donor_session_api_v1_donor_sessions_current_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                love21_donor_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_donor_profile_api_v1_donor_profiles_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                love21_donor_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DonorProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_wall_post_api_v1_donation_intents__donation_intent_id__wall_posts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                donation_intent_id: string;
+            };
+            cookie?: {
+                love21_donor_session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WallPostCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WallPostResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_wall_posts_api_v1_donor_wall_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                love21_donor_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WallPostResponse"][];
                 };
             };
             /** @description Validation Error */
@@ -563,6 +1097,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BookingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_questionnaire_submission_api_v1_questionnaire_submissions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuestionnaireRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionnaireResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_social_post_api_v1_social_posts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_create_social_post_api_v1_social_posts_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SocialPostResponse"];
                 };
             };
             /** @description Validation Error */

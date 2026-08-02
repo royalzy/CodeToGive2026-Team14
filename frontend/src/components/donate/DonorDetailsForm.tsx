@@ -85,10 +85,12 @@ export function DonorDetailsForm({
             </div>
           )}
 
-          <label className="consent-row">
-            <input type="checkbox" checked={value.consentToUpdates} onChange={(event) => onChange({ ...value, consentToUpdates: event.target.checked })} />
-            <span>I would like occasional Love 21 updates. Prototype only — this preference is not saved and no updates will be sent.</span>
-          </label>
+          {value.profileMode === "new" && (
+            <label className="consent-row">
+              <input type="checkbox" checked={value.consentToUpdates} onChange={(event) => onChange({ ...value, consentToUpdates: event.target.checked })} />
+              <span>I would like occasional Love 21 updates. This preference is saved to a new donor profile, but no updates are sent by this prototype.</span>
+            </label>
+          )}
         </>
       )}
     </>

@@ -7055,6 +7055,68 @@ h3 {
   font-size: 0.76rem;
 }
 
+.donor-profile-donation-detail {
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--donor-line);
+  border-radius: 1.15rem;
+  background: #fbf7f0;
+}
+
+.donor-profile-donation-detail summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 1rem;
+  align-items: center;
+  padding: 1rem 1.1rem;
+  color: var(--donor-ox);
+  cursor: pointer;
+  list-style: none;
+  font-weight: 900;
+}
+
+.donor-profile-donation-detail summary::-webkit-details-marker {
+  display: none;
+}
+
+.donor-profile-donation-detail summary::after {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  font-size: 1.35rem;
+  content: "+";
+}
+
+.donor-profile-donation-detail[open] summary::after {
+  content: "−";
+}
+
+.donor-profile-donation-detail summary small {
+  color: var(--donor-muted);
+  font-size: 0.7rem;
+  font-weight: 650;
+}
+
+.donor-profile-donation-detail[open] summary {
+  border-bottom: 1px solid var(--donor-line);
+  background: white;
+}
+
+.donor-profile-donation-breakdown {
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.donor-profile-donation-breakdown > h4 {
+  max-width: 680px;
+  margin: 0;
+  color: var(--donor-ink);
+  font: 500 clamp(1.8rem, 3.4vw, 2.8rem)/1.05 var(--donor-serif);
+  letter-spacing: -0.03em;
+}
+
+.donor-profile-donation-breakdown .donation-outcome-grid {
+  margin-bottom: 1rem;
+}
+
 .donor-profile-note img {
   height: 165px;
 }
