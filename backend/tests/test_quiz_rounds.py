@@ -1,6 +1,7 @@
 from app.services.quiz import (
     TWIST_PUNCHLINES,
     get_hero_round,
+    get_quiz_stats,
     grade_hero_round,
     load_bank,
     validate_bank,
@@ -51,3 +52,20 @@ def test_attempt_is_persisted_pii_free():
         ).fetchall()
     assert len(rows) == 1
     assert rows[0]["lang"] == "zh"
+
+
+def test_quiz_stats_aggregates_attempts():
+    grade_hero_round("rw-001", "st-001a", lang="en")
+    grade_hero_round("rw-001", "st-001b", lang="en")
+    grade_hero_round("rw-001", "st-001c", lang="zh")
+
+    stats = get_quiz_stats()
+    row = next((r for r in stats if r["round_id"] == "rw-001"), None)
+    assert row is not None
+    assert row["attempts"] >= 3
+    assert row["languages"] >= 2
+    assert {s["statement_id"] for s in row["statements"]} >= {
+        "st-001a",
+        "st-001b",
+        "st-001c",
+    }

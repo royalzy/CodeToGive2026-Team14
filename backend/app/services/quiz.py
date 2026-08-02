@@ -136,3 +136,32 @@ def grade_hero_round(round_id: str, selected_statement_id: str, lang: str = "en"
             for st in statements
         ],
     }
+
+
+def get_quiz_stats() -> list[dict]:
+    """Aggregate quiz attempts from SQLite for the analytics demo (PII-free)."""
+    with get_connection() as conn:
+        rounds = conn.execute(
+            "SELECT round_id, COUNT(*) AS attempts, COUNT(DISTINCT lang) AS languages"
+            " FROM quiz_attempts GROUP BY round_id ORDER BY round_id"
+        ).fetchall()
+        statements = conn.execute(
+            "SELECT round_id, selected_statement_id, COUNT(*) AS count"
+            " FROM quiz_attempts"
+            " GROUP BY round_id, selected_statement_id"
+            " ORDER BY count DESC"
+        ).fetchall()
+
+    by_round: dict[str, dict] = {}
+    for row in rounds:
+        by_round[row["round_id"]] = {
+            "round_id": row["round_id"],
+            "attempts": row["attempts"],
+            "languages": row["languages"],
+            "statements": [],
+        }
+    for row in statements:
+        by_round[row["round_id"]]["statements"].append(
+            {"statement_id": row["selected_statement_id"], "count": row["count"]}
+        )
+    return list(by_round.values())

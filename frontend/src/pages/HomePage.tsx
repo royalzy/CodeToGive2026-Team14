@@ -26,6 +26,7 @@ import { useLanguage } from "../hooks/useLanguage";
 import {
   answerHeroRound,
   getHeroRound,
+  getQuizStats,
   type HeroRound,
   type RevealResult,
 } from "../api/client";
@@ -88,6 +89,29 @@ function HeroMythCheck() {
   const [reveal, setReveal] = useState<RevealResult | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [attempts, setAttempts] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getQuizStats()
+      .then((stats) => {
+        if (cancelled) {
+          return;
+        }
+        const matched = stats.rounds.find((r) => r.round_id === round?.id);
+        if (matched) {
+          setAttempts(matched.attempts);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAttempts(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [round]);
 
   useEffect(() => {
     let cancelled = false;
@@ -172,6 +196,13 @@ function HeroMythCheck() {
               </li>
             ))}
           </ul>
+          {attempts !== null && (
+            <p className="hero-myth-community">
+              {attempts.toLocaleString()}{" "}
+              {attempts === 1 ? "person has" : "people have"} already been put to the
+              test on this round.
+            </p>
+          )}
           <Link
             to="/neuro-strengths"
             className="landing-hero-cta-primary hero-myth-cta"

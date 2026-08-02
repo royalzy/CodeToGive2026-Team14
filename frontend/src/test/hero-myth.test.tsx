@@ -52,6 +52,21 @@ const reveal = {
   ],
 };
 
+const stats = {
+  rounds: [
+    {
+      round_id: "rw-001",
+      attempts: 42,
+      languages: 3,
+      statements: [
+        { statement_id: "st-001a", count: 20 },
+        { statement_id: "st-001b", count: 12 },
+        { statement_id: "st-001c", count: 10 },
+      ],
+    },
+  ],
+};
+
 function renderHome() {
   return render(
     <MemoryRouter>
@@ -78,6 +93,9 @@ describe("hero myth-check", () => {
       if (url.endsWith("/quiz/rounds/answer")) {
         return jsonResponse(reveal);
       }
+      if (url.endsWith("/quiz/rounds/stats")) {
+        return jsonResponse(stats);
+      }
       return jsonResponse({}, 404);
     });
 
@@ -94,6 +112,9 @@ describe("hero myth-check", () => {
     expect(screen.getByText("Reveal A.")).toBeInTheDocument();
     expect(screen.getByText("Reveal B.")).toBeInTheDocument();
     expect(screen.getByText("Reveal C.")).toBeInTheDocument();
+    expect(
+      screen.queryByText("42 people have already been put to the test on this round."),
+    ).toBeInTheDocument();
     expect(
       screen.getAllByRole("link").some((link) => link.textContent === "Learn more"),
     ).toBe(true);

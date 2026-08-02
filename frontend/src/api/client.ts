@@ -357,6 +357,30 @@ const revealSchema = z.object({
 export type HeroRound = z.infer<typeof heroRoundSchema>;
 export type RevealResult = z.infer<typeof revealSchema>;
 
+const statementCountSchema = z.object({
+  statement_id: z.string(),
+  count: z.number(),
+});
+
+const roundStatsSchema = z.object({
+  round_id: z.string(),
+  attempts: z.number(),
+  languages: z.number(),
+  statements: z.array(statementCountSchema),
+});
+
+const quizStatsSchema = z.object({
+  rounds: z.array(roundStatsSchema),
+});
+
+export type QuizStats = z.infer<typeof quizStatsSchema>;
+
+export function getQuizStats(signal?: AbortSignal): Promise<QuizStats> {
+  return getJson<unknown>("/api/v1/quiz/rounds/stats", signal).then((result) =>
+    quizStatsSchema.parse(result),
+  );
+}
+
 export function getHeroRound(signal?: AbortSignal): Promise<HeroRound> {
   return getJson<unknown>("/api/v1/quiz/rounds/hero", signal).then((result) =>
     heroRoundSchema.parse(result),

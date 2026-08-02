@@ -4,8 +4,10 @@ from app.schemas.quiz import (
     HeroRoundAnswerRequest,
     HeroRoundResponse,
     RevealResponse,
+    RoundStatsResponse,
+    RoundStatsRow,
 )
-from app.services.quiz import get_hero_round, grade_hero_round
+from app.services.quiz import get_hero_round, get_quiz_stats, grade_hero_round
 
 router = APIRouter(prefix="/quiz", tags=["quiz"])
 
@@ -34,3 +36,8 @@ async def answer_hero_round(request: HeroRoundAnswerRequest) -> RevealResponse:
             detail="Unknown round or statement id.",
         )
     return RevealResponse(**reveal)
+
+
+@router.get("/rounds/stats", response_model=RoundStatsResponse)
+async def quiz_stats() -> RoundStatsResponse:
+    return RoundStatsResponse(rounds=[RoundStatsRow(**row) for row in get_quiz_stats()])

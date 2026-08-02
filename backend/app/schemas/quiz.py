@@ -33,3 +33,19 @@ class RevealResponse(BaseModel):
     punchline: str
     selected_statement_id: str
     statements: list[RevealStatement]
+
+
+class StatementCount(BaseModel):
+    statement_id: str
+    count: int
+
+
+class RoundStatsRow(BaseModel):
+    round_id: str
+    attempts: int
+    languages: int
+    statements: list[StatementCount]
+
+
+class RoundStatsResponse(BaseModel):
+    rounds: list[RoundStatsRow]
