@@ -26,12 +26,9 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origin_list,
-<<<<<<< HEAD
-    allow_credentials=False,
-    # DELETE is needed so the admin can remove a website post from the browser.
-=======
+    # True on main: the donor session cookie needs credentialed requests.
     allow_credentials=True,
->>>>>>> origin/main
+    # DELETE is needed so the admin can remove a website post from the browser.
     allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
