@@ -493,6 +493,9 @@ export function DonatePage() {
                 ))}
               </div>
               <div className="donate-a-evidence"><strong>Evidence, not estimates:</strong> attendance logs, coach records and 90-day employment follow-ups support these figures.</div>
+              <Link className="donor-community-button donor-community-button-primary donate-a-supporter-link" to="/supporter">
+                Meet our supporters →
+              </Link>
               <button
                 type="button"
                 className="donate-a-evidence-cta"
@@ -572,6 +575,10 @@ export function DonatePage() {
               </ol>
             </div>
 
+            <div className="simulation-banner" role="note">
+              Hackathon simulation — no payment is taken. Donor profiles and their demo donation records are stored in the local service.
+            </div>
+
             {optionsNotice && <div className="form-alert form-notice" role="status">{optionsNotice}</div>}
 
             {step === "gift" && (
@@ -625,10 +632,16 @@ export function DonatePage() {
                     setDetailsErrors({});
                   }}
                 />
+                {authenticatedDonor && !details.anonymous && (
+                  <div className="form-alert form-notice" role="status">
+                    Donor profile ready for {authenticatedDonor.nickname}.
+                  </div>
+                )}
+                {profileError && <div className="form-alert" role="alert">{profileError}</div>}
                 <div className="button-row">
                   <button className="button button-outline" type="button" onClick={() => setStep("gift")}>Back</button>
-                  <button className="button button-dark" type="button" onClick={continueToReview}>
-                    Review & continue to secure payment
+                  <button className="button button-dark" type="button" onClick={continueToReview} disabled={isAuthenticating}>
+                    {isAuthenticating ? "Opening your donor profile…" : "Review & continue to secure payment"}
                   </button>
                 </div>
               </>
@@ -637,7 +650,7 @@ export function DonatePage() {
             {step === "review" && (
               <>
                 <div className="form-heading">
-                  <h2 id="donation-flow-title">Review your donation</h2>
+                  <h2 id="donation-flow-title">Review your prototype donation</h2>
                 </div>
                 {submitError && <div className="form-alert" role="alert">{submitError}</div>}
                 <DonationReview
@@ -659,7 +672,7 @@ export function DonatePage() {
                 <div className="button-row">
                   <button className="button button-outline" type="button" onClick={() => setStep("details")} disabled={isSubmitting}>Back</button>
                   <button className="button button-dark" type="button" onClick={submitDonationIntent} disabled={isSubmitting}>
-                    {isSubmitting ? "Confirming…" : `Confirm donation of HK$${amountHkd.toLocaleString("en-HK")}`}
+                    {isSubmitting ? "Confirming…" : `Confirm prototype donation of HK$${amountHkd.toLocaleString("en-HK")}`}
                   </button>
                 </div>
               </>

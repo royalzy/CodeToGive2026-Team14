@@ -80,7 +80,20 @@ CREATE TABLE IF NOT EXISTS donor_wall_posts (
     donor_id TEXT NOT NULL,
     donation_intent_id TEXT NOT NULL UNIQUE,
     message TEXT,
-    status TEXT NOT NULL CHECK (status = 'pending'),
+    status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'rejected')),
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (donor_id) REFERENCES donor_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (donation_intent_id) REFERENCES donation_intents(id) ON DELETE CASCADE
+);
+"""
+
+DONOR_WALL_POSTS_SCHEMA = """
+CREATE TABLE donor_wall_posts_migrated (
+    id TEXT PRIMARY KEY,
+    donor_id TEXT NOT NULL,
+    donation_intent_id TEXT NOT NULL UNIQUE,
+    message TEXT,
+    status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'rejected')),
     created_at TEXT NOT NULL,
     FOREIGN KEY (donor_id) REFERENCES donor_profiles(id) ON DELETE CASCADE,
     FOREIGN KEY (donation_intent_id) REFERENCES donation_intents(id) ON DELETE CASCADE
@@ -99,9 +112,39 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 
+def _migrate_donor_wall_post_statuses(conn: sqlite3.Connection) -> None:
+    """Allow moderation states in databases created by older app versions."""
+    row = conn.execute(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'donor_wall_posts'"
+    ).fetchone()
+    if row is None or "'approved'" in row["sql"]:
+        return
+
+    conn.execute("PRAGMA foreign_keys = OFF")
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        conn.execute("DROP TABLE IF EXISTS donor_wall_posts_migrated")
+        conn.execute(DONOR_WALL_POSTS_SCHEMA)
+        conn.execute(
+            "INSERT INTO donor_wall_posts_migrated"
+            " (id, donor_id, donation_intent_id, message, status, created_at)"
+            " SELECT id, donor_id, donation_intent_id, message, status, created_at"
+            " FROM donor_wall_posts"
+        )
+        conn.execute("DROP TABLE donor_wall_posts")
+        conn.execute("ALTER TABLE donor_wall_posts_migrated RENAME TO donor_wall_posts")
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.execute("PRAGMA foreign_keys = ON")
+
+
 def init_db() -> None:
     with get_connection() as conn:
         conn.executescript(SCHEMA)
+        _migrate_donor_wall_post_statuses(conn)
 
 
 init_db()

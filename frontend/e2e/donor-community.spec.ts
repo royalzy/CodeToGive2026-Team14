@@ -35,6 +35,7 @@ test("backend confirms the current donation flow without timing out", async ({ p
   await page.goto("/donate");
   await page.getByLabel("Discover a Talent").check();
   await page.getByRole("button", { name: "HK$600" }).click();
+  await page.getByRole("button", { name: "Continue to your details" }).click();
   await page.getByLabel(/Give completely anonymously/i).check();
   await page.getByRole("button", { name: /Review & continue/ }).click();
   await page.getByRole("button", { name: /Confirm prototype donation/ }).click();
@@ -50,12 +51,13 @@ test("new donor donation appears in their private wall and profile", async ({ pa
   const wallMessage = `Private preview ${unique}`;
 
   await page.goto("/donate");
+  await page.getByLabel("Discover a Talent").check();
+  await page.getByRole("button", { name: "HK$600" }).click();
+  await page.getByRole("button", { name: "Continue to your details" }).click();
   await page.getByLabel(/Create a donor profile/i).check();
   await page.getByRole("textbox", { name: "Email", exact: true }).fill(`donor-${unique}@example.com`);
   await page.getByLabel("Password", { exact: true }).fill("secret1");
   await page.getByRole("textbox", { name: "Unique nickname", exact: true }).fill(nickname);
-  await page.getByLabel("Discover a Talent").check();
-  await page.getByRole("button", { name: "HK$600" }).click();
   await page.getByRole("button", { name: /Review & continue/ }).click();
 
   await expect(page.getByRole("heading", { name: "Review your prototype donation" })).toBeVisible();

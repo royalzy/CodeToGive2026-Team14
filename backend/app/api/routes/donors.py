@@ -262,6 +262,7 @@ def get_public_wall_posts(
             "SELECT w.id, p.nickname, w.message, w.created_at"
             " FROM donor_wall_posts w"
             " JOIN donor_profiles p ON p.id = w.donor_id"
+            " WHERE w.status = 'approved'"
             " ORDER BY w.created_at DESC LIMIT ?",
             (max(1, min(limit, 100)),),
         ).fetchall()

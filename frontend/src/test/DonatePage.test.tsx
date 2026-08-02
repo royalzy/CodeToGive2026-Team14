@@ -174,6 +174,7 @@ describe("donor impact journey", () => {
     const donationFlow = screen.getByRole("region", { name: "Donation flow" });
     expect(donationFlow).not.toHaveFocus();
 
+    await user.click(screen.getByRole("button", { name: "Continue to your details" }));
     await user.click(screen.getByLabelText(/Give completely anonymously/i));
     await user.click(
       screen.getByRole("button", { name: "Review & continue to secure payment" }),
@@ -239,6 +240,9 @@ describe("donor impact journey", () => {
     expect(
       await screen.findByText(/Live estimate unavailable/i),
     ).toBeInTheDocument();
+    await userEvent.setup().click(
+      screen.getByRole("button", { name: "Continue to your details" }),
+    );
     expect(
       screen.getByRole("button", { name: "Review & continue to secure payment" }),
     ).toBeEnabled();
@@ -296,6 +300,9 @@ describe("donor impact journey", () => {
     const user = userEvent.setup();
     renderDonatePage();
 
+    await user.click(screen.getByRole("button", { name: "Continue to your details" }));
+    await user.clear(screen.getByLabelText("Email"));
+    await user.clear(screen.getByLabelText("Password"));
     await user.click(
       screen.getByRole("button", { name: "Review & continue to secure payment" }),
     );
@@ -305,7 +312,7 @@ describe("donor impact journey", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/Use at least 6 characters/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "How would you like to give?" }),
+      screen.getByRole("heading", { name: "Your details" }),
     ).toBeInTheDocument();
   });
 
@@ -314,6 +321,7 @@ describe("donor impact journey", () => {
     const user = userEvent.setup();
     renderDonatePage();
 
+    await user.click(screen.getByRole("button", { name: "Continue to your details" }));
     await user.click(screen.getByLabelText(/Create a donor profile/i));
     await user.type(screen.getByLabelText("Email"), "alex@example.com");
     await user.type(screen.getByLabelText("Password"), "secret1");
@@ -352,13 +360,18 @@ describe("donor impact journey", () => {
         name: /Four more chances to move, learn, and shine/i,
       }),
     ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Continue to your details" }));
     await user.click(screen.getByLabelText(/Create a donor profile/i));
+    await user.clear(screen.getByLabelText("Unique nickname"));
     await user.type(screen.getByLabelText("Unique nickname"), "Alex Private");
+    await user.clear(screen.getByLabelText("Name (optional)"));
     await user.type(screen.getByLabelText("Name (optional)"), "Alex Private");
+    await user.clear(screen.getByLabelText("Email"));
     await user.type(
       screen.getByLabelText("Email"),
       "private@example.com",
     );
+    await user.clear(screen.getByLabelText("Password"));
     await user.type(screen.getByLabelText("Password"), "secret1");
     await user.click(screen.getByRole("button", { name: "Review & continue to secure payment" }));
     await user.click(
@@ -380,7 +393,7 @@ describe("donor impact journey", () => {
       (entry) => entry.event === "donation_success_displayed",
     )).toBe(true);
     expect(await screen.findByRole("heading", { name: /What your HK\$600 gift is expected to set in motion/i })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: /Three more chances to move, learn, and shine/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Three more chances to move, learn, and shine/i })).toBeInTheDocument();
     expect(screen.getByText(/planning estimate, not a promise/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "How Love 21 will verify it" })).toBeInTheDocument();
     expect(screen.getByText(/Quarter close/i)).toBeInTheDocument();

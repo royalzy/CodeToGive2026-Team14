@@ -108,6 +108,7 @@ describe("client-side analytics events", () => {
     renderDonate();
     await user.click(screen.getByLabelText("Discover a Talent"));
     await user.click(screen.getByRole("button", { name: "HK$600" }));
+    await user.click(screen.getByRole("button", { name: "Continue to your details" }));
     await user.click(
       screen.getByLabelText(/Give completely anonymously/i),
     );

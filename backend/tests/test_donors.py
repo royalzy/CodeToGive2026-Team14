@@ -182,7 +182,7 @@ def test_wall_post_is_private_owned_and_limited_to_one_per_donation() -> None:
     assert too_long.status_code == 422
 
 
-def test_public_wall_exposes_nickname_message_time_without_identity() -> None:
+def test_public_wall_only_exposes_approved_posts_without_identity() -> None:
     donor = TestClient(app)
     register(donor, email="pubwall@example.com", nickname="Public Wall Donor")
     donation_id = donate(donor, 600)
@@ -193,9 +193,19 @@ def test_public_wall_exposes_nickname_message_time_without_identity() -> None:
     assert created.status_code == 201
 
     anonymous_visitor = TestClient(app)
-    feed = anonymous_visitor.get("/api/v1/donor-wall/public")
-    assert feed.status_code == 200
-    posts = feed.json()
+    pending_feed = anonymous_visitor.get("/api/v1/donor-wall/public")
+    assert pending_feed.status_code == 200
+    assert all(post["nickname"] != "Public Wall Donor" for post in pending_feed.json())
+
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE donor_wall_posts SET status = 'approved' WHERE id = ?",
+            (created.json()["id"],),
+        )
+
+    approved_feed = anonymous_visitor.get("/api/v1/donor-wall/public")
+    assert approved_feed.status_code == 200
+    posts = approved_feed.json()
     assert any(
         post["nickname"] == "Public Wall Donor"
         and post["message"] == "Proud to support this work."
@@ -205,3 +215,13 @@ def test_public_wall_exposes_nickname_message_time_without_identity() -> None:
     assert len(exposed) == 1
     sample = next(post for post in posts if post["nickname"] == "Public Wall Donor")
     assert set(sample) == {"id", "nickname", "message", "created_at"}
+
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE donor_wall_posts SET status = 'rejected' WHERE id = ?",
+            (created.json()["id"],),
+        )
+
+    rejected_feed = anonymous_visitor.get("/api/v1/donor-wall/public")
+    assert rejected_feed.status_code == 200
+    assert all(post["nickname"] != "Public Wall Donor" for post in rejected_feed.json())

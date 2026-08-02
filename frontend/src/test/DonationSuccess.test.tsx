@@ -48,6 +48,7 @@ describe("DonationSuccess wall persistence", () => {
           donorName="Retry Donor"
           donorEmail="retry@example.com"
           anonymous={false}
+          causeLabel="Discover a Talent"
           onStayInvolved={() => undefined}
         />
       </MemoryRouter>,

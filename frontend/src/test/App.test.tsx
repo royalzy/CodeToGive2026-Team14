@@ -125,14 +125,7 @@ describe("donor community experience", () => {
     // wall (`/donor-wall/me`) and the public feed (`/donor-wall/public`).
     vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
       const url = String(input);
-      const body = url.endsWith("/donor-wall/public")
-        ? [{
-            id: "WALL-PUBLIC",
-            nickname: "Public Donor",
-            message: "Open to everyone.",
-            created_at: "2026-08-02T02:06:00+00:00",
-          }]
-        : [wallPost];
+      const body = url.endsWith("/donor-wall/public") ? [] : [wallPost];
       return new Response(JSON.stringify(body), {
         status: 200,
         headers: { "Content-Type": "application/json" },
@@ -409,6 +402,7 @@ describe("closed-loop forms", () => {
         name: /Four more chances to move, learn, and shine/i,
       }),
     ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Continue to your details" }));
     await user.click(screen.getByLabelText(/Give completely anonymously/i));
     await user.click(
       screen.getByRole("button", { name: "Review & continue to secure payment" }),

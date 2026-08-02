@@ -4,6 +4,7 @@ import { Check, X } from "lucide-react";
 
 import { StatusPanel } from "../components/Cards";
 import { VolunteerSessionCard } from "../components/volunteer/VolunteerSessionCard";
+import { VolunteerStoryVideo } from "../components/volunteer/VolunteerStoryVideo";
 import { VolunteerTestimonialMarquee } from "../components/volunteer/VolunteerTestimonialMarquee";
 import { programs } from "../content/programs";
 import {
@@ -131,6 +132,12 @@ export function VolunteerRolePage() {
           </div>
         </section>
       )}
+
+      <section className="section volunteer-story-section">
+        <div className="shell">
+          <VolunteerStoryVideo role={role} journeyPath={journeyPath} />
+        </div>
+      </section>
 
       <section id="demo-session" className="section volunteer-role-next-section">
         <div className="shell">

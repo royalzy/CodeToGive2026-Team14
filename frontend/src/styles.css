@@ -2991,12 +2991,10 @@ section.volunteer-ways-section {
 
 @keyframes bentoCardIn {
   from {
-    opacity: 0;
     transform: translateY(14px);
   }
 
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
@@ -4172,36 +4170,30 @@ section.volunteer-ways-section {
 
 @keyframes quizCardIn {
   from {
-    opacity: 0;
     transform: translateY(18px) scale(0.985);
   }
 
   to {
-    opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 
 @keyframes quizOptionIn {
   from {
-    opacity: 0;
     transform: translateX(-10px);
   }
 
   to {
-    opacity: 1;
     transform: translateX(0);
   }
 }
 
 @keyframes quizPromptIn {
   from {
-    opacity: 0;
     transform: translateY(10px);
   }
 
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
@@ -4258,12 +4250,10 @@ section.volunteer-ways-section {
 
 @keyframes quizArchetypeIn {
   from {
-    opacity: 0;
     transform: translateY(14px) scale(0.96);
   }
 
   to {
-    opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
@@ -7659,6 +7649,10 @@ section.volunteer-ways-section {
   color: var(--donor-muted);
   font-size: 0.83rem;
   font-weight: 500;
+}
+
+.donate-a-flow-card .cause-card:has(input:checked) .cause-card-copy small {
+  color: var(--ink);
 }
 
 .donate-a-flow-card .donation-amount-grid button {

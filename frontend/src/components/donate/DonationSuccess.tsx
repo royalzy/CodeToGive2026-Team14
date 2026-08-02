@@ -11,47 +11,6 @@ import { causeStampImages } from "../../lib/donationShareImage";
 import { DonationReceipt } from "./DonationReceipt";
 import { DonationShareModal } from "./DonationShareModal";
 import { ImpactCard } from "./ImpactCard";
-
-const programmeDetails = {
-  where_needed_most: {
-    focus: "the highest verified programme need at the next allocation review",
-    access: "coach time, accessible venue use, participant transport, or urgent family support where current records show the clearest gap",
-  },
-  dance: {
-    focus: "coached dance and creative movement delivery",
-    access: "trained coaches, accessible rehearsal space, participant transport, performance preparation, and the support needed to join confidently",
-  },
-  sports: {
-    focus: "supported sport and movement sessions",
-    access: "qualified coaching, accessible venues, safe equipment, participant transport, and adaptations that keep the activity genuinely inclusive",
-  },
-  nutrition: {
-    focus: "nutrition consultations and practical healthy-living workshops",
-    access: "dietitian time, fresh ingredients, accessible learning materials, family follow-up, and the support needed to practise new habits at home",
-  },
-  family_support: {
-    focus: "family and caregiver support",
-    access: "case-worker time, transport, practical resources, counselling access, and follow-up for families navigating an immediate need",
-  },
-} as const;
-
-function describeBackendEstimate(result: DonationIntentResult) {
-  const impact = result.impact;
-  if (impact.mode === "counted") {
-    const unitLabels: Record<string, string> = {
-      dance_training_session: "coached dance training sessions",
-      sports_session: "supported sports sessions",
-      nutrition_consultation: "nutrition consultations",
-      family_support_opportunity: "family support opportunities",
-    };
-    const unitLabel = unitLabels[impact.unit_key] ?? "programme opportunities";
-    return `The backend estimate associates this gift with approximately ${impact.estimated_units.toLocaleString("en-HK")} ${unitLabel}. The final record will use delivered activity, not this estimate.`;
-  }
-  if (impact.mode === "contribution") {
-    return "This amount contributes toward the next complete unit of programme delivery. We will report the delivered work without rounding a partial contribution up into a result.";
-  }
-  return "This flexible gift will be assigned at the next allocation review to the highest verified need. The final record will identify the programme and delivered work rather than implying a result today.";
-}
 import { DonationImpactBreakdown } from "./DonationImpactBreakdown";
 
 export function DonationSuccess({
@@ -71,7 +30,6 @@ export function DonationSuccess({
 }) {
   const [showOnWall, setShowOnWall] = useState(true);
   const [message, setMessage] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [wallPost, setWallPost] = useState<DonorWallPost | null>(null);
   const [wallError, setWallError] = useState<string | null>(null);
@@ -156,6 +114,11 @@ export function DonationSuccess({
       <p className="reference">
         Demo reference: <strong>{result.donation_intent_id}</strong>
       </p>
+      <div className="simulation-confirmation">
+        {anonymous
+          ? "Simulation complete — no money was charged and no personal information was attached to this gift."
+          : "Simulation complete — no money was charged. This demo gift is now stored in your donor profile."}
+      </div>
       <DonationReceipt
         result={result}
         donorName={donorName}
@@ -174,7 +137,7 @@ export function DonationSuccess({
             imageSrc={causeStampImages[result.impact.cause_id]}
           />
         </div>
-        <p className="eyebrow">Expected impact</p>
+        <p className="eyebrow">Backend-calculated expected impact</p>
         <h3 id="donation-outcome-title">What your {amountLabel} gift is expected to set in motion.</h3>
         <p className="donation-outcome-lede"><strong>{impactMessage.headline}</strong> This is a planning estimate, not a promise that one gift alone caused an outcome. We will replace it with verified programme records after delivery.</p>
         <DonationImpactBreakdown impact={result.impact} />

@@ -243,7 +243,7 @@ function HeroMythCheck() {
   }
 
   return (
-    <div className="hero-myth" aria-live="polite">
+    <aside className="hero-myth" aria-label="Myth check" aria-live="polite">
       <p className="hero-myth-kick">{round.kick}</p>
       <ul className="hero-myth-list">
         {round.statements.map((st, i) => {
@@ -295,7 +295,7 @@ function HeroMythCheck() {
           </Link>
         </div>
       )}
-    </div>
+    </aside>
   );
 }
 

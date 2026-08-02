@@ -1,0 +1,27 @@
+graph LR
+    U["访客<br/>家庭 · 志愿者 · 捐赠者"]
+    FE["体验层 · React + Vite<br/>看见影响 · 志愿匹配 · 透明捐赠<br/>English / 繁體中文"]
+    API["业务层 · FastAPI<br/>数据校验 · 规则匹配 · 影响计算"]
+    DB[("数据层 · SQLite<br/>会员 · 预约 · 模拟捐赠")]
+    CONTENT["内容模块<br/>故事 · 活动 · 双语文案"]
+    EXT["可选外部服务<br/>Umami · Meta · Cloudinary"]
+
+    U -->|浏览与行动| FE
+    CONTENT -->|驱动页面| FE
+    FE -->|API 请求| API
+    API -->|结果反馈| FE
+    API -->|必要数据| DB
+    FE -.匿名统计.-> EXT
+    API -.社交发布.-> EXT
+
+    classDef audience fill:#FFF4E6,stroke:#E58A2B,color:#3C2A18,stroke-width:2px;
+    classDef frontend fill:#EAF7F1,stroke:#2D8C69,color:#173F32,stroke-width:2px;
+    classDef backend fill:#EDF3FF,stroke:#4D75C9,color:#20345E,stroke-width:2px;
+    classDef data fill:#F5EDFF,stroke:#8C62B6,color:#3D2855,stroke-width:2px;
+    classDef support fill:#F7F7F7,stroke:#8A8A8A,color:#333333,stroke-width:1.5px;
+
+    class U audience;
+    class FE frontend;
+    class API backend;
+    class DB data;
+    class CONTENT,EXT support;

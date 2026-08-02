@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const e2eDatabasePath = `/tmp/love21-playwright-${process.pid}.db`;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -12,9 +14,9 @@ export default defineConfig({
   webServer: [
     {
       command:
-        "ALLOWED_ORIGINS=http://127.0.0.1:5183 ../backend/.venv/bin/python -m uvicorn app.main:app --app-dir ../backend --host 127.0.0.1 --port 8010",
+        `LOVE21_DB_PATH=${e2eDatabasePath} ALLOWED_ORIGINS=http://127.0.0.1:5183 ../backend/.venv/bin/python -m uvicorn app.main:app --app-dir ../backend --host 127.0.0.1 --port 8010`,
       url: "http://127.0.0.1:8010/api/health",
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: false,
       timeout: 120_000,
     },
     {

@@ -91,6 +91,7 @@ test("visitor can complete the donation simulation", async ({ page }) => {
       name: /Four more chances to move, learn, and shine/i,
     }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "Continue to your details" }).click();
   await page.getByLabel(/Create a donor profile/i).check();
   await page.getByLabel("Unique nickname").fill(`Alex Chan ${unique}`);
   await page.getByLabel("Name (optional)").fill("Alex Chan");
@@ -124,6 +125,7 @@ test("donation impact journey remains usable on mobile", async ({ page }) => {
     }),
   ).toBeVisible();
   await expect(page.getByText(/Demonstration estimates/i)).toBeVisible();
+  await page.getByRole("button", { name: "Continue to your details" }).click();
   await page.getByLabel(/Give completely anonymously/i).check();
   await page
     .getByRole("button", { name: "Review & continue to secure payment" })

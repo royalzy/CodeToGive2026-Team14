@@ -29,6 +29,11 @@ export function DonorDetailsForm({
     onChange({
       ...value,
       anonymous,
+      donorName: anonymous ? "" : value.donorName,
+      donorEmail: anonymous ? "" : value.donorEmail,
+      donorNickname: anonymous ? "" : value.donorNickname,
+      donorPassword: anonymous ? "" : value.donorPassword,
+      consentToUpdates: anonymous ? false : value.consentToUpdates,
     });
   }
 
@@ -48,7 +53,7 @@ export function DonorDetailsForm({
 
       {value.anonymous ? (
         <>
-          <div className="anonymous-confirmation" role="status">Your name, email and password won't be submitted. You can continue without creating or signing into a donor profile.</div>
+          <div className="anonymous-confirmation" role="status">Identity fields have been cleared. You can continue without creating or signing into a donor profile.</div>
           <label className="consent-row">
             <input
               type="checkbox"
